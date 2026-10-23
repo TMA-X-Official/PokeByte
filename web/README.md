@@ -1,4 +1,6 @@
-# TamaPoke web installer
+# PokéByte — Original TamaPoke web installer documentation
+
+> **Note:** This directory currently contains the **upstream TamaPoke hardware installer**, not a modified PokéByte device firmware. PokéByte Windows development is on the [`pc-original-emulator`](https://github.com/TMA-X-Official/PokeByte/tree/pc-original-emulator) branch. Do not confuse this page with a PokéByte upgrade or erase existing saves.
 
 A one-click page that flashes the firmware and loads the sprites from the browser
 (Chrome/Edge), with no Arduino or drivers. It uses
@@ -35,7 +37,7 @@ cd web && python3 -m http.server 8000
 
 ## End-user flow
 
-1. **Install TamaPoke** → flashes the firmware (pick the USB port; tick "Erase
+1. **Install TamaPoke** (the original installer button) → flashes the upstream firmware (pick the USB port; tick "Erase
    device" for a fresh board).
 2. **Connect board** + **Load sprites** → downloads `sprites.pak` and copies it to
    the microSD over USB (progress bar, ~8–10 min). Close the step-1 install tab
