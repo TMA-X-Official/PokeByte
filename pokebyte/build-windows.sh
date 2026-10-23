@@ -16,7 +16,15 @@ for dll in SDL2.dll libwinpthread-1.dll; do
 done
 mkdir -p "$OUT/tools/sdcard" "$OUT/assets"
 cp -r tools/sdcard/mons "$OUT/tools/sdcard/mons"
-if [ -f pokebyte/assets/sunset-forest.bmp ]; then cp pokebyte/assets/sunset-forest.bmp "$OUT/assets/"; fi
+# Rebuild the exact approved 466x466 grass meadow directly from tracked PNG artwork.
+if [ -f pokebyte/assets/meadow-v2.png ]; then
+  python pokebyte/build_meadow_asset.py pokebyte/assets/meadow-v2.png "$OUT/assets/sunset-forest.bmp"
+elif [ -f pokebyte/assets/sunset-forest.bmp ]; then
+  cp pokebyte/assets/sunset-forest.bmp "$OUT/assets/"
+else
+  echo "ERROR: PokéByte meadow artwork is missing" >&2
+  exit 1
+fi
 cat > "$OUT/PLAY-POKEBYTE.bat" <<'BAT'
 @echo off
 cd /d "%~dp0"
