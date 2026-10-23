@@ -41,9 +41,9 @@ void init(){
  std::string selection;
  if(cfg&&std::getline(cfg,selection)&&selection=="original")forestEnabled=false;
  if(loadBMP("assets/sunset-forest.bmp")||loadBMP("pokebyte/assets/sunset-forest.bmp")){
-  std::cout<<"PokeByte: sunset forest loaded. Press B to change backgrounds.\n";
+  std::cout<<"PokeByte: sunset meadow loaded. Press B to change backgrounds.\n";
  }else{
-  std::cerr<<"PokeByte: sunset art missing; original background available.\n";
+  std::cerr<<"PokeByte: Meadow art missing; original background available.\n";
  }
 }
 }
@@ -55,9 +55,9 @@ bool pokebyteDrawSceneOverride(Arduino_Canvas *canvas){
 }
 void pokebyteToggleBackground(){
  init();
- if(forest.empty()){std::cerr<<"Sunset scenery not installed.\n";return;}
+ if(forest.empty()){std::cerr<<"Meadow scenery not installed.\n";return;}
  forestEnabled=!forestEnabled;
  std::ofstream cfg("pokebyte-background.cfg",std::ios::trunc);
  if(cfg)cfg<<(forestEnabled?"forest":"original")<<"\n";
- std::cout<<"PokeByte scenery: "<<(forestEnabled?"sunset forest":"original TamaPoke")<<"\n";
+ std::cout<<"PokeByte scenery: "<<(forestEnabled?"sunset meadow":"original TamaPoke")<<"\n";
 }
