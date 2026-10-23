@@ -1,6 +1,10 @@
-# Credits
+# PokéByte — Credits and attribution
 
-TamaPoke is a **non-commercial, personal-use** project. It does not sell or
+**PokéByte** is a non-commercial personal fan project, based on the original
+[TamaPoke](https://github.com/socquique/TamaPoke) firmware created by
+**socquique**. Original source copyright notices and the MIT license are retained.
+
+PokéByte is a **non-commercial, personal-use** project. It does not sell or
 commercially redistribute any copyrighted material. Pokémon and all related
 names, designs and characters are trademarks and © of **Nintendo / Game Freak /
 The Pokémon Company**.
@@ -38,4 +42,4 @@ Huge thanks to that whole community for an enormous amount of work.
 | Board and pinout | [Waveshare ESP32-S3-Touch-AMOLED-1.75](https://www.waveshare.com/wiki/ESP32-S3-Touch-AMOLED-1.75) |
 | Web installer | [ESP Web Tools](https://esphome.github.io/esp-web-tools/) (Nabu Casa) |
 
-TamaPoke's own code (firmware and tools) is original work.
+The original firmware, assets pipeline and tools were developed for **TamaPoke by socquique**. New PokéByte desktop-port and enhancement contributions are maintained separately. This fork does not claim authorship of the original game.
