@@ -47,6 +47,11 @@ jobs:
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
 
+      - name: Verify the grass meadow artwork is packaged
+        run: |
+          test -s pc/build/windows/PokeByte-Phase1-PC/assets/sunset-forest.bmp
+          python -c 'import struct; h=open("pc/build/windows/PokeByte-Phase1-PC/assets/sunset-forest.bmp","rb").read(54); assert h[:2]==b"BM" and struct.unpack_from("<ii",h,18)==(466,466)'
+
       - name: Windows startup and screenshot verification
         timeout-minutes: 2
         run: |
