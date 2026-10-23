@@ -1,6 +1,12 @@
-name: PokeByte original Windows PC build
+name: PokeByte original TamaPoke Windows PC
 
 on:
+  push:
+    branches:
+      - pc-original-emulator
+    paths:
+      - pc-port.tar.xz.b64
+      - .github/workflows/pokebyte-windows-pc.yml
   workflow_dispatch:
 
 permissions:
@@ -25,25 +31,28 @@ jobs:
             tar
             xz
 
-      - name: Unpack original-game desktop compatibility layer
+      - name: Verify and unpack desktop compatibility layer
         run: |
           base64 --decode pc-port.tar.xz.b64 > port.tar.xz
+          echo '302077390e4276f13a7491956f4347810b530958ec7ce9bfce5014016dcfa72c  port.tar.xz' | sha256sum --check
           tar -xJf port.tar.xz
           test -f pc/desktop_main.cpp
+          test -f pc/build-windows.sh
 
       - name: Compile original TamaPoke for Windows
         run: bash pc/build-windows.sh
 
-      - name: Smoke-test Windows executable
+      - name: Test Windows executable
         run: |
           cd pc/build/windows/TamaPoke-Original-PC
           SDL_VIDEODRIVER=dummy ./TamaPoke-Original-PC.exe --screenshot --test-home
           test -s tamapoke-test.ppm
           rm -f tamapoke-test.ppm tamapoke_pc_save.dat
 
-      - name: Publish playable Windows download
+      - name: Upload playable Windows build
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-original-PC-Windows
+          name: PokeByte-Original-Windows-PC
           path: pc/build/windows/TamaPoke-Original-PC/
           if-no-files-found: error
+          retention-days: 30
