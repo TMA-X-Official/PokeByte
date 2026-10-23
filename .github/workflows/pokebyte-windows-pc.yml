@@ -1,11 +1,6 @@
 name: PokeByte original Windows PC build
 
 on:
-  push:
-    branches: [pc-original-emulator]
-    paths:
-      - 'pc-port.tar.xz.b64'
-      - '.github/workflows/pokebyte-windows-pc.yml'
   workflow_dispatch:
 
 permissions:
