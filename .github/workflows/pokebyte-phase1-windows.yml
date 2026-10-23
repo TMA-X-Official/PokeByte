@@ -47,16 +47,23 @@ jobs:
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
 
-      - name: Windows startup and original touch interaction tests
+      - name: Windows startup and screenshot verification
+        timeout-minutes: 2
         run: |
           cd pc/build/windows/PokeByte-Phase1-PC
-          SDL_VIDEODRIVER=dummy ./PokeByte-Phase1-PC.exe --screenshot --test-home
+          SDL_VIDEODRIVER=dummy timeout 45s ./PokeByte-Phase1-PC.exe --screenshot --test-home
           test -s tamapoke-test.ppm
           rm -f tamapoke-test.ppm tamapoke_pc_save.dat
-          SDL_VIDEODRIVER=dummy ./PokeByte-Phase1-PC.exe --smoke
+
+      - name: Windows touch and swipe smoke test
+        timeout-minutes: 2
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          SDL_VIDEODRIVER=dummy timeout 45s ./PokeByte-Phase1-PC.exe --smoke
           rm -f tamapoke_pc_save.dat
 
       - name: Upload Windows executable and original sprites
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: PokeByte-Phase1-Windows-Test
