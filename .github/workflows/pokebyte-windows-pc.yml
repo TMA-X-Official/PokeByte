@@ -1,0 +1,54 @@
+name: PokeByte original Windows PC build
+
+on:
+  push:
+    branches: [pc-original-emulator]
+    paths:
+      - 'pc-port.tar.xz.b64'
+      - '.github/workflows/pokebyte-windows-pc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-pc:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+            tar
+            xz
+
+      - name: Unpack original-game desktop compatibility layer
+        run: |
+          base64 --decode pc-port.tar.xz.b64 > port.tar.xz
+          tar -xJf port.tar.xz
+          test -f pc/desktop_main.cpp
+
+      - name: Compile original TamaPoke for Windows
+        run: bash pc/build-windows.sh
+
+      - name: Smoke-test Windows executable
+        run: |
+          cd pc/build/windows/TamaPoke-Original-PC
+          SDL_VIDEODRIVER=dummy ./TamaPoke-Original-PC.exe --screenshot --test-home
+          test -s tamapoke-test.ppm
+          rm -f tamapoke-test.ppm tamapoke_pc_save.dat
+
+      - name: Publish playable Windows download
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-original-PC-Windows
+          path: pc/build/windows/TamaPoke-Original-PC/
+          if-no-files-found: error
