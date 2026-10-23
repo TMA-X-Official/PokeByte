@@ -11,6 +11,6 @@ s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
     if(e.type==0x300){ uint32_t key=0;std::memcpy(&key,e.padding+20,sizeof(key));
       if(key=='b'||key=='B')pokebyteToggleBackground(); }
 ''',1)
-s=s.replace('TamaPoke - Original PC Emulator','PokeByte - Sunset Forest | B: Toggle Background',1)
+s=s.replace('TamaPoke - Original PC Emulator','PokeByte - Sunset Meadow | B: Toggle Background',1)
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
