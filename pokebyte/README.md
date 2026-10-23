@@ -1,11 +1,13 @@
-# PokéByte — Phase 1: Visual upgrade
+# PokéByte Phase 1 v2 — Sunset Meadow (Windows playtest)
 
-The game keeps the original TamaPoke v1.17 gameplay, Pokémon sprite files, menus, minigame and swipe logic. The optional scene hook is guarded with `POKEBYTE_PC`: ESP32 firmware builds use the original renderer unchanged.
+**What changed:** The previous lakeside background made Pokémon appear to float. This revision places a broad grassy clearing under the original game sprite at ground level (`PET_GROUND=304`) while preserving the sunset, trees and distant lake.
 
-**Windows:** Double-click `PLAY-POKEBYTE.bat`. Press **B** to switch between Classic and Sunset Forest. Click to tap and hold-drag to swipe. Your scene choice is stored in `pokebyte-background.cfg`, while `tamapoke_pc_save.dat` stores the local save.
+**Original gameplay untouched:** The `POKEBYTE_PC` conditional is only used by the desktop port. The original TamaPoke firmware, sprites, menus, controls, mini-game and Waveshare data remain unchanged. `main` and `pc-original-emulator` remain safe.
 
-**Artwork:** The approved 466×466 sunset forest background is a separate 24-bit BMP included in the assembled Windows testing package at `assets/sunset-forest.bmp`. For a source build, place the asset at `pokebyte/assets/sunset-forest.bmp` before running `pokebyte/build-windows.sh`. If the image is missing, the game automatically shows the original background instead. No SD card files or hardware firmware are changed.
+**Windows:** Extract the ZIP and double-click `PLAY-POKEBYTE.bat`. **B** toggles Classic / Sunset Meadow; `pokebyte-background.cfg` remembers that choice. Mouse click = tap; mouse drag = swipe. Your PC save (`tamapoke_pc_save.dat`) is separate from the physical Waveshare.
 
-**Tests:** Local Linux startup test confirmed that the full-resolution forest renders behind the original game controls and character. The original-background mode and swipe smoke test also passed. Windows CI builds the code and performs a headless startup test. A human Windows playtest is required before Phase 1 is declared finished.
+**Committed artwork:** `pokebyte/assets/meadow-v2.png` is the approved complete 466 × 466 image, cropped and vertically reframed from the mockup to give walking Pokémon a proper grass field. `pokebyte/build_meadow_asset.py` uses Python's standard library to reconstruct the full-resolution Windows BMP. `pokebyte/build-windows.sh` automatically packages it as `assets/sunset-forest.bmp` (the legacy internal filename is intentionally retained for compatibility). No art downloads, Python imaging packages, or SD adapters are required.
 
-Original game: [TamaPoke by socquique](https://github.com/socquique/TamaPoke); original MIT license and PMD SpriteCollab credits are retained.
+**Verification:** The local Linux emulator displayed Bulbasaur and Charmander standing on the grass, original classic scenery was restored using the B-toggle configuration, and the source code has a dedicated GitHub Windows build with a startup screenshot test. Windows interaction and animation quality still need user playtesting before Phase 1 is marked complete.
+
+Credits: based on TamaPoke v1.17 by [socquique](https://github.com/socquique/TamaPoke) (MIT); character copyright Nintendo/Game Freak/The Pokémon Company; original sprites from PMD SpriteCollab (CC BY-NC). Non-commercial fan project.
