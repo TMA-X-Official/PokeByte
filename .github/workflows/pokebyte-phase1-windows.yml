@@ -1,0 +1,65 @@
+name: PokeByte Phase 1 Windows Test
+
+on:
+  push:
+    branches: [pokebyte-deluxe-dev]
+    paths:
+      - 'TamaPoke.ino'
+      - 'pokebyte/**'
+      - '.github/workflows/pokebyte-phase1-windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase1-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-python
+            tar
+            xz
+
+      - name: Restore unchanged hardware emulation layer
+        run: |
+          base64 --decode pc-port.tar.xz.b64 > port.tar.xz
+          echo '302077390e4276f13a7491956f4347810b530958ec7ce9bfce5014016dcfa72c  port.tar.xz' | sha256sum --check
+          tar -xJf port.tar.xz
+          test -f pc/desktop_main.cpp
+
+      - name: Apply PokéByte keyboard and scenery support
+        run: |
+          python pokebyte/apply_pc_patch.py
+          grep -q 'pokebyteToggleBackground' pc/desktop_main.cpp
+
+      - name: Compile original game with optional PokéByte scenery
+        run: bash pokebyte/build-windows.sh
+
+      - name: Windows startup and original touch interaction tests
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          SDL_VIDEODRIVER=dummy ./PokeByte-Phase1-PC.exe --screenshot --test-home
+          test -s tamapoke-test.ppm
+          rm -f tamapoke-test.ppm tamapoke_pc_save.dat
+          SDL_VIDEODRIVER=dummy ./PokeByte-Phase1-PC.exe --smoke
+          rm -f tamapoke_pc_save.dat
+
+      - name: Upload Windows executable and original sprites
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Phase1-Windows-Test
+          path: pc/build/windows/PokeByte-Phase1-PC/
+          if-no-files-found: error
+          retention-days: 30
