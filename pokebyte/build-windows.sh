@@ -31,9 +31,9 @@ cd /d "%~dp0"
 start "" "PokeByte-Phase1-PC.exe" --scale 2
 BAT
 cat > "$OUT/README.txt" <<'TEXT'
-POKEBYTE PHASE 1 - SUNSET FOREST
+POKEBYTE PHASE 1 - GRASS MEADOW V2
 Run PLAY-POKEBYTE.bat on Windows 10/11 (64-bit).
-Press B to switch between the original background and Sunset Forest.
+Press B to switch between the original background and Grass Meadow.
 Click to tap; hold and drag the mouse to swipe the original menus.
 The game remembers your background choice in pokebyte-background.cfg.
 The original TamaPoke v1.17 game logic, interactions and sprites remain intact.
