@@ -1,9 +1,11 @@
-# Changelog
+# PokéByte — Original TamaPoke Firmware Changelog
+
+This document preserves the **upstream TamaPoke firmware history** and credits its original authors and contributors. The original release numbers and technical notes below have not been renamed or rewritten as PokéByte releases. PokéByte development is tracked separately.
 
 All notable changes to the firmware. Versions match the number shown at the
 bottom of the clock/settings screen (swipe down) and `web/manifest.json`.
 
-Updating from the [web installer](https://socquique.github.io/TamaPoke/web/)
+Updating the **original TamaPoke firmware** from the [upstream web installer](https://socquique.github.io/TamaPoke/web/)
 **without** ticking "Erase device" keeps your Pokémon.
 
 ## [1.17] - 2026-09-18
