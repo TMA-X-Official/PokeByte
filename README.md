@@ -1,28 +1,46 @@
-# TamaPoke
+# PokéByte 🎮
 
-[![Flash in browser](https://img.shields.io/badge/flash-in%20browser-FF6B00?logo=googlechrome&logoColor=white)](https://socquique.github.io/TamaPoke/web/)
-[![MakerWorld](https://img.shields.io/badge/MakerWorld-3D%20case-00AE42?logo=bambulab&logoColor=white)](https://makerworld.com/es/models/2937822-tamapoke-a-pokemon-pokeball-tamagotchi)
-![Board](https://img.shields.io/badge/board-ESP32--S3%20round%20AMOLED-E7352C?logo=espressif&logoColor=white)
-![Firmware](https://img.shields.io/badge/firmware-v1.17-8A2BE2)
-[![CI](https://github.com/socquique/TamaPoke/actions/workflows/ci.yml/badge.svg)](https://github.com/socquique/TamaPoke/actions/workflows/ci.yml)
+**Your pocket Pokémon companion — classic TamaPoke gameplay, with thoughtful upgrades ahead.**
+
+[![Windows PC build](https://img.shields.io/badge/Windows-PC%20playable-3578E5?logo=windows&logoColor=white)](https://github.com/TMA-X-Official/PokeByte/actions/runs/40030905560)
+[![Firmware CI](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml/badge.svg)](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml)
+![Original firmware](https://img.shields.io/badge/ESP32%20base-v1.17-8A2BE2)
+![Hardware](https://img.shields.io/badge/hardware-Waveshare%20ESP32--S3-E7352C)
 ![Code](https://img.shields.io/badge/code-MIT-blue)
-![Languages](https://img.shields.io/badge/languages-8-FFCB05)
-[![Stars](https://img.shields.io/github/stars/socquique/TamaPoke?style=flat&logo=github&color=yellow)](https://github.com/socquique/TamaPoke/stargazers)
+[![Stars](https://img.shields.io/github/stars/TMA-X-Official/PokeByte?style=flat&logo=github&color=yellow)](https://github.com/TMA-X-Official/PokeByte/stargazers)
 
-A gen-1-Pokémon-inspired tamagotchi for the
-**Waveshare ESP32-S3-Touch-AMOLED-1.75** (round 466×466 AMOLED, CO5300 driver
-over QSPI, CST9217 touch over I2C). Raise any of the 151, evolve it, train it
-and complete them all (shinies included).
+## Welcome to PokéByte
 
-> **Personal, non-commercial fan project.** Code is MIT; the sprites are from
-> PMD SpriteCollab (CC BY-NC, Pokémon © Nintendo/Game Freak), and the 3D case is
-> CC BY-NC-SA. See **[License](#license)** and **Credits**.
+**PokéByte** is a personal, non-commercial Pokémon-inspired virtual-pet project for **Windows PC** and the **Waveshare ESP32-S3-Touch-AMOLED-1.75** (round 466 × 466 display).
 
-🔴 **3D-printed Pokéball case + print profiles → [on MakerWorld](https://makerworld.com/es/models/2937822-tamapoke-a-pokemon-pokeball-tamagotchi)** · flash it in your browser → **[web installer](https://socquique.github.io/TamaPoke/web/)**
+The project builds on **[TamaPoke by socquique](https://github.com/socquique/TamaPoke)**. Our priority is to **preserve the original Pokémon sprites, animations, swipe menus, minigame and care mechanics**, then introduce optional improvements that can be tested on PC first.
 
-## Status
+### Play the original game on Windows
 
-Running on hardware. Implemented: the 151 + shinies animated from microSD, full
+The original TamaPoke v1.17 gameplay is available as a **PokéByte Windows desktop port**. Visit the [successful Windows build](https://github.com/TMA-X-Official/PokeByte/actions/runs/40030905560), download the Windows build artifact from **Artifacts** (GitHub sign-in may be needed), extract it and double-click `PLAY-TAMAPOKE.bat`. Click to tap; drag with the mouse to swipe. The PC save is separate from your Waveshare.
+
+### Our GitHub branches
+
+| Branch | Purpose |
+| --- | --- |
+| [`main`](https://github.com/TMA-X-Official/PokeByte/tree/main) | Original ESP32 firmware code, with PokéByte-facing documentation |
+| [`pc-original-emulator`](https://github.com/TMA-X-Official/PokeByte/tree/pc-original-emulator) | Original-game Windows emulator and build |
+| [`pokebyte-deluxe-dev`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-deluxe-dev) | Experimental improvements, separate from the working game |
+| [`original-tamapoke-reference`](https://github.com/TMA-X-Official/PokeByte/tree/original-tamapoke-reference) | Preserved original fork snapshot before PokéByte rebranding |
+
+**Important:** The [upstream web installer](https://socquique.github.io/TamaPoke/web/) installs **original TamaPoke firmware**, not a PokéByte upgrade. We have **not** released modified PokéByte firmware for the physical board. Do not erase a device or overwrite a Pokémon save to try the PC build.
+
+### The classic game
+
+Raise any of the original 151 Pokémon (including shiny variants), evolve them, care for them, train them and complete the Pokédex. The existing source targets the **Waveshare ESP32-S3-Touch-AMOLED-1.75**, using a CO5300 QSPI display and CST9217 I²C touch controller.
+
+> **Unofficial, non-commercial fan project.** The firmware and tools inherit their original MIT license. Pokémon characters and names remain the property of Nintendo / Game Freak / The Pokémon Company. The PMD SpriteCollab artwork has its own attribution and non-commercial terms. See [Credits](CREDITS.md) and [License](LICENSE).
+
+---
+
+## Original TamaPoke gameplay (current baseline)
+
+The upstream firmware runs on the Waveshare hardware. Already implemented: the 151 + shinies animated from microSD, full
 life cycle (egg by rarity → evolution → farewell/release/runaway, each gated
 behind a decision dialog), bred-Pokédex with gallery, battle stats (genes +
 training), retention hooks (streak / bond / medals / name), biome + real-time
@@ -31,8 +49,7 @@ progression, battery (AXP2101) and PWR button, anti-burn-in dimming,
 **sound (ES8311)**, **8 UI languages (English default)**, **starter choice on
 first run**, and a one-click **web installer**.
 
-Pending: wild encounters / battle (designed, not implemented), 3D case, soak
-test. See **Roadmap**.
+In the original firmware, wild encounters and battles remain on the roadmap. PokéByte additions will be developed and tested separately.
 
 ## Game manual (the actual numbers)
 
@@ -126,7 +143,7 @@ SPEED ← minigame, DEFENSE ← 12 h of unbroken good care). *(Battles: on the r
 - Board: [ESP32-S3-Touch-AMOLED-1.75](https://www.waveshare.com/wiki/ESP32-S3-Touch-AMOLED-1.75)
   — get the **Standard** (no case) or **-G** (GPS, also fits) version; **not the "-B"**
   (ships with a protective case that won't fit). The separate "1.75**C**" is a different board.
-  - **Where to buy**: [Waveshare store](https://www.waveshare.com/esp32-s3-touch-amoled-1.75.htm) (often on backorder), or the **-G** on Amazon — TamaPoke leaves the GPS unused, the board is otherwise identical: 🇺🇸 [.com](https://www.amazon.com/dp/B0F7XWWMJW?tag=capsuleradar-20) · 🇪🇸 [.es](https://www.amazon.es/dp/B0F7XWWMJW?tag=capsuleradar-21) · 🇩🇪 [.de](https://www.amazon.de/dp/B0F7XWWMJW?tag=capsulerada03-21) · 🇬🇧 [.co.uk](https://www.amazon.co.uk/dp/B0F7XWWMJW?tag=capsulerada0d-21) · 🇮🇹 [.it](https://www.amazon.it/dp/B0F7XWWMJW?tag=capsulerada08-21) · 🇫🇷 [.fr](https://www.amazon.fr/dp/B0F7XWWMJW?tag=capsulerada0e-21) · 🇯🇵 [.co.jp](https://www.amazon.co.jp/dp/B0F7XWWMJW?tag=capsuleradar-22) · 🇨🇦 [.ca](https://www.amazon.ca/dp/B0F7XWWMJW?tag=capsulerada09-20). Optional battery — 1100 mAh protected LiPo, MX1.25 plug: 🇪🇸 [.es](https://www.amazon.es/dp/B0F1FGZQS5?tag=capsuleradar-21) · 🇺🇸 [.com](https://www.amazon.com/dp/B0F1FGZQS5?tag=capsuleradar-20) · 🇮🇹 [.it](https://www.amazon.it/dp/B0F1FGZQS5?tag=capsulerada08-21) · 🇫🇷 [.fr](https://www.amazon.fr/dp/B0F1FGZQS5?tag=capsulerada0e-21) (DE/UK: that exact pack is not listed — search for a *protected* 3.7 V LiPo, ~1100 mAh, size **102540**, 1.25 mm micro-JST plug) — check plug polarity against the board first. <sub>Amazon links are affiliate links; as an Amazon Associate I earn from qualifying purchases.</sub>
+  - **Where to buy**: [Waveshare store](https://www.waveshare.com/esp32-s3-touch-amoled-1.75.htm) (often on backorder), or the **-G** on Amazon — the original firmware leaves the GPS unused, the board is otherwise identical: 🇺🇸 [.com](https://www.amazon.com/dp/B0F7XWWMJW?tag=capsuleradar-20) · 🇪🇸 [.es](https://www.amazon.es/dp/B0F7XWWMJW?tag=capsuleradar-21) · 🇩🇪 [.de](https://www.amazon.de/dp/B0F7XWWMJW?tag=capsulerada03-21) · 🇬🇧 [.co.uk](https://www.amazon.co.uk/dp/B0F7XWWMJW?tag=capsulerada0d-21) · 🇮🇹 [.it](https://www.amazon.it/dp/B0F7XWWMJW?tag=capsulerada08-21) · 🇫🇷 [.fr](https://www.amazon.fr/dp/B0F7XWWMJW?tag=capsulerada0e-21) · 🇯🇵 [.co.jp](https://www.amazon.co.jp/dp/B0F7XWWMJW?tag=capsuleradar-22) · 🇨🇦 [.ca](https://www.amazon.ca/dp/B0F7XWWMJW?tag=capsulerada09-20). Optional battery — 1100 mAh protected LiPo, MX1.25 plug: 🇪🇸 [.es](https://www.amazon.es/dp/B0F1FGZQS5?tag=capsuleradar-21) · 🇺🇸 [.com](https://www.amazon.com/dp/B0F1FGZQS5?tag=capsuleradar-20) · 🇮🇹 [.it](https://www.amazon.it/dp/B0F1FGZQS5?tag=capsulerada08-21) · 🇫🇷 [.fr](https://www.amazon.fr/dp/B0F1FGZQS5?tag=capsulerada0e-21) (DE/UK: that exact pack is not listed — search for a *protected* 3.7 V LiPo, ~1100 mAh, size **102540**, 1.25 mm micro-JST plug) — check plug polarity against the board first. <sub>Some links in the original hardware guide were affiliate links provided by the upstream author.</sub>
   - **MicroSD card** (holds the sprite set — any small, class-10 card works): 🇪🇸 [.es](https://www.amazon.es/s?k=microsd+32gb&tag=capsuleradar-21) · 🇺🇸 [.com](https://www.amazon.com/s?k=microsd+32gb&tag=capsuleradar-20) · 🇩🇪 [.de](https://www.amazon.de/s?k=microsd+32gb&tag=capsulerada03-21) · 🇬🇧 [.co.uk](https://www.amazon.co.uk/s?k=microsd+32gb&tag=capsulerada0d-21) · 🇮🇹 [.it](https://www.amazon.it/s?k=microsd+32gb&tag=capsulerada08-21) · 🇫🇷 [.fr](https://www.amazon.fr/s?k=microsd+32gb&tag=capsulerada0e-21) · 🇯🇵 [.co.jp](https://www.amazon.co.jp/s?k=microsd+32gb&tag=capsuleradar-22) · 🇨🇦 [.ca](https://www.amazon.ca/s?k=microsd+32gb&tag=capsulerada09-20)
 - Round 466×466 AMOLED, **CO5300** driver (QSPI, 80 MHz)
 - Capacitive touch **CST9217** (I2C, address 0x5A)
@@ -158,7 +175,7 @@ arduino-cli compile --fqbn "$FQBN" .
 arduino-cli upload -p /dev/cu.usbmodemXXXX --fqbn "$FQBN" .
 ```
 
-### Easiest install: the web installer
+### Original firmware web installer (not a PokéByte update)
 
 `web/index.html` flashes the firmware (ESP Web Tools) and pushes the sprites to
 the SD over Web Serial, no Arduino needed. Serve it over HTTPS or `localhost`
@@ -341,7 +358,7 @@ runaway-ready state) · `WIPE` (factory reset → new game) · `BEEP` (audio tes
 
 To test fast: lower `PET_TICK_MS`, `MINUTES_PER_LEVEL` and `FAREWELL_AGE_MIN` in `pet.h`.
 
-## Roadmap
+## Original TamaPoke roadmap (upstream)
 
 - **Wild encounters / battle** — designed (see project memory): resolution by
   ATK/DEF/SPD with PMD Attack/Hurt animations, trainer rank as endgame. Style
@@ -350,12 +367,14 @@ To test fast: lower `PET_TICK_MS`, `MINUTES_PER_LEVEL` and `FAREWELL_AGE_MIN` in
 
 *(Done: 3D-printed case [published on MakerWorld](https://makerworld.com/es/models/2937822-tamapoke-a-pokemon-pokeball-tamagotchi); repo public with the browser installer + one-click sprite bundle.)*
 
-## Community forks
+## Other TamaPoke community forks
 
 - **[TamaPoke — Expanded](https://github.com/ShadowEnemyx/TamaPoke/tree/tamapoke-expanded-update)** by **ShadowEnemy** — a substantial community fork (different author/branch): a full **type-matchup battle system**, all **151 + shinies** with a **Pokédex / collection box** and daily goals, **6 UI languages**, **ES8311 sound**, starter choice and a one-click web installer. Worth a look. 🎮
 - **[TamaPoke](https://github.com/DylanPDao/TamaPoke)** by **DylanPDao** — another substantial fork: **gym battles** and **LAN battles** between two devices, **movesets**, a **party + box** system, an **EV/IV** stat system, and coverage extended **up to Gen 3 (386)**. Keeps the PMD sprite pipeline. 🏆
 
 ## Credits
+
+The original TamaPoke firmware was created by [socquique](https://github.com/socquique/TamaPoke); PokéByte is an independent community fork. Original source credit is retained.
 
 All sprites: [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab)
 (community, CC BY-NC). Base stats: [PokéAPI](https://pokeapi.co). Pokémon is a ™ of
