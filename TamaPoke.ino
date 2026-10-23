@@ -751,6 +751,11 @@ void drawClouds(uint32_t now, uint16_t col) {
 }
 
 void drawScene(uint8_t biome, uint32_t now, bool night) {
+#ifdef POKEBYTE_PC
+  // Desktop-only optional scenery. The Waveshare firmware keeps its original renderer.
+  extern bool pokebyteDrawSceneOverride(Arduino_Canvas *canvas);
+  if (pokebyteDrawSceneOverride(gfx)) return;
+#endif
   int h = sceneHour();
   uint16_t top, bot;
   if (night)            { top = C565(0x0c, 0x12, 0x24); bot = C565(0x1e, 0x26, 0x46); }
