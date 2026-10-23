@@ -27,11 +27,16 @@ jobs:
       - name: Install libraries
         run: arduino-cli lib install "GFX Library for Arduino" SensorLib XPowersLib U8g2
 
+      # Arduino requires the sketch folder to match TamaPoke.ino.
+      # The fork's GitHub repository is named PokeByte; stage a temporary
+      # matching folder without renaming or changing any original game files.
       - name: Compile
-        run: >
-          arduino-cli compile --warnings=all
-          --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB"
-          .
+        run: |
+          mkdir -p "$RUNNER_TEMP/TamaPoke"
+          cp ./*.ino ./*.cpp ./*.h "$RUNNER_TEMP/TamaPoke/"
+          arduino-cli compile --warnings=all \
+            --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
+            "$RUNNER_TEMP/TamaPoke"
 
   generated:
     name: Generated headers up to date
