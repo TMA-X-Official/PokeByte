@@ -26,6 +26,7 @@
 #include "pokebyte/personality_pack01.h"
 #include "pokebyte/personality_pack02.h"
 #include "pokebyte/personality_pack03.h"
+#include "pokebyte/battle_pack01.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -68,6 +69,14 @@ uint8_t pbSurpriseEvent = PB_SURPRISE_NONE;
 uint8_t pbSurpriseStage = 0;
 uint8_t pbSurpriseFollowup = 255;
 uint32_t pbSurpriseWalkTick = 0;
+// Windows-only 1v1 practice battles; no player-save or PMD file modification.
+PBBattleState pbBattle;
+PmdMon pbBattleEnemy;
+bool pbBattleDemoBooted=false;
+void pokebyteBattleRender();
+void pokebyteBattleReturnHome();
+void pokebyteBattleStart(uint16_t enemyDex);
+void pokebyteToggleBattle();
 #endif
 #define PET_GROUND 304  // linea de suelo de la mascota
 PmdMon galleryPmd;  // sprite grande de la vista detalle de la galeria (PMD/TPK2, legal)
@@ -541,7 +550,11 @@ void handleTouch() {
     // pulsacion larga sin moverse sobre el bicho -> dialogo de soltar
     if (!holdFired && !swallowGesture && !galleryOpen && !cardOpen && !kbOpen && !clockOpen && millis() - tStart > 3000 &&
         abs(tXl - tX0) < 30 && abs(tYl - tY0) < 30 && inPetZone(tX0, tY0) &&
-        !pet.isEgg() && !confirmUntil && !pet.ceremony) {
+        !pet.isEgg() && !confirmUntil && !pet.ceremony
+#ifdef POKEBYTE_PC
+        && pbBattle.stage==PB_BATTLE_OFF
+#endif
+        ) {
       confirmUntil = millis() + 10000;
       holdFired = true;
     }
@@ -562,6 +575,9 @@ void handleTouch() {
 void openClock();  // prototipo
 
 void onSwipeV(int dir) {
+#ifdef POKEBYTE_PC
+  if(pbBattle.stage!=PB_BATTLE_OFF)return; // No original menu gestures in battle
+#endif
   if (pet.awaitingStarter()) return;  // bloqueado durante la eleccion de inicial
   if (gameOpen || galleryOpen || kbOpen || sackOpen || pet.ceremony) return;
   if (clockOpen) { clockOpen = false; return; }
@@ -579,6 +595,9 @@ void onSwipeV(int dir) {
 
 // deslizar: dir +1 = hacia la derecha
 void onSwipe(int dir) {
+#ifdef POKEBYTE_PC
+  if(pbBattle.stage!=PB_BATTLE_OFF)return;
+#endif
   if (pet.awaitingStarter()) return;  // bloqueado durante la eleccion de inicial
   if (gameOpen || kbOpen || clockOpen) return;
   if (cardOpen) {  // dentro de la ficha: cambiar entre las 4 paginas
@@ -615,6 +634,40 @@ void onSwipe(int dir) {
 }
 
 void onTap(int16_t x, int16_t y) {
+#ifdef POKEBYTE_PC
+  // Dedicated battle hitboxes. Never let these taps reach feeding/care/menus.
+  if(pbBattle.stage!=PB_BATTLE_OFF){
+    if(y<55 && x<160){pokebyteBattleReturnHome();return;}
+    if(pbBattle.stage==PB_BATTLE_FINISHED){
+      if(y>=345)pokebyteBattleReturnHome();
+      return;
+    }
+    if(pbBattle.stage==PB_BATTLE_MESSAGE)return;
+    if(pbBattle.stage==PB_BATTLE_MENU && y>=362){
+      bool left=x<240, top=y<407;
+      if(top && left)pbBattle.stage=PB_BATTLE_FIGHT;
+      else if(top)pbBattle.stage=PB_BATTLE_BAG;
+      else if(left)pbBattle.stage=PB_BATTLE_PARTY;
+      else pokebyteBattleReturnHome(); // RUN, guaranteed in demo
+      return;
+    }
+    if(pbBattle.stage==PB_BATTLE_FIGHT && y>=357){
+      if(y>=437){pbBattle.stage=PB_BATTLE_MENU;return;}
+      uint8_t slot=(y<397?0:2)+(x>=240?1:0);
+      pbBattleChooseMove(&pbBattle,slot,millis());
+      return;
+    }
+    if(pbBattle.stage==PB_BATTLE_BAG && y>=355){
+      if(y>=420){pbBattle.stage=PB_BATTLE_MENU;return;}
+      pbBattleChoosePotion(&pbBattle,millis());
+      return;
+    }
+    if(pbBattle.stage==PB_BATTLE_PARTY && y>=370){
+      pbBattle.stage=PB_BATTLE_MENU;return;
+    }
+    return;
+  }
+#endif
   // Serial.printf("TOUCH %d %d\n", x, y);  // diagnostico (silenciado: satura el log)
   if (pet.awaitingStarter()) {  // primera partida: elegir inicial
     for (int i = 0; i < 3; i++) {
@@ -718,6 +771,17 @@ void onTap(int16_t x, int16_t y) {
       return;
     }
   }
+#ifdef POKEBYTE_PC
+  // New BATTLE control replaces the rejected Forest Trail entirely.
+  // Do not occlude evolve/farewell decisions or reuse care hitboxes.
+  if(x>=319 && x<=434 && y>=266 && y<=307 &&
+     !pet.wantEvolveButton() && !pet.wantFarewellButton() &&
+     !pet.canRunawayNow() && !feedMenuUntil &&
+     pbBattleCanStart(pet.isEgg(),pet.sleeping,pet.ceremony!=CER_NONE,pet.energy)
+     && !pbSurpriseRunning){
+    pokebyteBattleStart(0);return;
+  }
+#endif
   // tocar al bicho = caricia
   if (inPetZone(x, y)) {
     Serial.println("PET");
@@ -1001,6 +1065,20 @@ void printT(const char *s) {
 }
 
 void render() {
+#ifdef POKEBYTE_PC
+  if(pbBattleDemoActive() && !pbBattleDemoBooted && !pet.isEgg()){
+    pbBattleDemoBooted=true;
+    pokebyteBattleStart(pbBattleDemoOpponent());
+  }
+  if(pbBattle.stage!=PB_BATTLE_OFF){
+    if(pet.sleeping||pet.isEgg()||pet.ceremony!=CER_NONE)
+      pokebyteBattleReturnHome();
+    else{
+      pbBattleUpdate(&pbBattle,millis());
+      pokebyteBattleRender();return;
+    }
+  }
+#endif
   if (pet.awaitingStarter()) {  // primera partida: elegir inicial (prioridad total)
     renderStarterSelect();
     return;
@@ -1101,6 +1179,15 @@ void render() {
     drawBars();
     drawButtons();
     drawCelebration();
+#ifdef POKEBYTE_PC
+    if(!pbSurpriseRunning && !pet.wantEvolveButton() &&
+       !pet.canRunawayNow() && !pet.wantFarewellButton() &&
+       pbBattleCanStart(pet.isEgg(),pet.sleeping,pet.ceremony!=CER_NONE,pet.energy)){
+      gfx->fillRoundRect(319,266,115,41,9,C565(0x28,0x50,0x3d));
+      gfx->drawRoundRect(319,266,115,41,9,C565(0xf5,0xe6,0xb0));
+      gfx->setTextColor(UI_WHITE);setSize(2);setCur(339,278);printT("BATTLE");
+    }
+#endif
     if (pet.wantEvolveButton()) drawEvolveButton();        // CTA rojo: evolucionar
     else if (pet.canRunawayNow()) drawRunawayButton();     // CTA sombrio: escapada (abandono)
     else if (pet.wantFarewellButton()) drawFarewellButton();  // CTA dorado: despedida
@@ -1162,6 +1249,136 @@ void render() {
 
   gfx->flush();
 }
+
+
+#ifdef POKEBYTE_PC
+// ------- Phase 4 Pack 01: authentic-sprite 1v1 practice battles --------
+// This UI uses the original approved scenery as its arena and leaves Pet,
+// player save, medals, evolution, and all sprite assets unmodified.
+void pokebyteBattleStart(uint16_t dex){
+ if(pbBattle.stage!=PB_BATTLE_OFF || gameOpen || sackOpen || galleryOpen ||
+    cardOpen || kbOpen || clockOpen || choiceKind || confirmUntil ||
+    !pbBattleCanStart(pet.isEgg(),pet.sleeping,
+                      pet.ceremony!=CER_NONE,pet.energy) ||
+    pbSurpriseRunning)return;
+ if(dex<1 || dex>DEX_COUNT){
+   static const uint8_t starters[]={1,7,25};
+   dex=starters[random(3)];
+ }
+ const DexEntry& own=DEX_TBL[pet.speciesId];
+ const DexEntry& foe=DEX_TBL[dex];
+ // Enemy stats are independent of pet genes/awards.
+ uint16_t level=pet.level();
+ uint16_t eatk=foe.bAtk+level/2;
+ uint16_t edef=foe.bDef+level/2;
+ uint16_t espe=foe.bSpe+level/2;
+ pbBattleStart(&pbBattle,own.bHp,foe.bHp,pet.speciesId,dex,level,
+               pet.atkStat(),pet.defStat(),pet.speStat(),
+               eatk,edef,espe,
+               pbBattleTypeFromAccent(own.accent),
+               pbBattleTypeFromAccent(foe.accent));
+ if(!pbBattleEnemy.load(dex,false)){
+   // Missing PMD file must not break the controls or battle turn logic.
+   pbBattleEnemy.unload();
+ }
+}
+void pokebyteBattleReturnHome(){
+ pbBattleEnemy.unload();
+ pbBattleClose(&pbBattle);
+ beh.mode=0;beh.act=PMD_IDLE;beh.x=beh.targetX=233;
+ beh.t0=millis();beh.until=0;
+}
+void pokebyteToggleBattle(){
+ if(pbBattle.stage!=PB_BATTLE_OFF)pokebyteBattleReturnHome();
+ else pokebyteBattleStart(0);
+}
+void pokebyteBattlePanel(int x,int y,int w,int h,uint16_t bg){
+ gfx->fillRoundRect(x,y,w,h,8,bg);
+ gfx->drawRoundRect(x,y,w,h,8,C565(0x35,0x41,0x48));
+}
+void pokebyteBattleHP(int x,int y,int w,int val,int top){
+ uint16_t green=C565(0x42,0xbc,0x73),amber=C565(0xe8,0xb2,0x46),red=C565(0xd8,0x60,0x52);
+ gfx->fillRoundRect(x,y,w,12,5,C565(0x75,0x7e,0x7b));
+ int filled=(w-4)*val/(top?top:1);
+ if(filled>0)gfx->fillRoundRect(x+2,y+2,filled,8,4,val*4<top?red:val*2<top?amber:green);
+}
+void pokebyteBattleRender(){
+ uint32_t now=millis();
+ gNight=false;
+ drawScene(0,now,false); // approved 5-mode backgrounds; no new BMP fixture
+ const uint16_t ink=C565(0x34,0x45,0x4c);
+ const uint16_t cream=C565(0xfb,0xf6,0xe9);
+ const uint16_t pale=C565(0xe6,0xee,0xe2);
+ // Fast HOME/Run safeguard even while selecting moves or displaying results.
+ gfx->fillRoundRect(20,14,121,33,7,cream);
+ gfx->setTextColor(ink);setSize(2);setCur(29,23);printT("< HOME");
+ pokebyteBattlePanel(23,64,214,80,cream);
+ gfx->setTextColor(ink);setSize(2);
+ char line[55];
+ snprintf(line,sizeof(line),"%s Lv%u",dexName(pbBattle.enemyDex),pbBattle.enemyLevel);
+ setCur(34,75);printT(line);
+ setCur(34,105);printT("HP");pokebyteBattleHP(68,108,153,pbBattle.enemyHp,pbBattle.enemyMaxHp);
+ // Opponent uses the exact same original PMD binary sprite loader.
+ uint8_t enemyAct=pbBattleEnemy.has(PMD_IDLE)?PMD_IDLE:PMD_HURT;
+ if(pbBattleEnemy.has(enemyAct))
+   drawPmdActM(pbBattleEnemy,enemyAct,341,256,now,true,false,3);
+ uint8_t allyAct=PMD_IDLE;
+ if(pbBattle.stage==PB_BATTLE_MESSAGE && pbBattle.lastAction==1 && pbBattle.until>now)
+   allyAct=pmd.has(PMD_ATTACK)?PMD_ATTACK:PMD_IDLE;
+ if(!pmd.has(allyAct))allyAct=PMD_IDLE;
+ if(pmd.has(allyAct))drawPmdAct(allyAct,132,310,now,true,false,3);
+ pokebyteBattlePanel(232,233,206,74,cream);
+ gfx->setTextColor(ink);setSize(2);
+ snprintf(line,sizeof(line),"%s Lv%u",dexName(pet.speciesId),pbBattle.playerLevel);
+ setCur(243,243);printT(line);
+ setCur(243,267);printT("HP");pokebyteBattleHP(273,270,149,pbBattle.playerHp,pbBattle.playerMaxHp);
+ // A classic two-row battle-command panel on the lower circular display.
+ gfx->fillRect(0,314,466,152,C565(0x2e,0x49,0x42));
+ pokebyteBattlePanel(18,325,430,136,cream);
+ gfx->setTextColor(ink);
+ if(pbBattle.stage==PB_BATTLE_MENU){
+   setSize(2);setCur(36,337);printT("What should your Pokemon do?");
+   const char* labels[]={"FIGHT","BAG","POKEMON","RUN"};
+   for(int i=0;i<4;i++){
+     int x=33+(i%2)*214,y=366+(i/2)*43;
+     pokebyteBattlePanel(x,y,188,38,i==0?pale:cream);
+     gfx->setTextColor(ink);setSize(2);
+     setCur(x+(188-textW(labels[i],2))/2,y+11);printT(labels[i]);
+   }
+ }else if(pbBattle.stage==PB_BATTLE_FIGHT){
+   setSize(2);setCur(32,335);printT("Choose a move:");
+   for(int i=0;i<4;i++){
+     const PBBattleMove m=pbBattleMove(pbBattle.playerType,i);
+     int x=26+(i%2)*218,y=358+(i/2)*40;
+     gfx->fillRoundRect(x,y,202,36,5,i%2?pale:cream);
+     gfx->drawRoundRect(x,y,202,36,5,ink);
+     gfx->setTextColor(ink);setSize(2);setCur(x+8,y+5);printT(m.name);
+     char ppLine[24];snprintf(ppLine,sizeof(ppLine),"PP %u/%u",pbBattle.pp[i],m.maxPP);
+     setSize(1);setCur(x+9,y+24);printT(ppLine);
+   }
+   setSize(2);setCur(199,442);printT("< BACK");
+ }else if(pbBattle.stage==PB_BATTLE_BAG){
+   setSize(2);setCur(37,339);printT("Practice bag (battle only)");
+   pokebyteBattlePanel(39,368,388,43,pale);
+   gfx->setTextColor(ink);setSize(2);setCur(61,382);
+   snprintf(line,sizeof(line),"POTION +20 HP (x%u)",pbBattle.potionCount);
+   printT(line);
+   setCur(185,431);printT("< BACK");
+ }else if(pbBattle.stage==PB_BATTLE_PARTY){
+   setSize(2);setCur(42,348);printT("Your only Pokemon is active.");
+   setCur(42,378);printT("Party switching comes later.");
+   setCur(185,428);printT("< BACK");
+ }else if(pbBattle.stage==PB_BATTLE_MESSAGE){
+   setSize(2);setCur(34,357);printT(pbBattle.message);
+   setCur(38,411);printT("Battle turn resolving...");
+ }else{
+   setSize(3);setCur(centerX(pbBattle.message,3),350);printT(pbBattle.message);
+   setSize(2);setCur(centerX("Tap here to go HOME",2),410);
+   printT("Tap here to go HOME");
+ }
+ gfx->flush();
+}
+#endif
 
 // ---------- minijuego: toques con la pokeball ----------
 
