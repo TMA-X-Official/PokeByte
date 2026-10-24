@@ -4,7 +4,7 @@ p=Path("pc/desktop_main.cpp")
 s=p.read_text(encoding="utf-8")
 assert '#include "sdl_host.h"\n' in s
 assert '    if(e.type==SDL_QUIT)alive=false;\n' in s
-s=s.replace('#include "sdl_host.h"\n','#include "sdl_host.h"\n#include "../pokebyte/pokebyte_scene.h"\n#include "../pokebyte/ambient_fx.h"\n#include "../pokebyte/personality_pack01.h"\n#include "../pokebyte/personality_pack02.h"\n#include "../pokebyte/personality_pack03.h"\n',1)
+s=s.replace('#include "sdl_host.h"\n','#include "sdl_host.h"\n#include "../pokebyte/pokebyte_scene.h"\n#include "../pokebyte/ambient_fx.h"\n#include "../pokebyte/personality_pack01.h"\n#include "../pokebyte/personality_pack02.h"\n#include "../pokebyte/personality_pack03.h"\n#include "../pokebyte/battle_pack01.h"\n',1)
 s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
 '''    if(e.type==SDL_QUIT)alive=false;
     // SDL_KeyboardEvent.keysym.sym is at byte offset 20 in SDL2.
@@ -13,9 +13,10 @@ s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
       if(key=='a'||key=='A')pokebyteToggleAmbient();
       if(key=='w'||key=='W')pokebyteToggleWeather();
       if(key=='s'||key=='S')pokebyteToggleSnow();
-      if(key=='p'||key=='P')pokebyteTogglePersonality(); }
+      if(key=='p'||key=='P')pokebyteTogglePersonality();
+      if(key=='k'||key=='K'){extern void pokebyteToggleBattle();pokebyteToggleBattle();} }
 ''',1)
-s=s.replace('TamaPoke - Original PC Emulator','PokeByte Phase 3 | P: Reactions  B: Scene  A: Ambience  W: Rain  S: Snow',1)
+s=s.replace('TamaPoke - Original PC Emulator','PokeByte Phase 4 | K: Battle  P: Reactions  B: Scene  A: Ambience',1)
 
 # Test flags exercise the REAL original minigames, preserving their logic.
 s=s.replace('int scale=2;bool dump=false,testHome=false;',
@@ -110,5 +111,14 @@ s=s.replace('if(dump&&millis()-begin>450)',
             'if(dump&&millis()-begin>screenshotAfterMs)',1)
 assert 'screenshotAfterMs' in s
 
+# Separate screenshot-only opponents in a no-save Charmander battle demo.
+needle=' if(SDL_Init(SDL_INIT_VIDEO)!=0)'
+assert s.count(needle)==1
+s=s.replace(needle, ''' for(int i=1;i<argc;i++){
+   if(!strcmp(argv[i],"--battle-demo")&&i+1<argc)
+     pbBattleSetDemo(argv[++i]);
+ }
+''' + needle,1)
+assert '--battle-demo' in s
 p.write_text(s,encoding="utf-8")
-print("Phase 1 desktop keyboard patch installed")
+print("Phase 4 classic battles desktop patch installed")
