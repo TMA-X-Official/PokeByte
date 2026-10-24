@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Personality Pack 02 Windows
+name: PokeByte Phase 3 Personality Pack 03 Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-personality-pack-02]
+    branches: [pokebyte-phase3-personality-pack-03]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -48,6 +48,7 @@ jobs:
           grep -q 'pokebyteToggleSnow' pc/desktop_main.cpp
           grep -q 'pokebyteTogglePersonality' pc/desktop_main.cpp
           grep -q 'pokebyteSetPersonalityDemo' pc/desktop_main.cpp
+          grep -q 'pokebyteSurpriseSetDemo' pc/desktop_main.cpp
 
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
@@ -121,6 +122,29 @@ jobs:
           python -c 'import glob,hashlib; f=glob.glob("social-*.ppm"); h=[hashlib.sha256(open(x,"rb").read()).hexdigest() for x in f]; assert len(f)==8 and len(set(h))==8, (f,h); print("8 mood/bond previews have distinct screenshots and no save writes")'
           rm -f social-*.ppm
 
+      - name: Verify Pack 03 genuine sprites and surprise cooldown policies
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack03.cpp pokebyte/test_personality_pack03.cpp -o persona-surprise-test.exe
+          ./persona-surprise-test.exe
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-WAKE.bat
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-VICTORY.bat
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-WANDER.bat
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-FRIENDSHIP.bat
+
+      - name: Four save-safe one-click Charmander surprise previews
+        timeout-minutes: 4
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          rm -f tamapoke_pc_save.dat
+          for event in wake victory wander friendship; do
+            SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --surprise-demo "$event" --time-of-day day
+            test -s tamapoke-test.ppm
+            test ! -e tamapoke_pc_save.dat
+            mv tamapoke-test.ppm "surprise-$event.ppm"
+          done
+          python -c 'import glob,hashlib; f=glob.glob("surprise-*.ppm"); h=[hashlib.sha256(open(p,"rb").read()).hexdigest() for p in f]; assert len(f)==4 and len(set(h))==4; print("Four surprise demos distinct, original save untouched")'
+          rm -f surprise-*.ppm
+
       - name: Safe Charmander mood previews without save mutation
         timeout-minutes: 3
         run: |
@@ -168,7 +192,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Personality-Pack-02-Windows
+          name: PokeByte-Phase3-Personality-Pack-03-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
