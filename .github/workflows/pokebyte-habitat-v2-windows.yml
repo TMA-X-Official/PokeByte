@@ -38,7 +38,7 @@ jobs:
 
       - name: Expand and verify the tested habitat renderer source
         run: |
-          base64 -d pokebyte/habitat_remaster_v2.cpp.xz.base64 | xz -d > pokebyte/remaster_scene.cpp
+          tr -d '\r\n' < pokebyte/habitat_remaster_v2.cpp.xz.base64 | base64 -d | xz -d > pokebyte/remaster_scene.cpp
           echo 'fe5fd52e7867bc5ca57fedec34a83c0fc21cde5b9ccf382264fe06a7f256be6c  pokebyte/remaster_scene.cpp' | sha256sum --check
           grep -q 'void habitat(' pokebyte/remaster_scene.cpp
 
