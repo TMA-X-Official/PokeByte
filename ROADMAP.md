@@ -46,6 +46,15 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Battery:** PC shows an accurate **PC** label rather than a fabricated battery percentage. Firmware-source changes for the physical AXP2101 percentage have *not* been installed on the Waveshare.
 - **State:** Tested Windows build prepared. **Awaiting user playtest**, especially automatic time switching, gentle motion, rain toggles, original minigames, and existing PC save behavior. Phase 2 is **not yet complete**.
 
+## Phase 2 Milestone 02 — Moving cloud playtest
+
+- **Feature:** Real 88–118-pixel multi-lobed clouds with mode-specific shading, drifting across the sky; separate ground-level pollen, swaying grass highlights, edge fireflies and optional drizzle with small splashes.
+- **Default:** Balanced ambience ON, rain OFF; retained B/A/W switches and automatic live local-time mode changes from Pack 01.
+- **Approved scenery:** Five home + five mini-game backgrounds and two fallback BMP files are carried into the Windows test package **byte-for-byte unchanged** from the user-approved previous version. All 303 PMD files verified unchanged.
+- **Development source:** [`pokebyte-phase2-ambient-pack-02`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase2-ambient-pack-02), [draft PR #8](https://github.com/TMA-X-Official/PokeByte/pull/8). Do not merge before user approval.
+- **Windows build/regressions:** [Automated screenshot tests](https://github.com/TMA-X-Official/PokeByte/actions/runs/40108800518) for five distinct lighting scenes, normal home, ball minigame and training activity; CI was successful. Temporary CI artwork was replaced in the final ZIP with the approved bitmaps.
+- **Status:** Build and packaging validated; awaiting Windows hands-on review of cloud shape, drift, rain and interaction. Phase 2 **still in progress**. Waveshare has not been flashed.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
