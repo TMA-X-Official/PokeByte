@@ -86,6 +86,17 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Validation:** [Windows build and home/ball/training/mood-preview tests](https://github.com/TMA-X-Official/PokeByte/actions/runs/40112695971) passed, as did six independent reaction-scheduler tests. Final ZIP copied all **12** previously approved background BMPs and all **303** Pokémon PMD files byte-identically from the completed Phase 2 Windows build.
 - **Still to do:** User review of Charmander animations and actual game pacing; Pack 02 individual temperament/bond personality and Pack 03 rare surprises are **not implemented**. Phase 3 is **in progress**, and Waveshare firmware remains unchanged.
 
+## Phase 3 — Personality Pack 01.1 status consistency (Windows playtest)
+
+- **User-reported issue:** Tired and Hungry Charmander preview modes showed the original "It's Happy" label even while the PMD animation planner simulated Tired or Hungry. The original game stat thresholds (25) did not match the enhanced animation thresholds (FOOD below 40, ENERGY below 45).
+- **Corrected:** The PC-only enhanced status renderer now uses the **same classification function** as the original-frame animation planner. Tired/Hungry demo labels now match their reactions without changing actual stats or persistent saves. The genuine original localized Hungry/Exhausted strings are used.
+- **Classic toggle:** Press **P** to restore original behavior **and original status thresholds**. Highest-priority evolution, bath, sleep, eating and heart messages are preserved.
+- **Safe demos:** `TEST-HAPPY-CHARMANDER.bat`, `TEST-TIRED-CHARMANDER.bat`, `TEST-HUNGRY-CHARMANDER.bat` launch temporary Charmander previews without loading or writing `tamapoke_pc_save.dat`.
+- **Dev branch:** [`pokebyte-phase3-pack01-status-fix`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack01-status-fix), [draft PR #11](https://github.com/TMA-X-Official/PokeByte/pull/11). Not merged.
+- **Validation:** [Successful Windows workflow #40116224178](https://github.com/TMA-X-Official/PokeByte/actions/runs/40116224178) passed 16 mood/status/fallback assertions, all three distinct preview screenshots without creating a save, all five lighting scenes, rain/snow, and both original mini-games.
+- **Approved baseline unchanged:** The Windows ZIP preserves all **12** approved environment BMPs and all **303** original PMD animation BIN files byte-for-byte from the previous user-tested version; hardware firmware is untouched.
+- **State:** Ready for hands-on review. **Phase 3 is still in progress**, with individual temperament and bond extensions reserved for later packs.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
