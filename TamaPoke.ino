@@ -1331,11 +1331,11 @@ void pokebyteBattleRender(){
  uint8_t enemyAct=playerStrike && pbBattleEnemy.has(PMD_HURT)?PMD_HURT:
                   foeStrike && pbBattleEnemy.has(PMD_ATTACK)?PMD_ATTACK:PMD_IDLE;
  if(pbBattleEnemy.has(enemyAct))
-   drawPmdActM(pbBattleEnemy,enemyAct,341,256,clipTime,!acting,false,3);
+   drawPmdActM(pbBattleEnemy,enemyAct,330,219,clipTime,!acting,false,5);
  uint8_t allyAct=playerStrike && pmd.has(PMD_ATTACK)?PMD_ATTACK:
                  foeStrike && pmd.has(PMD_HURT)?PMD_HURT:PMD_IDLE;
  if(pmd.has(allyAct))
-   drawPmdAct(allyAct,132,310,clipTime,!acting,false,3);
+   drawPmdAct(allyAct,132,312,clipTime,!acting,false,5);
  pokebyteBattlePanel(232,233,206,74,cream);
  gfx->setTextColor(ink);setSize(2);
  snprintf(line,sizeof(line),"%s Lv%u",dexName(pet.speciesId),pbBattle.playerLevel);
