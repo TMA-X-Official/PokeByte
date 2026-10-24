@@ -1,6 +1,7 @@
 // PokéByte Phase 2 v0.1: restrained, optional ambient pixel effects.
 // Only modifies backgrounds; original Pokémon sprites and gameplay are untouched.
 #include "ambient_fx.h"
+#include "pokebyte_scene.h"
 #include "../pc/shim/Arduino.h"
 #include "../pc/shim/Arduino_GFX_Library.h"
 #include <cstdint>
@@ -12,7 +13,7 @@
 namespace {
 constexpr int W=466,H=466;
 bool initialized=false, ambientEnabled=true, drizzleEnabled=false;
-std::string timeMode="day";
+// Balanced is the deliberately sparse default; drizzle starts OFF.
 uint16_t rgb(int r,int g,int b){return uint16_t(((r>>3)<<11)|((g>>2)<<5)|(b>>3));}
 uint32_t hash(uint32_t x){x^=x>>16;x*=0x7feb352dU;x^=x>>15;x*=0x846ca68bU;x^=x>>16;return x;}
 void dot(Arduino_Canvas*c,int x,int y,uint16_t color,int size=2){
@@ -21,8 +22,6 @@ void dot(Arduino_Canvas*c,int x,int y,uint16_t color,int size=2){
 }
 void init(){
  if(initialized)return;initialized=true;
- std::ifstream mode("assets/active_meadow_mode.txt");
- if(mode)std::getline(mode,timeMode);
  std::ifstream pref("pokebyte-ambient.cfg");
  if(pref){int a=1,r=0;if(pref>>a>>r){ambientEnabled=(a!=0);drizzleEnabled=(r!=0);}}
 }
@@ -42,12 +41,13 @@ void pokebyteToggleWeather(){
 void pokebyteApplyAmbient(Arduino_Canvas*c,bool minigame){
  init();if(!ambientEnabled||c->frame.size()!=size_t(W)*H)return;
  const uint32_t ticks=millis();
- const bool night=(timeMode=="night"), evening=(timeMode=="evening");
+ const std::string mode=pokebyteCurrentSceneMode();
+ const bool night=(mode=="night"), evening=(mode=="evening");
  const int lowest=minigame?423:298;
- // Night/evening: six tiny fireflies, spaced toward the edges. Deliberately
+ // Night/evening: five tiny fireflies, spaced toward the edges. Deliberately
  // avoid the center where the original Pokémon moves and the ball is played.
  if(night||evening){
-  for(uint32_t i=0;i<7;i++){
+  for(uint32_t i=0;i<5;i++){
    const int side=(i%2)?1:0;
    const int baseX=side?348:18;
    const int x=baseX+int(hash(i+73)%84)+(int((ticks/580+i*3)%13)-6);
@@ -64,6 +64,25 @@ void pokebyteApplyAmbient(Arduino_Canvas*c,bool minigame){
    const int y=194+int(hash(i+12)%80)-int((ticks/2100+i*11)%12);
    dot(c,x&~1,y&~1,rgb(244,236,177),2);
   }
+ }
+ // Balanced wind: two sparse sky-edge cloud wisps. The five approved
+ // illustrated clouds and scene composition remain unchanged.
+ if(!minigame){
+  for(int i=0;i<2;i++){
+   int x=(i?366:16)+int((ticks/190+i*9)%48);
+   int y=141+i*19;
+   uint16_t cloud=night?rgb(104,141,181):rgb(225,218,191);
+   for(int j=0;j<4;j++)dot(c,x+j*3,y+(j%3==0?2:0),cloud,2);
+  }
+ }
+ // A few sparse grass-blade highlights at the far edges, not under Pokemon.
+ if(!minigame){
+   uint16_t leaf=night?rgb(38,106,97):rgb(94,161,73);
+   for(int i=0;i<3;i++){
+    int x=i%2?406:28+i*11;
+    int y=288+int((ticks/520+i)%3)-1;
+    dot(c,x,y,leaf,2);
+   }
  }
  // Rain is never automatic or based on real weather; PC player presses W.
  // Paint fine streaks on the existing pixel-art scene, before all gameplay.

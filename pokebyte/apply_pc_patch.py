@@ -28,5 +28,14 @@ s=s.replace(' if(testHome){pet.chooseStarter(1);pet.eggTap();pet.eggTap();pet.eg
  }''')
 assert "testMinigame" in s and "startGame();" in s, "Test flags failed to patch desktop main"
 
+# CI and optional manual previews can pick one lighting mode without
+# changing the host clock. Normal PLAY-POKEBYTE uses the local PC clock.
+needle=' if(SDL_Init(SDL_INIT_VIDEO)!=0)'
+assert s.count(needle)==1, "SDL main entry changed"
+s=s.replace(needle, ''' for(int i=1;i<argc;i++)if(!strcmp(argv[i],"--time-of-day")&&i+1<argc)
+    pokebyteSetPreviewMode(argv[++i]);
+''' + needle,1)
+assert '--time-of-day' in s
+
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
