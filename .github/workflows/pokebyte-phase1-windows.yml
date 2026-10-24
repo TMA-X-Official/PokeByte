@@ -1,8 +1,8 @@
-name: PokeByte Phase 2 Cloud-Free Snow Windows
+name: PokeByte Phase 3 Personality Pack 01 Windows
 
 on:
   push:
-    branches: [pokebyte-phase2-weather-snow-no-clouds]
+    branches: [pokebyte-phase3-personality-pack-01]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -46,6 +46,8 @@ jobs:
           grep -q 'pokebyteToggleAmbient' pc/desktop_main.cpp
           grep -q 'pokebyteToggleWeather' pc/desktop_main.cpp
           grep -q 'pokebyteToggleSnow' pc/desktop_main.cpp
+          grep -q 'pokebyteTogglePersonality' pc/desktop_main.cpp
+          grep -q 'pokebyteSetPersonalityDemo' pc/desktop_main.cpp
 
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
@@ -87,6 +89,25 @@ jobs:
           python -c 'import hashlib; w=["clear","rain","snow"]; hs=[hashlib.sha256(open("weather-"+x+".ppm","rb").read()).digest() for x in w]; assert len(set(hs))==3; print("Cloud-free weather rendering tested: clear, rain, snow")'
           rm -f weather-*.ppm
 
+      - name: Personality action policy and missing-sprite fallback tests
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack01.cpp pokebyte/test_personality_pack01.cpp -o persona-policy-test.exe
+          ./persona-policy-test.exe
+
+      - name: Safe Charmander mood previews without save mutation
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          rm -f tamapoke_pc_save.dat
+          for mood in happy tired hungry; do
+            SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --personality-demo "$mood" --time-of-day day
+            test -s tamapoke-test.ppm
+            test ! -e tamapoke_pc_save.dat
+            mv tamapoke-test.ppm "charmander-$mood.ppm"
+          done
+          ls -l charmander-*.ppm
+          rm -f charmander-*.ppm
+
       - name: Windows startup and screenshot verification
         timeout-minutes: 2
         run: |
@@ -119,7 +140,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Cloud-Free-Snow-Windows
+          name: PokeByte-Phase3-Personality-Pack-01-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
