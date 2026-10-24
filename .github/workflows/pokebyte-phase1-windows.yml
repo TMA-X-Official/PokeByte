@@ -146,9 +146,15 @@ jobs:
             test -s tamapoke-test.ppm
             test ! -e tamapoke_pc_save.dat
             mv tamapoke-test.ppm "surprise-$event.ppm"
+            # Screenshot the running real game at 14s to prove the event ended.
+            SDL_VIDEODRIVER=dummy timeout 35s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --surprise-demo "$event" --time-of-day day --screenshot-after-ms 14000
+            test -s tamapoke-test.ppm
+            test ! -e tamapoke_pc_save.dat
+            mv tamapoke-test.ppm "finished-$event.ppm"
           done
           python -c 'import glob,hashlib; f=glob.glob("surprise-*.ppm"); h=[hashlib.sha256(open(p,"rb").read()).hexdigest() for p in f]; assert len(f)==4 and len(set(h))==4; print("Four surprise demos distinct, original save untouched")'
-          rm -f surprise-*.ppm
+          python ../../../pokebyte/verify_surprise_return.py
+          rm -f surprise-*.ppm finished-*.ppm
 
       - name: Safe Charmander mood previews without save mutation
         timeout-minutes: 3
