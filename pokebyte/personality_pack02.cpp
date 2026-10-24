@@ -100,3 +100,23 @@ bool pokebyteSocialHappyPlan(uint8_t temperament,uint8_t bond,
  out->durationMs=t==PB_CALM?6000:t==PB_SHY?4800:t==PB_CURIOUS?2500:2800;
  return true;
 }
+
+bool pokebyteSocialGreeting(uint8_t temperament,uint8_t bond,
+                             uint16_t available,uint8_t roll,uint8_t* action){
+ if(!action)return false;
+ const uint8_t t=temperament%4,stage=pokebyteBondStage(bond);
+ static const uint8_t chance[4][3]={
+  {20,55,90}, // Playful
+  {13,35,65}, // Calm
+  {10,45,70}, // Curious
+  {0,22,85}   // Shy: strongly grows closer at high Bond
+ };
+ if(roll%100>=chance[t][stage])return false;
+ static const uint8_t preferred[4][3]={
+  {7,9,10},{10,9,7},{9,7,10},{9,10,7}
+ };
+ for(uint8_t i=0;i<3;i++)if(has(available,preferred[t][i])){
+  *action=preferred[t][i];return true;
+ }
+ return false; // species lacks optional gesture, original heart still works
+}
