@@ -9,7 +9,7 @@
 | **Phase 1 — Visual upgrade** | ✅ **Completed (Windows PC playtest)** | User approved all five correctly framed remastered environments: morning, day, afternoon, evening and night. Home, ball mini-game and training-bag backgrounds match. Classic scene toggle remains available; original Pokémon/gameplay preserved |
 | **Phase 2 — A living environment** | ✅ **Completed (Windows PC playtest)** | User approved Balanced pollen, evening/night fireflies, gentle grass movement, optional rain and snowfall, five approved scenes and original mini-games; no animated cloud overlays |
 | **Phase 3 — More Pokémon personality** | ✅ **Completed — user-approved Windows PC, 24 October 2026** | ✅ Pack 01 mood reactions/Hungry/Sleepy; ✅ Pack 02 four temperaments and three Bond stages; ✅ Pack 03 distinct Wake, Victory, Wander and Friendship surprises. Approved 12 backgrounds and 303 PMD assets preserved |
-| **Phase 4 — Gameplay expansion** | ⬜ Not started | New gameplay systems developed alongside existing minigames |
+| **Phase 4 — Gameplay expansion** | 🟡 **In progress — Pack 01 Forest Trail Windows test** | Optional adventure walk and three preview sightings; battle/items/gyms/achievements/habitats not yet implemented. User approval pending |
 | **Phase 5 — Waveshare release** | ⬜ Not started | Hardware optimization, flashable builds, backup/recovery and device validation |
 
 ## Phase 1 accepted baseline
@@ -171,12 +171,23 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 
 ## Phase 4 — Gameplay Expansion: direction approved, Pack 01 next (24 October 2026)
 
-- **Status:** 🟡 **Planning / user-supported direction** — the user explicitly likes the proposal to begin with **Pack 01 Adventure Mode**. No Phase 4 gameplay code, visual design, persistent inventory, battle engine, new release, or hardware firmware has been approved/implemented at this checkpoint.
+- **Status:** 🟡 **Pack 01 Forest Trail Windows prototype built and CI-tested; awaiting user playtest.** User explicitly requested to start with Adventure Mode. No persistent inventory, battle system, new save fields or hardware release. Phase 3 remains the last **user-approved** baseline.
 - **Original discussion recovered:** User uploaded an early-chat text export. The game's desired expansion includes **adventure mode, wild Pokémon encounters, turn-based battles, extra minigames, collectible items, Gym challenges, badges, achievements, unlockable habitats, shiny hunting improvements and rewards**. The early plan covered adventure/battle and long-term progression across old phase numbers; the current official roadmap groups those features under **Phase 4**.
 - **Proposed separate packs (each requires Windows preview and user approval):** 01 **Adventure Mode (first)**; 02 **Wild encounters / turn-based battles**; 03 **Inventory and extra minigames**; 04 **Gyms, badges, achievements and Trainer Rank**; 05 **habitats, shiny discoveries and unlockables**.
 - **Pack 01 first prototype:** optional enter/exit Adventure menu, one forest/meadow route, bounded events (wild Pokémon spotted, item discovered, nothing unusual), original PMD sprite display and safe return home; save-isolated demo launchers, no unfinished persistent items or battles. Details: [PHASE4-GAMEPLAY-PLAN.md](PHASE4-GAMEPLAY-PLAN.md).
 - **Protected state:** [PROJECT-CONTINUITY.md](PROJECT-CONTINUITY.md) is the cross-conversation handoff. [APPROVED-ASSETS.md](APPROVED-ASSETS.md) pins all 12 accepted BMP hashes and the complete 303-file sprite digest. Reassemble user test ZIPs from the verified approved art, **never** CI's synthetic backgrounds. The original Phase 3 Windows ZIP remains the last user-approved playable baseline.
-- **Branch boundary:** Start Phase 4 only from the final approved Phase 3 development source branch with a new separate feature branch. Preserve original ESP32 `main` and user saves; hardware flash remains Phase 5.
+- **Branch boundary:** Phase 4 Pack 01 is isolated in [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype), [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17). Preserve original ESP32 `main` and user saves; hardware flash remains Phase 5.
+
+## Phase 4 — Pack 01 Forest Trail: first Windows tester (24 October 2026)
+
+- **Status:** 🟡 Windows prototype available; **not yet user-approved**. Developed after user explicitly agreed to begin Pack 01; none of the later Phase 4 packs has started.
+- **Interaction:** small **ADVENTURE** home button (or PC key **G**) opens Forest Trail if the Pokémon is awake. **WALK** triggers a brief original-PMD walking sequence and one of three events: peaceful walk, visual berry find, or sighting of a wild Gen 1 Pokémon loaded from existing unmodified sprites. **AGAIN** repeats, **HOME** cancels at any time.
+- **Deterministic no-save Windows previews:** `TEST-ADVENTURE-QUIET.bat`, `TEST-ADVENTURE-ITEM.bat`, `TEST-ADVENTURE-WILD.bat` use in-memory Charmander and do not access `tamapoke_pc_save.dat`. Normal original ball and bag games remain available.
+- **No hidden changes:** Wild sighting is **not yet a battle**; berry discovery is **not yet an inventory item/reward**. Does not alter real Pokémon save format, HP/stats, original egg/shiny odds, evolution or affection; adventure uses approved scenery **only in this extra screen**, without rewriting approved background BMPs.
+- **Code branch:** [Phase 4 Pack 01 prototype](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype); [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17), intentionally unmerged.
+- **Windows validation:** [GitHub Actions run #40129169216](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216) **passed** existing five time-of-day scene/weather, home/ball/training, original personality Pack 01–03 tests, new adventure state tests and three distinct save-safe screenshots.
+- **Exact art preservation:** Delivered privately as `PokeByte-Phase4-Pack01-Forest-Trail-Approved-Art-Windows.zip`; SHA-256 `d914e79c7942305fe274e7144bdf21887c4b751f9c01ab6bde63f816d8bfb434`. **All 12 approved 466×466 bitmap scenes and 303 original Pokémon PMD files** were verified byte-for-byte identical to the user-approved Phase 3 package. ZIP passed CRC integrity. Raw GitHub CI artifact art uses *synthetic test fixtures* and must never be distributed as the user-facing visual test ZIP.
+- **Next:** Await hands-on feedback about entry point, path presentation, event pacing, wild sprite, the walk/return interaction and safe HOME exit. Keep Phase 4 Pack 01 **pending** until the user explicitly approves; **do not merge** or touch Waveshare firmware.
 
 ## After each phase
 
