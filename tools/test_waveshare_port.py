@@ -26,6 +26,8 @@ assert "pokebyteSetSocialSnapshot" in sketch
 assert "pokebyteSocialGreeting" in sketch
 assert "PB_SURPRISE_VICTORY" in sketch and "PB_SURPRISE_FRIENDSHIP" in sketch
 assert "PB_SURPRISE_WAKE" in sketch and "PB_SURPRISE_WANDER" in sketch
+assert "PBMODE " in sketch and "PBDEMO " in sketch
+assert "setPreviewMode" in render and "previewMode" in render
 assert "pokebyte/personality_pack01.h" in sketch
 assert "pokebyte/personality_pack02.h" in sketch
 assert "pokebyte/personality_pack03.h" in sketch
