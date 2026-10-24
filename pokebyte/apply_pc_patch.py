@@ -96,5 +96,19 @@ assert 'pokebyteSurpriseSetDemo' in s
 
 
 
+
+# Developer-only delayed screenshots, so CI can verify that the *entire*
+# original PMD action finished and the UI returned to normal after ~14s.
+assert 'int scale=2;bool dump=false,testHome=false,testMinigame=false,testSack=false,noSave=false;' in s
+s=s.replace('int scale=2;bool dump=false,testHome=false,testMinigame=false,testSack=false,noSave=false;',
+            'int scale=2;unsigned screenshotAfterMs=450;bool dump=false,testHome=false,testMinigame=false,testSack=false,noSave=false;',1)
+assert 'else if(!strcmp(argv[i],"--test-home"))testHome=true;' in s
+s=s.replace('else if(!strcmp(argv[i],"--test-home"))testHome=true;',
+            'else if(!strcmp(argv[i],"--test-home"))testHome=true;else if(!strcmp(argv[i],"--screenshot-after-ms")&&i+1<argc)screenshotAfterMs=(unsigned)std::max(450,atoi(argv[++i]));',1)
+assert 'if(dump&&millis()-begin>450)' in s
+s=s.replace('if(dump&&millis()-begin>450)',
+            'if(dump&&millis()-begin>screenshotAfterMs)',1)
+assert 'screenshotAfterMs' in s
+
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
