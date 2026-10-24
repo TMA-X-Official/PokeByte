@@ -2458,7 +2458,13 @@ void behNext() {
   for (uint8_t a = 0; a < PMD_NACTS; ++a)
     if (pmd.has(a)) available |= uint16_t(1u << a);
   PokeBytePersonalityPlan plan{};
-  uint8_t behaviorRoll = pokebyteSocialDemoActive() ? 40 : (pokebytePersonalityDemoActive() ? 4 : uint8_t(r));
+  uint8_t behaviorRoll = pokebytePersonalityDemoActive() ? 4 : uint8_t(r);
+  if (pokebyteSocialDemoActive()) {
+    // Repeatable range of decisions shows frequency differences in demos.
+    static uint8_t demoStep=0;
+    static const uint8_t rolls[] = {40,70,18,90,55,7,82,33};
+    behaviorRoll = rolls[demoStep++ % 8];
+  }
   if (pokebytePersonalityPlan(pet.fullness, pet.joy, pet.energy,
                              pet.hygiene, available, behaviorRoll, &plan)) {
     beh.mode = plan.mode;
@@ -2511,6 +2517,31 @@ void drawPetPMD() {
   if (evoPmd.loaded) evoPmd.unload();  // termino la evolucion: libera la forma anterior
 
   PetMood m = pet.mood();
+#ifdef POKEBYTE_PC
+  // A genuine, occasional bond-weighted greeting after an existing caress.
+  // Uses only supported Pose/Nod/DeepBreath frames. Never edits pet stats.
+  static bool hadHeart = false;
+  static uint32_t lastGreeting = 0;
+  bool showingHeart = pet.showHeart();
+  if (pokebytePersonalityEnabled() && m == MOOD_HAPPY &&
+      showingHeart && !hadHeart &&
+      (lastGreeting == 0 || now-lastGreeting > 8000)) {
+    pokebyteSetSocialSnapshot(pet.geneAtk,pet.geneDef,pet.geneSpe,pet.bond);
+    uint16_t available=0;
+    for (uint8_t i=0;i<PMD_NACTS;++i)
+      if(pmd.has(i))available |= uint16_t(1u<<i);
+    uint8_t gesture=PMD_IDLE;
+    if (pokebyteSocialGreeting(pokebyteSocialVisibleTemperament(),
+                              pokebyteSocialVisibleBond(),available,
+                              uint8_t(random(100)),&gesture) &&
+        pmd.has(gesture)) {
+      beh.mode=2;beh.act=gesture;beh.t0=now;
+      beh.until=now+pmdActTotalMs(pmd.acts[gesture]);
+      lastGreeting=now;
+    }
+  }
+  hadHeart=showingHeart;
+#endif
   uint8_t act;
   bool loop = true;
   if (m == MOOD_SLEEPING && pmd.has(PMD_SLEEP)) {
