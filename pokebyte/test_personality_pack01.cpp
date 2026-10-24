@@ -1,9 +1,11 @@
 #include "personality_pack01.h"
+#include "personality_pack02.h"
 #include <cassert>
 #include <cstdio>
 // Standalone pure planner tests, no mock sprites, keyboard or artificial stats writes.
 int main(){
  PokeBytePersonalityPlan p{};
+ pokebyteSetSocialSnapshot(101,100,100,85); // Playful high-bond fixture
  const uint16_t full=(1u<<1)|(1u<<2)|(1u<<5)|(1u<<7)|(1u<<9)|(1u<<10);
  assert(pokebytePersonalityPlan(80,90,95,100,full,4,&p));
  assert(p.mode==PB_GESTURE && (p.action==7||p.action==9||p.action==10));
