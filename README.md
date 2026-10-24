@@ -11,9 +11,9 @@
 
 ## Development status
 
-**✅ Phase 0 complete · ✅ Phase 1 complete · ✅ Phase 2 complete (Windows PC playtests approved, 24 October 2026).** The five remastered home and mini-game scenes are user-approved, along with Balanced pollen, grass movement, fireflies, optional rain and optional snowfall. Animated cloud overlays were rejected and removed; the original artwork stays intact. **Next: Phase 3 — More Pokémon personality.** The physical Waveshare firmware remains unchanged; hardware release is Phase 5. See the [full PokéByte roadmap](ROADMAP.md) for details.
+**✅ Phase 0, Phase 1, Phase 2, and Phase 3 completed and user-approved on Windows PC (24 October 2026).** Five original approved morning/day/afternoon/evening/night home scenes and matching minigame backgrounds remain intact. Balanced pollen, gently moving grass, fireflies, optional rain and snow, and the approved cloud-free presentation are preserved. The physical Waveshare firmware remains unchanged; hardware deployment belongs to Phase 5. See the [full PokéByte roadmap](ROADMAP.md).
 
-**🟡 Phase 3 in progress — Personality Packs 01 and 02 approved (Windows, 24 October 2026).** The user accepted original-sprite mood reactions and corrected Hungry/Sleepy labels (Pack 01), plus all four hands-on temperament/Bond comparisons and petting reactions (Pack 02). **Next planned: Pack 03 — rare contextual surprises.** Phase 3 is not yet complete; Waveshare hardware testing remains Phase 5. [Follow the roadmap](ROADMAP.md).
+**✅ Phase 3 complete — all three Personality Packs approved (Windows, 24 October 2026).** Pack 01 improves mood reactions and Hungry/Sleepy status; Pack 02 adds stable Playful/Calm/Curious/Shy temperaments and Bond-dependent behavior; Pack 03 adds four rare, genuinely distinct one-shot surprises (wake-up stretch, ball-game victory, out-and-back wander, high-Bond greeting). The final user-tested Windows ZIP retains all 12 approved background BMP files and 303 original Pokémon sprite BIN files *byte-for-byte*; the GitHub Actions compile/test artifact uses **synthetic background fixtures** and must not be distributed as the approved visual release. The approved source is on [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), tracked in [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), with [successful Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906). **Next: Phase 4 — gameplay expansion (not started).**
 
 ## Welcome to PokéByte
 
@@ -33,6 +33,7 @@ The original TamaPoke v1.17 gameplay is available as a **PokéByte Windows deskt
 | [`pc-original-emulator`](https://github.com/TMA-X-Official/PokeByte/tree/pc-original-emulator) | Original-game Windows emulator and build |
 | [`pokebyte-deluxe-dev`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-deluxe-dev) | Experimental improvements, separate from the working game |
 | [`original-tamapoke-reference`](https://github.com/TMA-X-Official/PokeByte/tree/original-tamapoke-reference) | Preserved original fork snapshot before PokéByte rebranding |
+| [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments) | **User-approved Phase 3 Windows source**, with final distinct surprises; keeps original `main` firmware untouched |
 
 **Important:** The [upstream web installer](https://socquique.github.io/TamaPoke/web/) installs **original TamaPoke firmware**, not a PokéByte upgrade. We have **not** released modified PokéByte firmware for the physical board. Do not erase a device or overwrite a Pokémon save to try the PC build.
 
