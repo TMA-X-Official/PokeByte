@@ -1,8 +1,8 @@
-name: PokeByte Phase 2 Ambient Pack 01 Windows
+name: PokeByte Phase 2 Ambient Pack 02 Windows
 
 on:
   push:
-    branches: [pokebyte-phase2-ambient-pack-01]
+    branches: [pokebyte-phase2-ambient-pack-02]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -105,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Ambient-Pack-01-Windows
+          name: PokeByte-Ambient-Pack-02-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
