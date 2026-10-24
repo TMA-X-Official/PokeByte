@@ -19,7 +19,7 @@
     header{border-bottom:1px solid #ffffff1a;background:#091625d1}
     .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:76px}
     .brand{display:flex;align-items:center;gap:14px;color:white;text-decoration:none}
-    .logo{width:40px;height:40px;display:grid;place-items:center;border:3px solid var(--ink);background:linear-gradient(#f07e65 0 45%,#172c43 46% 54%,#f8f4e8 55%);border-radius:50%;font-size:19px;box-shadow:0 0 0 3px #101e2b}
+    .brand-img{width:180px;height:auto;max-width:52vw;object-fit:contain;display:block;filter:drop-shadow(0 4px 8px #0008)}
     .brandname{font-size:1.4rem;font-weight:850;letter-spacing:-.04em}
     .brandnote{font:700 .72rem/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
     nav a{font-size:.86rem;text-decoration:none;margin-left:22px;font-weight:700}
@@ -67,7 +67,7 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header><div class="shell nav">
-  <a class="brand" href="#main" aria-label="PokéByte installer preview home"><span class="logo" aria-hidden="true">●</span><span><span class="brandname">PokéByte</span><br><span class="brandnote">Official project installer preview</span></span></a>
+  <a class="brand" href="#main" aria-label="PokéByte installer preview home"><img class="brand-img" src="assets/pokebyte-logo.webp" width="180" height="90" alt="PokéByte — Your Pocket Pokémon Companion"><span class="brandnote">Waveshare installer preview</span></a>
   <nav aria-label="Page navigation"><a href="#instructions">How it works</a><a href="https://github.com/TMA-X-Official/PokeByte" rel="noopener noreferrer">GitHub</a></nav>
 </div></header>
 <main class="shell" id="main">
