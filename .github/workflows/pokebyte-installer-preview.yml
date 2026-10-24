@@ -1,0 +1,26 @@
+name: PokéByte installer preview safety
+
+on:
+  push:
+    branches: [pokebyte-phase5-waveshare-release-prep]
+    paths:
+      - 'web/pokebyte/**'
+      - 'tools/test_pokebyte_installer_preview.py'
+      - '.github/workflows/pokebyte-installer-preview.yml'
+  pull_request:
+    paths:
+      - 'web/pokebyte/**'
+      - 'tools/test_pokebyte_installer_preview.py'
+      - '.github/workflows/pokebyte-installer-preview.yml'
+  workflow_dispatch:
+
+jobs:
+  installer-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm preview cannot flash or access device
+        run: python3 tools/test_pokebyte_installer_preview.py
