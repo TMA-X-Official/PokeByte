@@ -135,6 +135,16 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Acceptance criteria for Pack 03:** clearly noticeable but uncommon moments, no overlap with sleep/eat/evolution/minigames, per-species animation availability checks and safe fallbacks, no new save-format fields, preserve original mechanisms and save data, separate Windows ZIP with automated regression and user hands-on approval. Start only after user agrees to the proposal.
 - **Overall:** **Phase 3 remains in progress** until Pack 03 and its PC playtest are approved. Phases 0, 1 and 2 remain completed; Waveshare flashing remains Phase 5.
 
+## Phase 3 — Personality Pack 03: Little Surprises Windows tester (24 October 2026)
+
+- **Status:** 🟡 Developed and automatically tested; **awaiting user hands-on approval**. Phase 3 as a whole remains **in progress**.
+- **Development branch:** [`pokebyte-phase3-personality-pack-03`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-03) and [draft PR #14](https://github.com/TMA-X-Official/PokeByte/pull/14). Not merged into the approved earlier baseline.
+- **Four moments using only real PMD actions:** (1) a wake-up breathing/nod/pose gesture after actually waking, subject to a 30-minute cooldown; (2) victory pose/nod after a *completed* ball minigame scoring at least 8, or a new record >=4, subject to a 10-minute cooldown; (3) a naturally rare safe walk toward the meadow edge, slightly likelier for Curious temperaments; (4) a rare high-Bond caress greeting, subject to an interaction chance and 12-minute cooldown. Existing mechanics and original sprite frames are unchanged.
+- **How to test:** Four no-save Charmander preview launchers `TEST-SURPRISE-WAKE.bat`, `TEST-SURPRISE-VICTORY.bat`, `TEST-SURPRISE-WANDER.bat`, `TEST-SURPRISE-FRIENDSHIP.bat`; each simulates an event, shows an explanatory label only in the test mode, and leaves the actual save untouched. In normal play, events are rare and have no captions.
+- **Safety:** Normal happy/neutral behavior is resumed afterward; no surprise during sleep, eating, evolution, hunger/tiredness, menu/minigame, or when the relevant original PMD action is missing. No new rewards, stats, save fields or artwork. The accepted Phase 2 12 BMPs and 303 PMD files are **byte-identical** in the packaged Windows playtest ZIP.
+- **Automated validation:** [GitHub Windows workflow #40119620419](https://github.com/TMA-X-Official/PokeByte/actions/runs/40119620419) passed rare event/cooldown tests, four save-safe screenshot previews, previous 11 personality previews, five scenery modes, clear/rain/snow, and original home/ball/training render checks. Final downloadable Windows ZIP was repackaged with the approved original art and validated for integrity.
+- **Next:** User should assess the four separate previews and test ordinary gameplay for timing, rarity and unobtrusiveness. Do **not** mark Pack 03 or full Phase 3 complete until the user explicitly accepts. Physical Waveshare firmware remains untouched and is reserved for Phase 5.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
