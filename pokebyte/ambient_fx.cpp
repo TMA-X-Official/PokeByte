@@ -1,4 +1,4 @@
-// PokéByte Phase 2 Ambient Pack 02 — Balanced living scenery.
+// PokéByte Phase 2 Ambient Pack 03 — cloud-free balanced ambience + optional snow.
 // Drawn on top of approved bitmap backgrounds, BEFORE Pokémon/UI.
 // No changes to original TamaPoke care, touch, minigames or sprite renderer.
 #include "ambient_fx.h"
@@ -12,7 +12,7 @@
 
 namespace {
 constexpr int W=466,H=466;
-bool initialized=false, ambienceOn=true, rainOn=false;
+bool initialized=false, ambienceOn=true, rainOn=false, snowOn=false;
 uint16_t rgb(int r,int g,int b){
  return uint16_t(((r>>3)<<11)|((g>>2)<<5)|(b>>3));
 }
@@ -24,85 +24,21 @@ void pixel(Arduino_Canvas*c,int x,int y,uint16_t col,int w=2,int h=2){
  for(int py=y;py<y+h;py++)for(int px=x;px<x+w;px++)
   c->frame[size_t(py)*W+px]=col;
 }
-uint16_t blend(uint16_t old,uint16_t newcol,int a){
- int br=((old>>11)&31)*255/31, bg=((old>>5)&63)*255/63, bb=(old&31)*255/31;
- int nr=((newcol>>11)&31)*255/31,ng=((newcol>>5)&63)*255/63,nb=(newcol&31)*255/31;
- return rgb((br*(255-a)+nr*a)/255,
-            (bg*(255-a)+ng*a)/255,
-            (bb*(255-a)+nb*a)/255);
-}
-void translucentPixel(Arduino_Canvas*c,int x,int y,uint16_t col,int alpha){
- if(x<0||y<0||x+1>=W||y+1>=H)return;
- for(int j=0;j<2;j++)for(int i=0;i<2;i++){
-  uint16_t&dst=c->frame[size_t(y+j)*W+x+i];
-  dst=blend(dst,col,alpha);
- }
-}
-bool oval(int x,int y,int cx,int cy,int rx,int ry){
- if(rx==0||ry==0)return false;
- int dx=x-cx,dy=y-cy;
- return (int64_t)dx*dx*ry*ry+(int64_t)dy*dy*rx*rx<=(int64_t)rx*rx*ry*ry;
-}
-// Carefully shaded, many-lobed pixel art: each logical pixel = 2x2 on screen.
-// 44-59 logical columns = 88-118 real screen pixels, clearly a CLOUD,
-// not the three tiny lines from the first ambient prototype.
-void cloud(Arduino_Canvas*c,int x0,int y0,bool small,
-           uint16_t light,uint16_t body,uint16_t shadow){
- const int cw=small?44:59,ch=small?16:21;
- for(int y=0;y<ch;y++){
-  for(int x=0;x<cw;x++){
-   bool inside;
-   if(small){
-    inside=oval(x,y,10,11,10,5)||oval(x,y,19,8,12,8)||
-           oval(x,y,29,6,9,6)||oval(x,y,36,12,8,4)||
-           oval(x,y,23,12,20,4);
-   }else{
-    inside=oval(x,y,11,15,11,6)||oval(x,y,24,11,14,10)||
-           oval(x,y,38,7,12,8)||oval(x,y,50,15,8,5)||
-           oval(x,y,30,16,28,5);
-   }
-   if(!inside)continue;
-   // Strong top-edge pixels and blended shaded underbelly.
-   const bool above= y==0|| !(small?
-      (oval(x,y-1,10,11,10,5)||oval(x,y-1,19,8,12,8)||
-       oval(x,y-1,29,6,9,6)||oval(x,y-1,36,12,8,4)||
-       oval(x,y-1,23,12,20,4)):
-      (oval(x,y-1,11,15,11,6)||oval(x,y-1,24,11,14,10)||
-       oval(x,y-1,38,7,12,8)||oval(x,y-1,50,15,8,5)||
-       oval(x,y-1,30,16,28,5)));
-   uint16_t col=(y>ch-3)?shadow:(above||y<ch/3)?light:body;
-   // Soft blended undersides (not solid rectangular bands); top remains
-   // crisp 2px pixel art against the approved scenic sky.
-   int opacity=(y>ch-2)?98:(y>ch-4)?147:above?225:162;
-   translucentPixel(c,x0+x*2,y0+y*2,col,opacity);
-  }
- }
-}
 void initialize(){
  if(initialized)return;initialized=true;
  std::ifstream f("pokebyte-ambient.cfg");
- if(f){int a=1,r=0;if(f>>a>>r){ambienceOn=a!=0;rainOn=r!=0;}}
+ if(f){
+  int a=1,r=0,s=0;
+  if(f>>a>>r){
+   if(!(f>>s))s=0; // Backwards-compatible with existing two-value saves.
+   ambienceOn=a!=0;rainOn=r!=0;snowOn=s!=0;
+   if(snowOn)rainOn=false; // Never show snow and rain simultaneously.
+  }
+ }
 }
 void store(){
  std::ofstream f("pokebyte-ambient.cfg",std::ios::trunc);
- if(f)f<<(ambienceOn?1:0)<<" "<<(rainOn?1:0)<<"\n";
-}
-struct Palette {uint16_t light,body,shade;};
-Palette colors(const std::string&m){
- if(m=="morning")return {rgb(255,232,191),rgb(249,196,177),rgb(167,150,189)};
- if(m=="afternoon")return {rgb(255,225,162),rgb(246,178,124),rgb(167,121,133)};
- if(m=="evening")return {rgb(255,174,119),rgb(231,113,130),rgb(122,70,142)};
- if(m=="night")return {rgb(119,169,222),rgb(76,130,195),rgb(38,67,120)};
- return {rgb(250,252,245),rgb(226,240,250),rgb(132,185,224)};
-}
-void clouds(Arduino_Canvas*c,uint32_t t,const std::string&m){
- Palette p=colors(m);
- // Two separate drifting multi-lobe sprites: prominent and smaller/distant.
- // Slow 1-2 pixels/sec. Wrap through side edges after leaving the screen.
- const int largeX=int((int64_t(t/650)+105)%600)-85;
- const int smallX=397-int((int64_t(t/870)+30)%560);
- cloud(c,largeX,58,false,p.light,p.body,p.shade);
- cloud(c,smallX,110,true,p.light,p.body,p.shade);
+ if(f)f<<(ambienceOn?1:0)<<" "<<(rainOn?1:0)<<" "<<(snowOn?1:0)<<"\n";
 }
 void pollen(Arduino_Canvas*c,uint32_t t,bool night,int bottom){
  // Completely separate from CLOUDS: only a few motes down near the grass.
@@ -160,14 +96,54 @@ void rain(Arduino_Canvas*c,uint32_t t,bool minigame){
   }
  }
 }
+// Optional, quiet snowfall: true pixel-sized drifting snowflakes, NOT clouds.
+// Rendered on the approved scene without repainting or modifying the art.
+// Two depths give gentle parallax; a few flakes briefly settle near the field.
+void snow(Arduino_Canvas*c,uint32_t t,bool minigame){
+ const int bottom=minigame?422:299;
+ const uint16_t white=rgb(245,250,252),soft=rgb(194,220,237);
+ for(uint32_t i=0;i<44;i++){
+  const uint32_t seed=hash32(1700+i*17);
+  const int fallRate=(i%3==0)?45:70;
+  const int x=int((seed%W+int(t/230)+(int(i*7)%19))%W);
+  const int y=20+int(((seed>>9)%(bottom-20)+t/fallRate)%(bottom-20));
+  const int drift=int((t/650+int(i*3))%13)-6;
+  const int sx=(x+drift+W)%W;
+  if(i%6==0){
+    pixel(c,sx,y,white,2,3);
+    pixel(c,sx-2,y+1,soft,2,1);
+  }else{
+    pixel(c,sx,y,(i%3==0)?white:soft,2,2);
+  }
+ }
+ for(uint32_t i=0;i<5;i++){
+  const uint32_t age=(t/360+i*11)%31;
+  if(age>5)continue;
+  int x=25+int(hash32(2600+i)%414);
+  int y=bottom-10-int(hash32(2800+i)%18);
+  pixel(c,x,y,white,2,2);
+ }
+}
 } // namespace
 void pokebyteToggleAmbient(){
  initialize();ambienceOn=!ambienceOn;store();
  std::cout<<"PokeByte Balanced ambience "<<(ambienceOn?"ON":"OFF")<<"\n";
 }
 void pokebyteToggleWeather(){
- initialize();rainOn=!rainOn;store();
+ initialize();rainOn=!rainOn;if(rainOn)snowOn=false;store();
  std::cout<<"PokeByte optional light rain "<<(rainOn?"ON":"OFF")<<"\n";
+}
+void pokebyteToggleSnow(){
+ initialize();snowOn=!snowOn;if(snowOn)rainOn=false;store();
+ std::cout<<"PokeByte optional snow "<<(snowOn?"ON":"OFF")<<"\n";
+}
+// CI or explicit launch argument can set visuals for one run without saving.
+void pokebyteSetWeatherForTest(const char* mode){
+ initialize();
+ const std::string choice=mode?mode:"";
+ if(choice=="snow"){snowOn=true;rainOn=false;}
+ else if(choice=="rain"){rainOn=true;snowOn=false;}
+ else if(choice=="clear"){rainOn=false;snowOn=false;}
 }
 void pokebyteApplyAmbient(Arduino_Canvas*c,bool minigame){
  initialize();
@@ -177,11 +153,11 @@ void pokebyteApplyAmbient(Arduino_Canvas*c,bool minigame){
  const bool night=mode=="night";
  const int floor=minigame?420:300;
  if(ambienceOn){
-  clouds(c,ticks,mode);
   grass(c,ticks,minigame,night);
   if(night||mode=="evening")fireflies(c,ticks,floor);
   else pollen(c,ticks,false,floor);
  }
  // Rain can be controlled independently from the ambience switch.
  if(rainOn)rain(c,ticks,minigame);
+ else if(snowOn)snow(c,ticks,minigame);
 }

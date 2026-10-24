@@ -45,11 +45,11 @@ for mode in morning day afternoon evening night; do
   printf '@echo off\r\ncall "%%~dp0PLAY-POKEBYTE.bat" %s\r\n' "$mode" > "$OUT/PLAY-${upper}.bat"
 done
 cat > "$OUT/README.txt" <<'TEXT'
-POKEBYTE PHASE 2 - AMBIENT PACK 01 / BALANCED
+POKEBYTE PHASE 2 - CLOUD-FREE WEATHER & SNOW / BALANCED
 Run PLAY-POKEBYTE.bat on Windows 10/11 (64-bit). Changes between the five approved time-of-day scenes AUTOMATICALLY while running. PLAY-MORNING/DAY/AFTERNOON/EVENING/NIGHT launchers lock the scene for quick previews.
-Press B to switch original/remastered scenery. Press A to toggle BALANCED subtle ambient particles. Press W to toggle optional rain (OFF by default).
+Press B to switch original/remastered scenery. Press A to toggle BALANCED pollen, grass and fireflies (ON by default). Press W for light rain, S for falling snow. Rain and snow are mutually exclusive and both start OFF. ALL animated clouds removed.
 Click to tap; hold and drag the mouse to swipe the original menus.
-The game remembers background and ambient preferences in .cfg files. Rain is purely a manual visual test and does not use live weather data.
+The game remembers background and ambient preferences in .cfg files. Rain and snow are manual, visual-only weather and do not use real forecasts.
 The original TamaPoke v1.17 game logic, interactions and sprites remain intact.
 Saves: tamapoke_pc_save.dat in this folder. These are separate from your Waveshare saves.
 Battery hardware and sound are not emulated on PC.
