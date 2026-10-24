@@ -48,6 +48,7 @@ void pokebyteSetPersonalityDemo(const char* value){
  const std::string s=value?value:"";
  demo=s=="happy"?PB_HAPPY:s=="tired"?PB_TIRED:s=="hungry"?PB_HUNGRY:PB_NORMAL;
 }
+bool pokebytePersonalityDemoActive(){return demo!=PB_NORMAL;}
 const char* pokebytePersonalityContext(uint8_t f,uint8_t j,uint8_t e,uint8_t h){
  const uint8_t c=context(f,j,e,h);
  return c==PB_HAPPY?"Happy":c==PB_TIRED?"Tired":c==PB_HUNGRY?"Hungry":"Normal";
