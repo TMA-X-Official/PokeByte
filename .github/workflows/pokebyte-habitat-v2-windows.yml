@@ -1,0 +1,82 @@
+name: PokéByte habitat remaster v2 — Windows playtest
+
+on:
+  push:
+    branches: [pokebyte-habitat-remaster-v2]
+    paths:
+      - 'pokebyte/**'
+      - '.github/workflows/pokebyte-habitat-v2-windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playable-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-python
+            tar
+            xz
+
+      - name: Restore original PC compatibility layer
+        run: |
+          base64 --decode pc-port.tar.xz.b64 > port.tar.xz
+          echo '302077390e4276f13a7491956f4347810b530958ec7ce9bfce5014016dcfa72c  port.tar.xz' | sha256sum --check
+          tar -xJf port.tar.xz
+
+      - name: Expand and verify the tested habitat renderer source
+        run: |
+          tr -d '\r\n' < pokebyte/habitat_remaster_v2.cpp.xz.base64 | base64 -d | xz -d > pokebyte/remaster_scene.cpp
+          echo 'fe5fd52e7867bc5ca57fedec34a83c0fc21cde5b9ccf382264fe06a7f256be6c  pokebyte/remaster_scene.cpp' | sha256sum --check
+          grep -q 'void habitat(' pokebyte/remaster_scene.cpp
+
+      - name: Keep original menus and add desktop remaster toggle
+        run: python pokebyte/apply_remaster_pc.py
+
+      - name: Compile real TamaPoke for Windows
+        run: bash pokebyte/build_remaster_windows.sh
+
+      - name: Test launch, gameplay rendering and all five lighting modes
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Original-Remaster-PC
+          for mode in morning day afternoon evening night; do
+            SDL_VIDEODRIVER=dummy timeout 35s ./PokeByte-Remaster-PC.exe --test-home --screenshot --time-of-day "$mode"
+            test -s tamapoke-test.ppm
+            mv tamapoke-test.ppm "test-$mode.ppm"
+            rm -f tamapoke_pc_save.dat
+          done
+          python -c 'import hashlib,glob; h=[hashlib.sha256(open(f,"rb").read()).hexdigest() for f in glob.glob("test-*.ppm")]; assert len(h)==5 and len(set(h))==5, h;print("Five distinct lighting modes: PASS")'
+
+      - name: Upload all five test screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Habitat-v2-Verified-Screenshots
+          path: pc/build/windows/PokeByte-Original-Remaster-PC/test-*.ppm
+          retention-days: 14
+
+      - name: Remove temporary screenshots and playtest saves
+        run: |
+          cd pc/build/windows/PokeByte-Original-Remaster-PC
+          rm -f test-*.ppm tamapoke_pc_save.dat
+
+      - name: Publish playable Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Habitat-Remaster-v2-Windows
+          path: pc/build/windows/PokeByte-Original-Remaster-PC/
+          if-no-files-found: error
+          retention-days: 30
