@@ -42,7 +42,7 @@ assert not re.search(r"firmware/[^ \"]+\.bin", site)
 assert "Waveshare ESP32-S3-Touch-AMOLED-1.75" in site
 assert "1.75C" in site
 assert "no firmware" in site.lower() or "not ready" in site.lower()
-assert "Adventure or Battle add-ons" in site, "Cancelled Phase 4 must not ship"
+assert "Adventure or Battle add-ons" in site, "Cancelled Adventure/Battle must not ship"
 assert "303" in site and "12 approved backgrounds" in site
 assert ORIGINAL_PAGE.exists() and ORIGINAL_MANIFEST.exists(), "Original installer must be preserved"
 assert "TamaPoke" in ORIGINAL_MANIFEST.read_text(encoding="utf-8")
