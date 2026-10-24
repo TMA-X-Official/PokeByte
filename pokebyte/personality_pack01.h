@@ -15,3 +15,5 @@ bool pokebytePersonalityPlan(uint8_t food,uint8_t joy,uint8_t energy,
 void pokebyteTogglePersonality();
 void pokebyteSetPersonalityDemo(const char* name);
 const char* pokebytePersonalityContext(uint8_t food,uint8_t joy,uint8_t energy,uint8_t hygiene);
+
+bool pokebytePersonalityDemoActive();
