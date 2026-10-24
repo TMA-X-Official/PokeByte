@@ -25,6 +25,7 @@
 #ifdef POKEBYTE_PC
 #include "pokebyte/personality_pack01.h"
 #include "pokebyte/personality_pack02.h"
+#include "pokebyte/personality_pack03.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -706,6 +707,12 @@ void onTap(int16_t x, int16_t y) {
   if (inPetZone(x, y)) {
     Serial.println("PET");
     pet.caress();
+#ifdef POKEBYTE_PC
+    // Extremely occasional high-Bond surprise; the real heart/reward is intact.
+    if (pokebytePersonalityEnabled() && !pet.sleeping && pet.bond >= 70
+        && random(100) < 12)
+      pokebyteSurpriseNotify(PB_SURPRISE_FRIENDSHIP,millis(),true);
+#endif
     if (!pet.sleeping) sfxPlay(SFX_HEART);
   }
 }
@@ -1055,8 +1062,15 @@ void render() {
 #ifdef POKEBYTE_PC
     // Only the isolated no-save demos show a secondary identifying caption.
     // Normal home remains uncluttered with all approved Phase 2 scenery.
+    const char *surpriseDemo = pokebyteSurpriseDemoLabel();
+    if(surpriseDemo[0] && gLang==LANG_EN){
+      gfx->setTextColor(inkColor());
+      setSize(2);
+      setCur(centerX(surpriseDemo,2),126);
+      printT(surpriseDemo);
+    }
     const char *socialDemo = pokebyteSocialDemoLabel();
-    if (socialDemo[0] && gLang == LANG_EN) {
+    if (socialDemo[0] && !surpriseDemo[0] && gLang == LANG_EN) {
       gfx->setTextColor(inkColor());
       setSize(2);
       setCur(centerX(socialDemo,2), 126);
@@ -1214,6 +1228,13 @@ void stepGame() {
     if (++gameMisses >= 3) {
       gameNewHi = (gameScore > pet.gameHi);
       pet.playResult(gameScore);  // actualiza el record y da felicidad
+#ifdef POKEBYTE_PC
+      // Queue a flourish AFTER returning to home; do not touch ball physics,
+      // score, reward, sound or save. No reward if the user simply abandons.
+      if(pokebytePersonalityEnabled())
+        pokebyteSurpriseNotify(PB_SURPRISE_VICTORY,millis(),
+                         (gameScore>=8 || (gameNewHi && gameScore>=4)));
+#endif
       sfxPlay(gameNewHi && gameScore > 0 ? SFX_MEDAL : SFX_LEVEL);
       gameOverUntil = millis() + 4000;
     } else {
@@ -2464,6 +2485,27 @@ void behNext() {
   for (uint8_t a = 0; a < PMD_NACTS; ++a)
     if (pmd.has(a)) available |= uint16_t(1u << a);
   PokeBytePersonalityPlan plan{};
+  // Rare contextual moments take one normal idle turn and then return to
+  // Pack 02. No surprise may override hunger, sleep, evolution or gameplay.
+  PokeByteSurprisePlan surprise{};
+  if (pokebytePersonalityEnabled()
+      && (pokebyteSurpriseDemoActive() ||
+          pokebytePersonalityStatusMood(pet.fullness,pet.joy,
+                                     pet.energy,pet.hygiene)==PB_HAPPY)
+      && pokebyteSurpriseChoose(now,pokebyteSocialVisibleTemperament(),
+                               pokebyteSocialVisibleBond(),available,
+                               uint16_t(random(1000)),&surprise)) {
+    beh.mode=surprise.mode;beh.act=surprise.action;
+    if(surprise.mode==1){
+      beh.targetX=surprise.targetX;
+      beh.until=now+surprise.durationMs;
+    }else if(surprise.mode==2 && pmd.has(surprise.action)){
+      beh.until=now+pmdActTotalMs(pmd.acts[surprise.action]);
+    }else{
+      beh.mode=0;beh.until=now+2200;
+    }
+    return;
+  }
   uint8_t behaviorRoll = pokebytePersonalityDemoActive() ? 4 : uint8_t(r);
   if (pokebyteSocialDemoActive()) {
     // Repeatable range of decisions shows frequency differences in demos.
@@ -2524,6 +2566,12 @@ void drawPetPMD() {
 
   PetMood m = pet.mood();
 #ifdef POKEBYTE_PC
+  // An actual sleep-to-awake transition queues a wake-up stretch only when
+  // enhanced behavior is enabled. The PMD gesture runs on the normal ground.
+  static bool wasSleepingLastFrame = false;
+  if (wasSleepingLastFrame && !pet.sleeping && pokebytePersonalityEnabled())
+    pokebyteSurpriseNotify(PB_SURPRISE_WAKE,now,true);
+  wasSleepingLastFrame=pet.sleeping;
   // A genuine, occasional bond-weighted greeting after an existing caress.
   // Uses only supported Pose/Nod/DeepBreath frames. Never edits pet stats.
   static bool hadHeart = false;
