@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1723">
+<title>PokéByte • Private development hardware test</title>
+<style>
+:root{color-scheme:dark;--bg:#081521;--surface:#112b38;--edge:#3a7182;--text:#f7f4e9;--muted:#c0d3d7;--accent:#61d6d4;--warn:#ffcb78}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#17475b,#081521 75%);font-family:system-ui,"Segoe UI",Arial,sans-serif;color:var(--text);line-height:1.55}
+main{max-width:790px;margin:auto;padding:32px 18px 70px}header{text-align:center;margin:0 auto 28px}header img{max-width:min(540px,100%);height:auto;margin:0 auto}h1{font-size:clamp(1.9rem,5vw,3rem);letter-spacing:-.04em;margin:0 0 8px}h2{font-size:1.2rem;margin:0 0 12px}p{margin:0 0 14px;color:var(--muted)}
+.panel{border:1px solid var(--edge);background:#132b3c;border-radius:17px;margin:18px 0;padding:23px;box-shadow:0 8px 28px #0003}
+.warning{border:2px solid #e6ae59;background:#3c3025}.warning strong{color:#ffdd98}
+code{background:#091521;padding:2px 6px;border-radius:4px;color:#b4f9ea}
+ul{color:var(--muted);padding-left:22px}.step{margin:6px 0}
+input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#53dfc7}
+label{display:flex;align-items:start;gap:13px;padding:14px 0;font-weight:600}
+.btn{display:inline-block;border:1px solid #4da8ac;border-radius:12px;padding:15px 29px;min-width:260px;text-align:center;font:700 1.04rem system-ui;background:#54cbb7;color:#092332;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+esp-web-install-button{display:block;padding:9px 0 0}
+aside{font-size:.84rem;color:var(--muted)}
+a{color:#8dece6}small{font-size:.83rem}
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</head>
+<body><main>
+<header><img src="../assets/pokebyte-logo.webp" alt="PokéByte" /><h1>Early hardware test</h1><p>Experimental USB installation for the Waveshare ESP32-S3-Touch-AMOLED-1.75</p></header>
+<section class="panel warning"><h2>Experimental — not the finished PokéByte release</h2>
+<p><strong>You may lose the TamaPoke firmware and Pokémon save on internal flash.</strong> You have chosen to skip the backup. Do not use this on a device whose existing data you want to keep.</p>
+<p><strong>The microSD will not be intentionally formatted, erased or uploaded to by this beta installer.</strong> Your existing Pokémon sprites remain on the card. Firmware will fall back to original scenery if the 12 approved backgrounds are not yet on microSD. No separate software download or SD reader is needed to attempt the firmware test.</p>
+<p><strong>Wrong board = risk.</strong> Only the round Waveshare ESP32-S3-Touch-AMOLED-1.75 (466×466, 16 MB flash, 8 MB PSRAM). The browser detects the ESP32-S3 chip, not the exact screen/controller model.</p></section>
+<section class="panel"><h2>Before testing</h2>
+<ol><li class="step">Leave your microSD with original Pokémon sprite files inserted.</li><li class="step">Connect the Waveshare to the PC with a USB-C data cable.</li><li class="step">Open this HTTPS page in desktop Chrome or Edge.</li><li class="step">Check the option below and click <b>Test-install PokéByte</b>; approve your browser's USB port prompt.</li><li class="step">If ESP Web Tools asks about erasing memory, <b>choose not to erase all flash</b>. The manifest writes only bootloader, partition metadata, OTA boot selection, and firmware; it does not target the internal NVS save sector or the SD card.</li></ol>
+<p><strong>Limitations:</strong> background BMPs are not uploaded by this first experimental installer. The first test is to check the boot, display, touch, care, existing sprite loading, and native temperament/ambience. If the device doesn't start correctly, disconnect it and report what you see; the program stays in source control for debugging.</p>
+<label><input id="consent" type="checkbox"> <span>I understand this is untested beta firmware, I am willing to lose my existing internal TamaPoke data, and my board is exactly the Waveshare ESP32-S3-Touch-AMOLED-1.75.</span></label>
+<esp-web-install-button manifest="manifest.json">
+<button class="btn" id="install" type="button" slot="activate" disabled>Test-install PokéByte (experimental)</button>
+<span slot="unsupported">This browser does not support Web Serial. Use desktop Chrome or Edge.</span>
+<span slot="not-allowed">Open this page over HTTPS in Chrome or Edge.</span>
+</esp-web-install-button>
+<aside id="status">Checking the experimental firmware package…</aside></section>
+<p><small>PokéByte source: <a href="https://github.com/TMA-X-Official/PokeByte/pull/20">development PR #20</a>. This page is provided for hands-on prototyping only and will not be used as the general-purpose stable installer.</small></p>
+</main>
+<script>
+const consent=document.getElementById("consent");
+const install=document.getElementById("install");
+const status=document.getElementById("status");
+let available=false;
+const sync=()=>{install.disabled=!(available&&consent.checked)};
+consent.addEventListener("change",sync);
+fetch("manifest.json",{cache:"no-store"}).then(async r=>{
+ if(!r.ok)throw Error("Missing firmware manifest");
+ const data=await r.json();
+ if(data.name!=="PokéByte experimental hardware test" ||
+    data.builds?.[0]?.chipFamily!=="ESP32-S3"||
+    !Array.isArray(data.builds[0].parts)||data.builds[0].parts.length!==4)
+    throw Error("Unexpected firmware package");
+ available=true;sync();
+ status.textContent="Experimental firmware package found. To proceed, acknowledge the test risk above.";
+}).catch(e=>{available=false;sync();status.textContent="Not ready: "+e.message});
+</script></body></html>
