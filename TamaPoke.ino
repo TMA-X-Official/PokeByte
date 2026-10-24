@@ -392,7 +392,7 @@ void handleSerial() {
   // Read-only status and deliberate owner-selected presentation options.
   // Never change the original pet save or SD file contents.
   if(line == "PBSTATUS"){
-    Serial.printf("PokéByte embedded port | scene=%s | PSRAM free=%u | SD=%d\n",
+    Serial.printf("PokeByte embedded port | scene=%s | PSRAM free=%u | SD=%d\n",
       pokebyte_embedded::status(),(unsigned)ESP.getFreePsram(),sdReady?1:0);
     Serial.println("DONE");return;
   }
