@@ -12,7 +12,7 @@
 | 1 — Remastered environments | **Completed, user-approved on Windows** | Five distinct day-part scenes and their matching minigame scenes |
 | 2 — Living environment | **Completed, user-approved on Windows** | Balanced pollen, grass movement, evening/night fireflies, manual rain/snow; **no animated overlay clouds** |
 | 3 — Personality | **Completed, user-approved on Windows 24 Oct 2026** | Pack 01 moods; Pack 02 temperament/Bond; Pack 03 four distinct one-shot surprises |
-| 4 — Gameplay expansion | **Planning approved; no implementation started** | User likes **Adventure Mode first**, then wild encounters, turn-based battles, extra minigames/items, gyms/badges/ranks, achievements, habitat unlocks and shiny-related progression |
+| 4 — Gameplay expansion | **In development — Pack 01 Forest Trail Windows tester, awaiting user approval** | Adventure Mode first: quiet walk / berry sighting / wild Pokémon sighting with safe HOME; battles, minigames/items/gyms later |
 | 5 — Waveshare release | **Not started** | Device build, flash, backup and hardware testing reserved for later |
 
 ### Non-negotiable preservation
@@ -65,11 +65,21 @@ The user provided a previous-chat text export and confirmed focus on **Gameplay 
 - Avoid breaking existing level progression (one level per hour of real time). **Trainer Rank should be separate** from Pokémon level.
 - Existing code already has Gen 1 ATK/DEF/SPD derived from real base stats, genes and training, 8 original medals, shiny egg odds, stages of bond, a ball mini-game and strength-bag training. Reuse rather than duplicate them.
 - See [PHASE4-GAMEPLAY-PLAN.md](PHASE4-GAMEPLAY-PLAN.md) for the working proposal and safe acceptance criteria.
-- **No Phase 4 gameplay code was implemented as of this checkpoint.** Do not mark Pack 01 completed without a new build and user playtest.
+- **Phase 4 Pack 01 gameplay prototype is now implemented on a separate Windows branch and CI-tested.** It still **requires the user's hands-on feedback and explicit approval**. No persistent battles/inventory/rewards and no hardware changes.
+
+## Phase 4 Pack 01 — Forest Trail first tester (24 October 2026)
+
+- **Development branch:** [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype), [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17). Based directly on approved Phase 3 source; not merged.
+- **Implemented:** Optional new Adventure screen reached via home **ADVENTURE** pill or PC **G** key, single Forest Trail with original Pokémon walk animation, three outcome kinds (peaceful, berry discovered, wild Gen 1 original PMD sprite), repeatable **WALK/AGAIN**, always-available **HOME** return. No battle, permanent items, extra currency, Pokémon stat/save mutation.
+- **Test launchers:** `TEST-ADVENTURE-QUIET.bat`, `TEST-ADVENTURE-ITEM.bat`, `TEST-ADVENTURE-WILD.bat`, all in-memory Charmander no-save previews. Existing Phase 3 launchers and standard `PLAY-POKEBYTE.bat` remain.
+- **Successful Windows CI:** [run #40129169216](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216), compiled source commit `aa65bce87d572e3bcfcc80d52e322757e6d54ccb`; all previous gameplay/surprise tests and new state/screenshot tests passed.
+- **User-facing ZIP filename:** `PokeByte-Phase4-Pack01-Forest-Trail-Approved-Art-Windows.zip`, SHA-256 `d914e79c7942305fe274e7144bdf21887c4b751f9c01ab6bde63f816d8bfb434`. Verified that 12 BMP and 303 PMD BIN source bytes are **exactly the approved Phase 3 ZIP's**; ZIP CRC integrity pass. Do not substitute synthetic scene fixtures from the raw GitHub CI artifact.
+- **Acceptance:** **IN TEST / awaiting user hands-on feedback.** Not yet approved. Phase 3 ZIP remains the last **user-approved** Windows baseline. Do not advance to battle development or hardware deployment without this pack's review.
+- **New chat instructions:** In addition to the approved Phase 3 baseline, check PR #17, this file and `PHASE4-GAMEPLAY-PLAN.md`, and ask whether the user already tested the Forest Trail ZIP. Do not repeat implemented work or claim that Pack 01 was approved.
 
 ## Practical recovery in a new ChatGPT conversation
 
-1. Start with: **"Continue PokéByte from its approved Phase 3 baseline. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE4-GAMEPLAY-PLAN.md. Work on Phase 4 Pack 01 Adventure Mode, Windows first. Do not touch the original firmware or approved art."**
+1. Start with: **"Continue PokéByte from the approved Phase 3 baseline; Phase 4 Pack 01 Forest Trail Windows tester exists but was not yet approved. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE4-GAMEPLAY-PLAN.md and GitHub PR #17. Preserve approved assets/firmware; help complete Pack 01 playtesting."**
 2. Upload the privately retained **PokéByte Continuity Archive ZIP**, or at minimum the approved Phase 3 Windows ZIP, the backup ZIP, and the previous-chat export.
 3. Verify the ZIP and [asset hashes](APPROVED-ASSETS.md) before providing a new Windows build. Source-only CI art is **not** enough. Never invent a local download link.
 4. Check the GitHub roadmap and most recent PR; don't assume a new conversation has access to the prior session or uploaded binary files.
