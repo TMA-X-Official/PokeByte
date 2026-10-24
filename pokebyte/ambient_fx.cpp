@@ -70,10 +70,10 @@ void cloud(Arduino_Canvas*c,int x0,int y0,bool small,
       (oval(x,y-1,11,15,11,6)||oval(x,y-1,24,11,14,10)||
        oval(x,y-1,38,7,12,8)||oval(x,y-1,50,15,8,5)||
        oval(x,y-1,30,16,28,5)));
-   uint16_t col=(y>ch-5)?shadow:(above||y<ch/3)?light:body;
-   int opacity=(y>ch-4)?185:above?236:208;
-   // A few shadowed grooves make clouds read as pixel-art forms.
-   if(y>ch/2 && (x==22||x==39) && y<ch-4){col=shadow;opacity=155;}
+   uint16_t col=(y>ch-3)?shadow:(above||y<ch/3)?light:body;
+   // Soft blended undersides (not solid rectangular bands); top remains
+   // crisp 2px pixel art against the approved scenic sky.
+   int opacity=(y>ch-2)?98:(y>ch-4)?147:above?225:162;
    translucentPixel(c,x0+x*2,y0+y*2,col,opacity);
   }
  }
@@ -102,7 +102,7 @@ void clouds(Arduino_Canvas*c,uint32_t t,const std::string&m){
  const int largeX=int((int64_t(t/650)+105)%600)-85;
  const int smallX=397-int((int64_t(t/870)+30)%560);
  cloud(c,largeX,58,false,p.light,p.body,p.shade);
- cloud(c,smallX,139,true,p.light,p.body,p.shade);
+ cloud(c,smallX,110,true,p.light,p.body,p.shade);
 }
 void pollen(Arduino_Canvas*c,uint32_t t,bool night,int bottom){
  // Completely separate from CLOUDS: only a few motes down near the grass.
