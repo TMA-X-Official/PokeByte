@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "web/pokebyte/index.html"
 ORIGINAL_PAGE = ROOT / "web/index.html"
 ORIGINAL_MANIFEST = ROOT / "web/manifest.json"
+LOGO = ROOT / "web/pokebyte/assets/pokebyte-logo.webp"
 
 class InstallerParser(HTMLParser):
     def __init__(self):
@@ -29,6 +30,9 @@ class InstallerParser(HTMLParser):
     handle_startendtag = handle_starttag
 
 assert PAGE.exists(), "Missing new PokéByte preview page"
+assert LOGO.is_file(), "Missing original user-submitted PokéByte logo thumbnail"
+import hashlib
+assert hashlib.sha256(LOGO.read_bytes()).hexdigest() == "79766a42fcfe005e44aaaf338905ee9c37a8522630a1bb32f8cc93d813e54972", "Logo binary unexpectedly changed"
 site = PAGE.read_text(encoding="utf-8")
 parser = InstallerParser()
 parser.feed(site)
@@ -40,6 +44,9 @@ assert "manifest.json" not in site, "Never accidentally link original TamaPoke m
 assert "navigator.serial" not in site and "navigator.usb" not in site
 assert not re.search(r"firmware/[^ \"]+\.bin", site)
 assert "Waveshare ESP32-S3-Touch-AMOLED-1.75" in site
+assert 'src="assets/pokebyte-logo.webp"' in site
+assert "Phase 4 · Waveshare" in site
+assert "Phase 5 · Waveshare" not in site
 assert "1.75C" in site
 assert "no firmware" in site.lower() or "not ready" in site.lower()
 assert "Adventure or Battle add-ons" in site, "Cancelled Adventure/Battle must not ship"
