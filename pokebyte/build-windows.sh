@@ -25,6 +25,9 @@ else
   echo "ERROR: PokéByte meadow artwork is missing" >&2
   exit 1
 fi
+# Use a fallback scene for automated build tests. The Windows playtest bundle
+# supplies all five correctly framed full-screen minigame scenes.
+cp "$OUT/assets/sunset-forest.bmp" "$OUT/assets/minigame.bmp"
 cat > "$OUT/PLAY-POKEBYTE.bat" <<'BAT'
 @echo off
 cd /d "%~dp0"
