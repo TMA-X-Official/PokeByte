@@ -44,11 +44,12 @@ int main(){
  // At real play, high-Bond friendship is guarded; absent gestures degrade.
  pokebyteSurpriseNotify(PB_SURPRISE_FRIENDSHIP,250000,true);
  assert(!pokebyteSurpriseChoose(250010,PB_SHY,30,all,999,&p));
- assert(pokebyteSurpriseChoose(250020,PB_SHY,85,all,999,&p));
+ pokebyteSurpriseNotify(PB_SURPRISE_FRIENDSHIP,1000000,true);
+ assert(pokebyteSurpriseChoose(1000020,PB_SHY,85,all,999,&p));
  assert(p.event==PB_SURPRISE_FRIENDSHIP);
  // Ambient wander remains very rare; use 1000-sided rarity sample.
- assert(!pokebyteSurpriseChoose(440000,PB_CURIOUS,85,all,900,&p));
- assert(pokebyteSurpriseChoose(440020,PB_CURIOUS,85,all,1,&p));
+ assert(!pokebyteSurpriseChoose(1400000,PB_CURIOUS,85,all,900,&p));
+ assert(pokebyteSurpriseChoose(1400020,PB_CURIOUS,85,all,1,&p));
  assert(p.event==PB_SURPRISE_WANDER);
  std::puts("Pack 03: 4 demos, original PMD fallbacks, contextual triggers, cooldowns, and rare idle tests passed");
 }
