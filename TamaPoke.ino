@@ -22,6 +22,9 @@
 #include "rtcbat.h"
 #include "i18n.h"
 #include "audio.h"
+#ifdef POKEBYTE_PC
+#include "pokebyte/personality_pack01.h"
+#endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
 // el instalador web). Se muestra en la pantalla de ajustes y por serie al arrancar.
@@ -2420,6 +2423,31 @@ void behNext() {
   uint32_t now = millis();
   beh.t0 = now;
   int r = random(100);
+#ifdef POKEBYTE_PC
+  // Phase 3: optional PC-only context-sensitive use of existing PMD actions.
+  // Normal TamaPoke behavior is the immediate fallback when the option is OFF.
+  uint16_t available = 0;
+  for (uint8_t a = 0; a < PMD_NACTS; ++a)
+    if (pmd.has(a)) available |= uint16_t(1u << a);
+  PokeBytePersonalityPlan plan{};
+  uint8_t behaviorRoll = pokebytePersonalityDemoActive() ? 4 : uint8_t(r);
+  if (pokebytePersonalityPlan(pet.fullness, pet.joy, pet.energy,
+                             pet.hygiene, available, behaviorRoll, &plan)) {
+    beh.mode = plan.mode;
+    beh.act = plan.action;
+    if (plan.mode == PB_WALK) {
+      beh.targetX = 150 + random(176);
+      beh.until = now + plan.durationMs;
+    } else if (plan.mode == PB_GESTURE && pmd.has(plan.action)) {
+      // Exact real sprite animation length, original anchor and render path.
+      beh.until = now + pmdActTotalMs(pmd.acts[plan.action]);
+    } else {
+      beh.mode = 0;
+      beh.until = now + plan.durationMs;
+    }
+    return;
+  }
+#endif
   if (r < 35 && (pmd.has(PMD_WALKL) || pmd.has(PMD_WALKR))) {
     beh.mode = 1;  // paseo
     beh.targetX = 150 + random(176);
