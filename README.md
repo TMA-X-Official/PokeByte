@@ -1,6 +1,8 @@
+<p align="center"><img src="branding/pokebyte-logo-thumbnail.webp" width="220" alt="PokéByte — Your Pocket Pokémon Companion logo"></p>
+
 # PokéByte 🎮
 
-**Your pocket Pokémon companion — classic TamaPoke gameplay, with thoughtful upgrades ahead.**
+**Your pocket Pokémon companion — classic TamaPoke gameplay, with approved enhancements coming to Waveshare hardware.**
 
 [![Windows PC build](https://img.shields.io/badge/Windows-PC%20playable-3578E5?logo=windows&logoColor=white)](https://github.com/TMA-X-Official/PokeByte/actions/runs/40030905560)
 [![Firmware CI](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml/badge.svg)](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml)
