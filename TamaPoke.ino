@@ -1313,6 +1313,12 @@ void renderSack() {
 
 // fondo del minijuego: hatibat del bicho (cielo por hora + suelo del bioma)
 void drawGameScene() {
+#ifdef POKEBYTE_PC
+  // The home screen and mini-games share the chosen PokéByte background.
+  // This hook affects background drawing only, never ball physics or scoring.
+  extern bool pokebyteDrawMinigameSceneOverride(Arduino_Canvas *canvas);
+  if (pokebyteDrawMinigameSceneOverride(gfx)) return;
+#endif
   int hh = sceneHour();
   bool night = hh < 6 || hh >= 20;
   uint16_t top, bot;
