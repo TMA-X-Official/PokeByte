@@ -4,3 +4,7 @@ class Arduino_Canvas;
 void pokebyteApplyAmbient(Arduino_Canvas *canvas, bool minigame);
 void pokebyteToggleAmbient();
 void pokebyteToggleWeather();
+
+// Optional snow (mutually exclusive with rain), PC only.
+void pokebyteToggleSnow();
+void pokebyteSetWeatherForTest(const char* mode);
