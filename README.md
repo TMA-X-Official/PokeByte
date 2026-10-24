@@ -15,6 +15,12 @@
 
 **✅ Phase 3 complete — all three Personality Packs approved (Windows, 24 October 2026).** Pack 01 improves mood reactions and Hungry/Sleepy status; Pack 02 adds stable Playful/Calm/Curious/Shy temperaments and Bond-dependent behavior; Pack 03 adds four rare, genuinely distinct one-shot surprises (wake-up stretch, ball-game victory, out-and-back wander, high-Bond greeting). The final user-tested Windows ZIP retains all 12 approved background BMP files and 303 original Pokémon sprite BIN files *byte-for-byte*; the GitHub Actions compile/test artifact uses **synthetic background fixtures** and must not be distributed as the approved visual release. The approved source is on [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), tracked in [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), with [successful Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906). **Next: Phase 4 — gameplay expansion (not started).**
 
+## Project continuity — important for future ChatGPT sessions
+
+**If an ongoing chat reaches its length limit, do not restart from scratch.** Read the [PokéByte continuity handoff](PROJECT-CONTINUITY.md), [Phase 4 Gameplay Expansion plan](PHASE4-GAMEPLAY-PLAN.md) and [approved artwork/sprite hash manifest](APPROVED-ASSETS.md). The user also keeps a private archive with the original chat export, known-good Windows ZIP and backed-up approved scenery; that archive should be uploaded again in a new chat when exact binaries are needed.
+
+**Current next milestone:** Phase 4 **Pack 01 — Adventure Mode**, user-supported planning direction. Implementation **not yet started**, Windows-only development and individual user playtesting required. The accepted Phase 3 Windows ZIP has SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`; never mistake synthetic CI BMP fixtures for approved scene art.
+
 ## Welcome to PokéByte
 
 **PokéByte** is a personal, non-commercial Pokémon-inspired virtual-pet project for **Windows PC** and the **Waveshare ESP32-S3-Touch-AMOLED-1.75** (round 466 × 466 display).
