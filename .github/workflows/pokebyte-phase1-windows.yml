@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Pack 01.1 Status Fix Windows
+name: PokeByte Phase 3 Pack 01.2 Sleepy Text Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-pack01-status-fix]
+    branches: [pokebyte-phase3-pack01-sleepy-label]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -89,6 +89,10 @@ jobs:
           python -c 'import hashlib; w=["clear","rain","snow"]; hs=[hashlib.sha256(open("weather-"+x+".ppm","rb").read()).digest() for x in w]; assert len(set(hs))==3; print("Cloud-free weather rendering tested: clear, rain, snow")'
           rm -f weather-*.ppm
 
+      - name: Verify short Sleepy label and untranslated language fallback
+        run: |
+          python -c 'from pathlib import Path; s=Path("TamaPoke.ino").read_text(); block=s.split("static const char *pokebyteTiredStatus()",1)[1].split("const char *statusMsg()",1)[0]; assert "gLang == LANG_EN" in block and "return \"Sleepy\"" in block and "return T(S_EXHAUSTED)" in block; assert "if (pbMood == PB_TIRED) return pokebyteTiredStatus()" in s; assert "if (pet.energy < 25) return pokebyteTiredStatus()" in s; print("Sleepy status and translation fallback verified")'
+
       - name: Personality action policy and missing-sprite fallback tests
         run: |
           g++ -std=c++17 -O2 -I. pokebyte/personality_pack01.cpp pokebyte/test_personality_pack01.cpp -o persona-policy-test.exe
@@ -141,7 +145,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Status-Fix-Windows
+          name: PokeByte-Phase3-Sleepy-Label-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
