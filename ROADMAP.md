@@ -8,7 +8,7 @@
 | **Phase 0 — Secure working version** | ✅ **Completed** | Original TamaPoke code and original Windows PC emulator baseline preserved; separate development branches |
 | **Phase 1 — Visual upgrade** | ✅ **Completed (Windows PC playtest)** | User approved all five correctly framed remastered environments: morning, day, afternoon, evening and night. Home, ball mini-game and training-bag backgrounds match. Classic scene toggle remains available; original Pokémon/gameplay preserved |
 | **Phase 2 — A living environment** | ✅ **Completed (Windows PC playtest)** | User approved Balanced pollen, evening/night fireflies, gentle grass movement, optional rain and snowfall, five approved scenes and original mini-games; no animated cloud overlays |
-| **Phase 3 — More Pokémon personality** | 🟡 **In progress — Pack 01 Windows test** | Mood-aware reactions and idle behavior using only available PMD animations; bonding personality and surprises reserved for later Pack 02/03 |
+| **Phase 3 — More Pokémon personality** | 🟡 **In progress — Pack 01 completed** | ✅ Pack 01 approved after Windows playtest: original-sprite mood-aware reactions, matching status messages and short Sleepy label. Next: Pack 02 — individual temperament and meaningful bonding; Pack 03 — rare surprises |
 | **Phase 4 — Gameplay expansion** | ⬜ Not started | New gameplay systems developed alongside existing minigames |
 | **Phase 5 — Waveshare release** | ⬜ Not started | Hardware optimization, flashable builds, backup/recovery and device validation |
 
@@ -76,7 +76,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Reproducibility note:** The actual download ZIP also includes user-approved full-resolution artwork files that are not all available in the GitHub source tree. Before a source-only reproducible release, commit or otherwise package those approved assets using appropriate attribution and permissions.
 - **Not yet deployed to hardware:** Waveshare code/firmware has **not** been flashed or device-tested. Physical hardware release still belongs to Phase 5. Completion here does **not** assert hardware readiness.
 
-## Phase 3 — Personality Pack 01: user playtest candidate (24 October 2026)
+## Phase 3 — Personality Pack 01: accepted Windows milestone (24 October 2026)
 
 - **Development branch:** [`pokebyte-phase3-personality-pack-01`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-01). [Draft PR #10](https://github.com/TMA-X-Official/PokeByte/pull/10); do not merge until the user approves.
 - **Feature scope:** Optional, mood-aware original PMD Idle / Walk / Pose / Nod / DeepBreath / Hurt selection on Windows based on existing FOOD, JOY, ENERGY and HYGIENE. No artificial emotion bars, new frames, invented sprite movement, care logic changes or save format changes.
@@ -84,7 +84,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Action safety:** The behavior planner checks each PMD animation's existence per species. Pokémon without a special gesture fall back to real idle/walk frames. Existing HOP/SIT remain excluded from normal idle transitions, consistent with TamaPoke's original sprite alignment logic.
 - **Previous work preserved:** Approved Phase 2 sky/biome assets, five day modes and matching original minigame art, rain/snow, pollen/fireflies, all original PMD files and game code.
 - **Validation:** [Windows build and home/ball/training/mood-preview tests](https://github.com/TMA-X-Official/PokeByte/actions/runs/40112695971) passed, as did six independent reaction-scheduler tests. Final ZIP copied all **12** previously approved background BMPs and all **303** Pokémon PMD files byte-identically from the completed Phase 2 Windows build.
-- **Still to do:** User review of Charmander animations and actual game pacing; Pack 02 individual temperament/bond personality and Pack 03 rare surprises are **not implemented**. Phase 3 is **in progress**, and Waveshare firmware remains unchanged.
+- **Acceptance:** The user tested the subsequent status corrections and Sleepy label, confirmed the build works, and explicitly approved **completing Personality Pack 01**. Pack 02 individual temperament/bond personality and Pack 03 rare surprises remain **unimplemented**. Phase 3 is still in progress, and Waveshare firmware remains unchanged.
 
 ## Phase 3 — Personality Pack 01.1 status consistency (Windows playtest)
 
@@ -95,16 +95,25 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Dev branch:** [`pokebyte-phase3-pack01-status-fix`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack01-status-fix), [draft PR #11](https://github.com/TMA-X-Official/PokeByte/pull/11). Not merged.
 - **Validation:** [Successful Windows workflow #40116224178](https://github.com/TMA-X-Official/PokeByte/actions/runs/40116224178) passed 16 mood/status/fallback assertions, all three distinct preview screenshots without creating a save, all five lighting scenes, rain/snow, and both original mini-games.
 - **Approved baseline unchanged:** The Windows ZIP preserves all **12** approved environment BMPs and all **303** original PMD animation BIN files byte-for-byte from the previous user-tested version; hardware firmware is untouched.
-- **State:** Ready for hands-on review. **Phase 3 is still in progress**, with individual temperament and bond extensions reserved for later packs.
+- **Historical status:** Status consistency correction was followed by the accepted short Sleepy label in Pack 01.2. Phase 3 remains in progress, with individual temperament and bond extensions reserved for later packs.
 
-## Phase 3 — Personality Pack 01.2: Short “Sleepy” label
+## Phase 3 — Personality Pack 01.2: Accepted “Sleepy” label
 
 - **User screenshot feedback:** English tired status `Worn out...` appeared clipped in the Windows emulator. User requested the simpler `Sleepy` wording.
 - **Solution:** In the Windows PC build, both the test-mode Tired Charmander status and regular low-energy status now display **Sleepy**. All other languages retain the original localized exhausted translations; Waveshare firmware text is unchanged. No Pokémon stats or save-file formats were changed.
 - **Development:** [`pokebyte-phase3-pack01-sleepy-label`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack01-sleepy-label), [draft PR #12](https://github.com/TMA-X-Official/PokeByte/pull/12) (unmerged).
 - **Build checks:** [Windows workflow #40116963570](https://github.com/TMA-X-Official/PokeByte/actions/runs/40116963570) compiled successfully, verified the Sleepy text and fallback, 16 behavior/status/fallback tests, all three mood preview renders with no save writes, five time modes, rain/snow, home and both original mini-games.
 - **Asset preservation:** Final ZIP contains exactly the 12 approved Phase 2 bitmaps and all 303 original Pokémon PMD animations unchanged, with the new tested executable.
-- **Status:** **Awaiting user playtest**, Phase 3 remains **in progress**.
+- **Status:** ✅ **User-tested and accepted on 24 October 2026.** The user confirmed the corrected **Sleepy** text works and approved marking this Phase 3 step as complete. This closes **Personality Pack 01** on Windows; the larger Phase 3 remains **in progress**.
+
+## Phase 3 — Pack 01 acceptance and next milestone
+
+- **Pack 01:** ✅ **Completed and user-approved** on 24 October 2026 (Windows PC). Enhanced idle responses use only existing PMD animations, safely fall back where animations are unavailable, match the displayed Hungry/Sleepy/Happy status, and allow switching to Classic behavior with **P**.
+- **Accepted test build:** [Phase 3 Pack 01.2 Sleepy-label Windows build](https://github.com/TMA-X-Official/PokeByte/actions/runs/40116963570). User explicitly tested the shorter Sleepy label and said it works.
+- **Preservation:** Completed Phase 2 scenery/weather, the 12 approved art files, 303 original Pokémon animation files, menus, and mini-games remain untouched. The Windows preview launchers do not touch the player's save.
+- **Code review:** [Draft PR #12](https://github.com/TMA-X-Official/PokeByte/pull/12), based on the preceding Phase 3 Pack 01 drafts; experimental branches and draft PRs remain separate and **unmerged** pending explicit merge approval.
+- **Next:** **Personality Pack 02** — stable per-Pokémon temperaments and observable bond-based behaviors, using existing care/bond systems and original PMD frames. **Personality Pack 03** — occasional context-aware surprises. These are not yet implemented and must be tested before Phase 3 can be marked complete.
+- **Hardware:** None of these Phase 3 changes have been deployed to the Waveshare; hardware release remains Phase 5.
 
 ## After each phase
 
