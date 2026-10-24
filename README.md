@@ -13,13 +13,13 @@
 
 **✅ Phase 0, Phase 1, Phase 2, and Phase 3 completed and user-approved on Windows PC (24 October 2026).** Five original approved morning/day/afternoon/evening/night home scenes and matching minigame backgrounds remain intact. Balanced pollen, gently moving grass, fireflies, optional rain and snow, and the approved cloud-free presentation are preserved. The physical Waveshare firmware remains unchanged; hardware deployment belongs to Phase 5. See the [full PokéByte roadmap](ROADMAP.md).
 
-**✅ Phase 3 complete — all three Personality Packs approved (Windows, 24 October 2026).** Pack 01 improves mood reactions and Hungry/Sleepy status; Pack 02 adds stable Playful/Calm/Curious/Shy temperaments and Bond-dependent behavior; Pack 03 adds four rare, genuinely distinct one-shot surprises (wake-up stretch, ball-game victory, out-and-back wander, high-Bond greeting). The final user-tested Windows ZIP retains all 12 approved background BMP files and 303 original Pokémon sprite BIN files *byte-for-byte*; the GitHub Actions compile/test artifact uses **synthetic background fixtures** and must not be distributed as the approved visual release. The approved source is on [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), tracked in [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), with [successful Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906). **Phase 4 Pack 01 is now in Windows prototype playtesting, not yet accepted.**
+**✅ Phase 3 complete — all three Personality Packs approved (Windows, 24 October 2026).** Pack 01 improves mood reactions and Hungry/Sleepy status; Pack 02 adds stable Playful/Calm/Curious/Shy temperaments and Bond-dependent behavior; Pack 03 adds four rare, genuinely distinct one-shot surprises (wake-up stretch, ball-game victory, out-and-back wander, high-Bond greeting). The final user-tested Windows ZIP retains all 12 approved background BMP files and 303 original Pokémon sprite BIN files *byte-for-byte*; the GitHub Actions compile/test artifact uses **synthetic background fixtures** and must not be distributed as the approved visual release. The approved source is on [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), tracked in [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), with [successful Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906). **Phase 4 was explicitly skipped; Phase 5 Waveshare release preparation is now active.**
 
 ## Project continuity — important for future ChatGPT sessions
 
-**If an ongoing chat reaches its length limit, do not restart from scratch.** Read the [PokéByte continuity handoff](PROJECT-CONTINUITY.md), [Phase 4 Gameplay Expansion plan](PHASE4-GAMEPLAY-PLAN.md) and [approved artwork/sprite hash manifest](APPROVED-ASSETS.md). The user also keeps a private archive with the original chat export, known-good Windows ZIP and backed-up approved scenery; that archive should be uploaded again in a new chat when exact binaries are needed.
+**If an ongoing chat reaches its length limit, do not restart from scratch.** Read the [PokéByte continuity handoff](PROJECT-CONTINUITY.md), [Phase 5 Waveshare release plan](PHASE5-WAVESHARE-RELEASE.md) and [approved artwork/sprite hash manifest](APPROVED-ASSETS.md). The user also keeps a private archive with the original chat export, known-good Windows ZIP and backed-up approved scenery; that archive should be uploaded again in a new chat when exact binaries are needed.
 
-**Current milestone:** Phase 4 Pack 01 is a **classic-style turn-based Pokémon battle Windows tester**, with FIGHT/BAG/POKEMON/RUN, four moves/PP, original PMD sprites/HP/Attack/Hurt and a temporary battle-only Potion. After seeing Forest Trail, the user rejected Adventure Quiet/Item/Wild and [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) was closed unmerged. [Current battle PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) is unmerged; [Windows tests #40131289786](https://github.com/TMA-X-Official/PokeByte/actions/runs/40131289786) passed. **User-facing ZIP:** `PokeByte-Phase4-Pack01-Classic-Battles-Windows-TEST.zip` (SHA-256 `65bb9f55e6fcd55e89d812972974c3ad45ad8f1040df10d2ec3103a7a1f7032e`), packed with all **12 exact approved BMPs and 303 exact original PMD sprite BINs**. **Waiting for the user's battle playtest and approval; Waveshare firmware unchanged.**
+**Current milestone: Phase 5 — Waveshare hardware release preparation.** The user rejected and **cancelled Phase 4**: no Forest Trail (Quiet/Item/Wild) and no Pokémon battles. [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) and [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) are **closed without merging**. Phase 5 source is isolated on [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep) based directly on the approved Phase 3 code. **Not ready to flash:** Windows-only scenery/ambience/personality code still needs a real ESP32 port and on-device validation. Exact 12 approved backgrounds and 303 original BIN SD assets must be verified; microSD auto-formatting has been disabled on the preparation branch. Read [Phase 5 release plan](PHASE5-WAVESHARE-RELEASE.md).
 
 ## Welcome to PokéByte
 
@@ -40,8 +40,7 @@ The original TamaPoke v1.17 gameplay is available as a **PokéByte Windows deskt
 | [`pokebyte-deluxe-dev`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-deluxe-dev) | Experimental improvements, separate from the working game |
 | [`original-tamapoke-reference`](https://github.com/TMA-X-Official/PokeByte/tree/original-tamapoke-reference) | Preserved original fork snapshot before PokéByte rebranding |
 | [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments) | **User-approved Phase 3 Windows source**, with final distinct surprises; keeps original `main` firmware untouched |
-| [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype) | **Rejected** Forest Trail Adventure experiment; closed without merging |
-| [`pokebyte-phase4-pack01-classic-battles`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles) | **Current Phase 4** classic-style battle Windows prototype, awaiting user playtest |
+| [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep) | **Active Phase 5** ESP32-S3 hardware port/preflight; no rejected Phase 4 features, original `main` untouched |
 
 **Important:** The [upstream web installer](https://socquique.github.io/TamaPoke/web/) installs **original TamaPoke firmware**, not a PokéByte upgrade. We have **not** released modified PokéByte firmware for the physical board. Do not erase a device or overwrite a Pokémon save to try the PC build.
 
@@ -64,7 +63,7 @@ progression, battery (AXP2101) and PWR button, anti-burn-in dimming,
 **sound (ES8311)**, **8 UI languages (English default)**, **starter choice on
 first run**, and a one-click **web installer**.
 
-In the original firmware, wild encounters and battles remain on the roadmap. PokéByte additions will be developed and tested separately.
+Historical upstream ideas included wild encounters and battles, but the **PokéByte user explicitly rejected both Phase 4 prototype approaches** and opted to skip that stage. **The active PokéByte roadmap contains no gameplay expansion stage.**
 
 ## Game manual (the actual numbers)
 
@@ -373,11 +372,9 @@ runaway-ready state) · `WIPE` (factory reset → new game) · `BEEP` (audio tes
 
 To test fast: lower `PET_TICK_MS`, `MINUTES_PER_LEVEL` and `FAREWELL_AGE_MIN` in `pet.h`.
 
-## Original TamaPoke roadmap (upstream)
+## Historical upstream TamaPoke ideas (not PokéByte Phase 4)
 
-- **Wild encounters / battle** — designed (see project memory): resolution by
-  ATK/DEF/SPD with PMD Attack/Hurt animations, trainer rank as endgame. Style
-  still to pick (auto / timing / turn-based).
+- **Wild encounters / battle** — historical upstream concept, **not approved or planned for PokéByte's Waveshare release**.
 - **Soak test** 24–48 h (instrumentation ready: `HEALTH` command/heartbeat).
 
 *(Done: 3D-printed case [published on MakerWorld](https://makerworld.com/es/models/2937822-tamapoke-a-pokemon-pokeball-tamagotchi); repo public with the browser installer + one-click sprite bundle.)*
