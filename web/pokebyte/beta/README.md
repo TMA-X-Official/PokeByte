@@ -28,3 +28,7 @@ This setup is needed only by the **repository owner**, not ordinary visitors.
 **Never publish the beta as an ordinary consumer release.** A chip-family check identifies ESP32-S3 but cannot verify a particular Waveshare display variant. Initial boot failure may require reentering the ESP32 ROM bootloader; do not promise effortless rollback without a tested recovery route.
 
 For the final public one-click installer, original game save backups and vetted automatic BMP asset transfer remain separate requirements. The beta is specifically for an owner who opted to accept internal data loss, and their preferences must not be generalized to other users.
+
+## Publishing the owner-opted-in beta
+
+The repository owner enabled GitHub Pages (GitHub Actions source) and reports setting the repository Actions variable `POKEBYTE_BETA_PAGES_ENABLED=true`. This documentation update intentionally triggers a **fresh** beta workflow so the new run reads that variable. Check the entire job result, including the Pages deployment, before sharing the site URL or attempting any flash. No microSD write, microSD format, or consumer-stable release is authorized by publication alone.
