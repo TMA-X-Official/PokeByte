@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Distinct Surprises Windows
+name: PokeByte Phase 4 Classic Battles Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-pack03-distinct-moments]
+    branches: [pokebyte-phase4-pack01-classic-battles]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -199,11 +199,37 @@ jobs:
       # GitHub's headless Windows environment cannot reliably emulate a mouse swipe.
       # The Windows check above verifies the actual executable starts and renders.
 
+      - name: Battle engine move types, turns, HP, and no-save state tests
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/battle_pack01.cpp pokebyte/test_battle_pack01.cpp -o battle-policy-test.exe
+          ./battle-policy-test.exe
+          for foe in BULBASAUR SQUIRTLE PIKACHU; do
+            test -s "pc/build/windows/PokeByte-Phase1-PC/TEST-BATTLE-${foe}.bat"
+          done
+          test ! -e pc/build/windows/PokeByte-Phase1-PC/TEST-ADVENTURE-QUIET.bat
+          test ! -e pc/build/windows/PokeByte-Phase1-PC/TEST-ADVENTURE-ITEM.bat
+          test ! -e pc/build/windows/PokeByte-Phase1-PC/TEST-ADVENTURE-WILD.bat
+          ! grep -q -- '--adventure-demo' pokebyte/apply_pc_patch.py
+
+      - name: Three isolated classic battle opponent previews
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          rm -f tamapoke_pc_save.dat
+          for foe in bulbasaur squirtle pikachu; do
+            SDL_VIDEODRIVER=dummy timeout 30s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --battle-demo "$foe" --time-of-day day --screenshot-after-ms 700
+            test -s tamapoke-test.ppm
+            test ! -e tamapoke_pc_save.dat
+            mv tamapoke-test.ppm "battle-$foe.ppm"
+          done
+          python -c 'import hashlib; names=("bulbasaur","squirtle","pikachu"); hs=[hashlib.sha256(open("battle-"+n+".ppm","rb").read()).hexdigest() for n in names]; assert len(set(hs))==3,hs; print("Three distinct battle opponents and no save mutation")'
+          rm -f battle-*.ppm
+
       - name: Upload Windows executable and original sprites
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Pack03-Distinct-Surprises-Windows
+          name: PokeByte-Phase4-Pack01-Classic-Battles-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
