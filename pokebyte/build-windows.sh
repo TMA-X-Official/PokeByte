@@ -8,7 +8,7 @@ x86_64-w64-mingw32-g++ --version >/dev/null 2>&1 && CXX=x86_64-w64-mingw32-g++ |
 "$CXX" -std=c++17 -O2 -DPOKEBYTE_PC -Ipc/shim -I. \
  pc/pc_sketch.cpp pet.cpp i18n.cpp sdmon.cpp \
  pc/shim/emu_core.cpp pc/shim/emu_sd.cpp pc/shim/emu_preferences.cpp \
- pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp pokebyte/ambient_fx.cpp pokebyte/personality_pack01.cpp pokebyte/personality_pack02.cpp pokebyte/personality_pack03.cpp \
+ pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp pokebyte/ambient_fx.cpp pokebyte/personality_pack01.cpp pokebyte/personality_pack02.cpp pokebyte/personality_pack03.cpp pokebyte/adventure_pack01.cpp \
  -lSDL2 -static-libgcc -static-libstdc++ \
  -o "$OUT/PokeByte-Phase1-PC.exe"
 for dll in SDL2.dll libwinpthread-1.dll; do
@@ -59,6 +59,11 @@ for temperament in playful calm curious shy; do
     printf '@echo off\r\ncd /d "%%~dp0"\r\nstart "" "PokeByte-Phase1-PC.exe" --scale 2 --test-home --no-save --temperament %s --bond-preview %s\r\n' "$temperament" "$stage" > "$OUT/TEST-${upper}-${bst}-BOND.bat"
   done
 done
+# No-save, one-click forest-adventure outcome previews using original PMD art.
+for event in quiet item wild; do
+  upper=$(printf '%s' "$event" | tr '[:lower:]' '[:upper:]')
+  printf '@echo off\r\ncd /d "%%~dp0"\r\nstart "" "PokeByte-Phase1-PC.exe" --scale 2 --test-home --no-save --adventure-demo %s\r\n' "$event" > "$OUT/TEST-ADVENTURE-${upper}.bat"
+done
 # Safe one-click previews for four little surprises. All use the original
 # Charmander PMD and NEVER load or write the real player's Pokémon save.
 for event in wake victory wander friendship; do
@@ -66,9 +71,9 @@ for event in wake victory wander friendship; do
   printf '@echo off\r\ncd /d "%%~dp0"\r\nstart "" "PokeByte-Phase1-PC.exe" --scale 2 --test-home --no-save --surprise-demo %s\r\n' "$event" > "$OUT/TEST-SURPRISE-${upper}.bat"
 done
 cat > "$OUT/README.txt" <<'TEXT'
-POKEBYTE PHASE 3 - PERSONALITY PACK 03 / LITTLE SURPRISES
+POKEBYTE PHASE 4 - ADVENTURE PACK 01 / WINDOWS TEST
 Run PLAY-POKEBYTE.bat for the real persistent game on Windows 10/11 (64-bit). Changes between the five approved time-of-day scenes AUTOMATICALLY while running. PLAY-MORNING/DAY/AFTERNOON/EVENING/NIGHT launchers lock the scene for quick previews.
-Press P to toggle enhanced mood-aware reactions / original idle behavior. Press B to switch original/remastered scenery. Press A to toggle BALANCED pollen, grass and fireflies (ON by default). Press W for light rain, S for falling snow. Rain and snow are mutually exclusive and both start OFF. ALL animated clouds removed.
+Pack 01 Adventure: tap the ADVENTURE button on home (requires an awake Pokemon), or press G to enter/exit Forest Trail. Tap WALK to find a peaceful path, berry discovery or wild Pokemon. Tap AGAIN to explore more or HOME to return at any point. This first preview awards no items and has no battle mechanics or persistent data.\nTEST-ADVENTURE-QUIET.bat, TEST-ADVENTURE-ITEM.bat and TEST-ADVENTURE-WILD.bat each open safe in-memory Charmander previews with a deterministic event, without reading or writing the real player save.\nPress P to toggle enhanced mood-aware reactions / original idle behavior. Press B to switch original/remastered scenery. Press A to toggle BALANCED pollen, grass and fireflies (ON by default). Press W for light rain, S for falling snow. Rain and snow are mutually exclusive and both start OFF. ALL animated clouds removed.
 Click to tap; hold and drag the mouse to swipe the original menus.
 The game remembers background and ambient preferences in .cfg files. Rain and snow are manual, visual-only weather and do not use real forecasts.
 Eight temperament comparison previews TEST-PLAYFUL/CALM/CURIOUS/SHY-LOW/HIGH-BOND.bat: an isolated Charmander with real existing animations and simulated LOW/HIGH bond. These ONLY change demo behavior and a small label, not the saved Pokemon or actual bond. The profile screen shows the real Pokemon temperament and friendship stage.\nTEST-HAPPY-CHARMANDER.bat, TEST-TIRED-CHARMANDER.bat, TEST-HUNGRY-CHARMANDER.bat: safe standalone visual demos. They DO NOT read or change your real saved Pokemon and always use the original Charmander PMD animations. Real game behavior reflects actual needs, not the preview modes. Missing gestures safely fall back to Idle/Walk. The original TamaPoke v1.17 care, evolution, stats, interactions and sprites remain intact.
