@@ -11,6 +11,10 @@ The user wants a dedicated PokéByte installation website similar to TamaPoke's 
 - No Adventure Mode or classic battle feature. Only approved Windows Phases 1–3 are listed.
 - Original upstream-compatible `web/index.html` and `web/manifest.json` are **left untouched**; they still point to **original TamaPoke firmware 1.17** and must **never** be presented as a PokéByte update.
 
+### Brand image
+
+The uploaded PokéByte logo is represented by an optimized thumbnail at `assets/pokebyte-logo.webp`. The original full-resolution PNG remains the design source; the web thumbnail is deliberately smaller for fast display. Never generate or substitute fake Pokémon art.
+
 ### Preview on your PC
 
 ```bash
