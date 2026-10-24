@@ -9,7 +9,7 @@
 | **Phase 1 — Visual upgrade** | ✅ **Completed (Windows PC playtest)** | User approved all five correctly framed remastered environments: morning, day, afternoon, evening and night. Home, ball mini-game and training-bag backgrounds match. Classic scene toggle remains available; original Pokémon/gameplay preserved |
 | **Phase 2 — A living environment** | ✅ **Completed (Windows PC playtest)** | User approved Balanced pollen, evening/night fireflies, gentle grass movement, optional rain and snowfall, five approved scenes and original mini-games; no animated cloud overlays |
 | **Phase 3 — More Pokémon personality** | ✅ **Completed — user-approved Windows PC, 24 October 2026** | ✅ Pack 01 mood reactions/Hungry/Sleepy; ✅ Pack 02 four temperaments and three Bond stages; ✅ Pack 03 distinct Wake, Victory, Wander and Friendship surprises. Approved 12 backgrounds and 303 PMD assets preserved |
-| **Phase 5 — Waveshare release** | 🟡 **In progress — hardware preparation; NOT ready to flash** | Target: deploy **only approved Phases 1–3** to Waveshare 1.75 hardware, verify exact SD artwork/sprites, preserve existing saves, finish embedded port and device testing |
+| **Phase 4 — Waveshare release** | 🟡 **In progress — hardware preparation; NOT ready to flash** | Target: deploy **only approved Phases 1–3** to Waveshare 1.75 hardware, verify exact SD artwork/sprites, preserve existing saves, finish embedded port and device testing |
 
 ## Phase 1 accepted baseline
 
