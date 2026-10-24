@@ -9,6 +9,10 @@
 ![Code](https://img.shields.io/badge/code-MIT-blue)
 [![Stars](https://img.shields.io/github/stars/TMA-X-Official/PokeByte?style=flat&logo=github&color=yellow)](https://github.com/TMA-X-Official/PokeByte/stargazers)
 
+## Development status
+
+**✅ Phase 0 complete · ✅ Phase 1 complete (Windows playtest approved, 24 October 2026).** The five remastered home scenes and matching ball/training minigame scenes passed user testing. The original hardware firmware remains untouched. See the [full PokéByte roadmap](ROADMAP.md) for phases 2–5 and outstanding packaging/device release requirements.
+
 ## Welcome to PokéByte
 
 **PokéByte** is a personal, non-commercial Pokémon-inspired virtual-pet project for **Windows PC** and the **Waveshare ESP32-S3-Touch-AMOLED-1.75** (round 466 × 466 display).
