@@ -4,6 +4,16 @@
 
 **Important status:** This is the **acceptance contract**, not a released implementation. Current page intentionally shows a **disabled** Install button. The accepted Windows Phase 1–3 features remain partly PC-only and have not been hardware-tested. The original `web/manifest.json` points to **original TamaPoke**, not PokéByte, and must not be reused. No user firmware/device writes are permitted until the gates below pass.
 
+## First beta owner: explicit no-backup preference (25 October 2026)
+
+The device owner has **explicitly declined a backup of their current TamaPoke firmware and saved Pokémon**, accepts losing that internal game state, and prioritizes testing **the development PokéByte build** on their Waveshare (ESP32-S3, COM6, 16 MB flash, 8 MB PSRAM). They **do want to keep the original Pokémon sprites on the installed microSD** and have no card reader.
+
+**Beta implications:** Do NOT force the old TamaPoke flash/NVS backup on this owner as a condition for a **clearly identified experimental development test**. The visitor must still explicitly consent to risk of internal flash/save loss. Never claim their original save is backed up. The microSD is a separate device; leave it inserted and **do not format, overwrite or automatically transfer any sprites on the first beta flash**. The mounted-card code has `format_if_mount_failed=false`. Preserve existing `/mons/*.bin` and all other files; if original approved BMP files are absent, use classic scenery fallback until the separately tested missing-only asset synchronizer is ready.
+
+**Technical flash safety for beta:** Do not use the whole **16 MB merged binary at offset 0** as a beta image: that would write through NVS/FFat and all partition areas. Use narrowly scoped bootloader/partition/OTA-select/app flash parts at **verified offsets**, preserving the NVS region at `0x9000–0xDFFF` and the user SD card. The requested willingness to lose saves is **not** permission to format microSD or erase the entire ESP32 flash unnecessarily. The one-click beta flow may be made available once the binary/partition offsets, installer manifest and exact board target are checked.
+
+**Production policy remains different:** For a later public/general-audience stable installer, maintain a browser-led backup/restore option for users who *do* care about their TamaPoke/PokéByte saves. Do not silently generalize this one user's waiver to everyone.
+
 ## Finished visitor experience
 
 1. Open the dedicated **PokéByte** HTTPS installer (distinct from original TamaPoke page) in Chrome or Edge desktop.
