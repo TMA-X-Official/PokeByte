@@ -22,10 +22,13 @@
 #include "rtcbat.h"
 #include "i18n.h"
 #include "audio.h"
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 #include "pokebyte/personality_pack01.h"
 #include "pokebyte/personality_pack02.h"
 #include "pokebyte/personality_pack03.h"
+#endif
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+#include "pokebyte/embedded_scene.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -61,7 +64,7 @@ struct {
   uint32_t until = 0;   // fin del estado actual
   float x = 233, targetX = 233;
 } beh;
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 // Each rare surprise is a bounded sequence of genuine original PMD frames.
 bool pbSurpriseRunning = false;
 uint8_t pbSurpriseEvent = PB_SURPRISE_NONE;
@@ -265,7 +268,7 @@ void ensureMon() {
   beh.x = beh.targetX = 233;
   beh.mode = 0;
   beh.until = 0;
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   pbSurpriseRunning = false;
   pbSurpriseEvent = PB_SURPRISE_NONE;
   pbSurpriseStage = 0;
@@ -384,6 +387,24 @@ void handleSerial() {
   line.trim();
   if (line.length() == 0) return;
   if (sdSerialCommand(line)) return;
+
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+  // Read-only status and deliberate owner-selected presentation options.
+  // Never change the original pet save or SD file contents.
+  if(line == "PBSTATUS"){
+    Serial.printf("PokéByte embedded port | scene=%s | PSRAM free=%u | SD=%d\n",
+      pokebyte_embedded::status(),(unsigned)ESP.getFreePsram(),sdReady?1:0);
+    Serial.println("DONE");return;
+  }
+  if(line == "PBWEATHER clear"||line == "PBWEATHER rain"||line == "PBWEATHER snow"){
+    pokebyte_embedded::setWeather(line.endsWith("rain")?1:line.endsWith("snow")?2:0);
+    Serial.println("DONE");return;
+  }
+  if(line == "PBAMBIENT on"||line == "PBAMBIENT off"){
+    pokebyte_embedded::setAmbient(line.endsWith("on"));
+    Serial.println("DONE");return;
+  }
+#endif
 
   if (line == "HATCH") {
     pet.eggTap(); pet.eggTap(); pet.eggTap();
@@ -722,7 +743,7 @@ void onTap(int16_t x, int16_t y) {
   if (inPetZone(x, y)) {
     Serial.println("PET");
     pet.caress();
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
     // Extremely occasional high-Bond surprise; the real heart/reward is intact.
     if (pokebytePersonalityEnabled() && !pet.sleeping && pet.bond >= 70
         && random(100) < 12)
@@ -781,6 +802,10 @@ void drawScene(uint8_t biome, uint32_t now, bool night) {
   // Desktop-only optional scenery. The Waveshare firmware keeps its original renderer.
   extern bool pokebyteDrawSceneOverride(Arduino_Canvas *canvas);
   if (pokebyteDrawSceneOverride(gfx)) return;
+#elif defined(ARDUINO)
+  // The approved SD BMP background is cached in PSRAM; all UI is original.
+  // If SD/art is missing, retain original TamaPoke background safely.
+  if(pokebyte_embedded::draw(gfx,false,sceneHour()))return;
 #endif
   int h = sceneHour();
   uint16_t top, bot;
@@ -1243,7 +1268,7 @@ void stepGame() {
     if (++gameMisses >= 3) {
       gameNewHi = (gameScore > pet.gameHi);
       pet.playResult(gameScore);  // actualiza el record y da felicidad
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
       // Queue a flourish AFTER returning to home; do not touch ball physics,
       // score, reward, sound or save. No reward if the user simply abandons.
       if(pokebytePersonalityEnabled())
@@ -1369,6 +1394,8 @@ void drawGameScene() {
   // This hook affects background drawing only, never ball physics or scoring.
   extern bool pokebyteDrawMinigameSceneOverride(Arduino_Canvas *canvas);
   if (pokebyteDrawMinigameSceneOverride(gfx)) return;
+#elif defined(ARDUINO)
+  if(pokebyte_embedded::draw(gfx,true,sceneHour()))return;
 #endif
   int hh = sceneHour();
   bool night = hh < 6 || hh >= 20;
@@ -1737,7 +1764,7 @@ void renderCardProfile() {
   setCur(sx + 24, sy + 2);
   printT(rl);
 
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
   // In temporary previews, SHOW the preview Bond in the profile too, instead
   // of misleadingly displaying the real pet's initial 0. No stat is changed.
@@ -1747,7 +1774,7 @@ void renderCardProfile() {
 #else
   drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
 #endif
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (gLang == LANG_EN) {
     char social[58];
     snprintf(social, sizeof(social), "%s - %s",
@@ -2489,7 +2516,7 @@ void drawPmdAct(uint8_t actId, int cx, int groundY, uint32_t t, bool loop, bool 
 
 // Surprise recovery must be a genuine normal idle, visibly distinct
 // from the preceding one-shot gesture/wander. It never edits game stats.
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 void pokebyteFinishOneSurprise(uint32_t now) {
   pbSurpriseRunning=false;
   pbSurpriseEvent=PB_SURPRISE_NONE;
@@ -2534,7 +2561,7 @@ void behNext() {
   uint32_t now = millis();
   beh.t0 = now;
   int r = random(100);
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // Phase 3: optional PC-only context-sensitive use of existing PMD actions.
   // Normal TamaPoke behavior is the immediate fallback when the option is OFF.
   pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
@@ -2621,7 +2648,7 @@ void drawPetPMD() {
   uint32_t now = millis();
 
   if (pet.evolving()) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
     if(pbSurpriseRunning)pokebyteFinishOneSurprise(now);
 #endif
     drawEvolveFX(now);
@@ -2630,7 +2657,7 @@ void drawPetPMD() {
   if (evoPmd.loaded) evoPmd.unload();  // termino la evolucion: libera la forma anterior
 
   PetMood m = pet.mood();
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // A new real need takes priority over any running surprise.
   if (pbSurpriseRunning &&
       (m != MOOD_HAPPY ||
@@ -2683,7 +2710,7 @@ void drawPetPMD() {
     // Expired one-shot surprise must visibly settle into Idle first.
     // Previous demo replayed every 10 seconds, appearing permanently stuck.
     if (now > beh.until) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
       if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
       else
 #endif
@@ -2692,14 +2719,14 @@ void drawPetPMD() {
     if (beh.mode == 1) {
       float d = beh.targetX - beh.x;
       if (fabsf(d) < 4) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
         if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
         else
 #endif
           behNext();
         act = PMD_IDLE;
       } else {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
         if(!pbSurpriseRunning || pbSurpriseEvent!=PB_SURPRISE_WANDER
            || uint32_t(now-pbSurpriseWalkTick)>=85u){
           beh.x += (d > 0 ? 3.0f : -3.0f);
@@ -2721,7 +2748,7 @@ void drawPetPMD() {
   drawPmdAct(act, (int)beh.x, PET_GROUND, now - beh.t0, loop || act == PMD_IDLE, false, 5);
 
   // The special greeting shows the already-existing heart while it plays.
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (pet.showHeart() || (pbSurpriseRunning && pbSurpriseEvent==PB_SURPRISE_FRIENDSHIP))
 #else
   if (pet.showHeart())
@@ -2848,7 +2875,7 @@ const char *eggMsg() {
 // from appearing clipped. Other languages retain their translations;
 // the original Waveshare firmware keeps its original text.
 static const char *pokebyteTiredStatus() {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (gLang == LANG_EN) return "Sleepy";
 #endif
   return T(S_EXHAUSTED);
@@ -2859,7 +2886,7 @@ const char *statusMsg() {
   if (pet.sleeping) return "Zzz...";
   if (pet.eating()) return T(S_EATING);
   if (pet.showHeart()) return T(S_LIKES);
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // Phase 3: show exactly the same mood that selects the PMD animation.
   // Demo modes are visual-only; FOOD/ENERGY and all saved stats stay untouched.
   // Classic (P toggle) keeps the original TamaPoke wording and thresholds.
@@ -2887,3 +2914,11 @@ void drawMap(const char *const *map, int n, int x, int y, int s, bool silhouette
     }
   }
 }
+
+// Hardware-only personality logic is compiled in the sketch translation unit.
+// PC builds keep their own separately linked source modules and launchers.
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+#include "pokebyte/personality_pack01.cpp"
+#include "pokebyte/personality_pack02.cpp"
+#include "pokebyte/personality_pack03.cpp"
+#endif
