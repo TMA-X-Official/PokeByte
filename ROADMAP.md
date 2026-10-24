@@ -197,7 +197,9 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Limitations:** No real inventory, party switching, full Pokémon type matrix, EXP/rewards, permanent HP or new save fields. Original care, all three personality packs and all original minigames stay intact. The user has not yet approved this visual or combat balance.
 - **Code:** [replacement branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles), [draft PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18). Built **directly from user-approved Phase 3 source**, not from rejected PR #17.
 - **Packaging:** Restore exact 12 approved background BMPs and 303 unchanged PMD sprite files from the known-good Phase 3 ZIP; GitHub Actions art is synthetic and not suitable for user playtests. No hardware flashing and no automatic merge.
-- **Next:** Complete Windows CI, provide an asset-verified battle ZIP for user's hands-on playtest. Do not mark Phase 4 complete until the new battle direction is accepted and subsequent packs are approved.
+- **Windows validation:** [Run #40131289786](https://github.com/TMA-X-Official/PokeByte/actions/runs/40131289786) **passed** full Phase 3 regression, classic battle policies and Bulbasaur/Squirtle/Pikachu screenshots. Enlarged original sprite layout was visually inspected.
+- **Verified user-facing ZIP:** `PokeByte-Phase4-Pack01-Classic-Battles-Windows-TEST.zip` (SHA-256 `65bb9f55e6fcd55e89d812972974c3ad45ad8f1040df10d2ec3103a7a1f7032e`). The release reuses **all 12 approved BMPs and all 303 original sprite BINs, byte-identical to Phase 3**; ZIP integrity passed; **no Adventure Quiet/Item/Wild launchers**, no CI synthetic fixture backgrounds or screenshot artifacts. Test launchers never touch the player save.
+- **Next:** User hands-on test of FIGHT, BAG, POKEMON, RUN, all three battle demo opponents, win/faint, HOME escape and original care. **Pack 01 remains pending user approval**, no merge/hardware flashing.
 
 ## After each phase
 
