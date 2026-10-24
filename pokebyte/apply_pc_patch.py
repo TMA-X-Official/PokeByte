@@ -4,7 +4,7 @@ p=Path("pc/desktop_main.cpp")
 s=p.read_text(encoding="utf-8")
 assert '#include "sdl_host.h"\n' in s
 assert '    if(e.type==SDL_QUIT)alive=false;\n' in s
-s=s.replace('#include "sdl_host.h"\n','#include "sdl_host.h"\n#include "../pokebyte/pokebyte_scene.h"\n#include "../pokebyte/ambient_fx.h"\n#include "../pokebyte/personality_pack01.h"\n',1)
+s=s.replace('#include "sdl_host.h"\n','#include "sdl_host.h"\n#include "../pokebyte/pokebyte_scene.h"\n#include "../pokebyte/ambient_fx.h"\n#include "../pokebyte/personality_pack01.h"\n#include "../pokebyte/personality_pack02.h"\n',1)
 s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
 '''    if(e.type==SDL_QUIT)alive=false;
     // SDL_KeyboardEvent.keysym.sym is at byte offset 20 in SDL2.
@@ -70,6 +70,20 @@ s=s.replace(needle, ''' for(int i=1;i<argc;i++)if(!strcmp(argv[i],"--personality
     pokebyteSetPersonalityDemo(argv[++i]);
 ''' + needle,1)
 assert 'pokebyteSetPersonalityDemo' in s
+
+# Eight temporary previews: 4 temperaments x low/high bond. No pet save reads
+# or writes, and no actual FOOD, ENERGY or BOND manipulation.
+needle=' if(SDL_Init(SDL_INIT_VIDEO)!=0)'
+assert s.count(needle)==1
+s=s.replace(needle, ''' for(int i=1;i<argc;i++){
+   if(!strcmp(argv[i],"--temperament")&&i+1<argc)
+     pokebyteSetTemperamentDemo(argv[++i]);
+   else if(!strcmp(argv[i],"--bond-preview")&&i+1<argc)
+     pokebyteSetBondDemo(argv[++i]);
+ }
+''' + needle,1)
+assert 'pokebyteSetTemperamentDemo' in s and 'pokebyteSetBondDemo' in s
+
 
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
