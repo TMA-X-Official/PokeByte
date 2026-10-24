@@ -14,6 +14,24 @@ The GitHub workflow [pokebyte-beta-installer.yml](../../../.github/workflows/pok
 
 **The first beta does not copy sprites or background BMPs to microSD.** It uses the /mons files already on the card, and shows the fallback original background if /pokebyte approved BMPs are not present yet. The beta does not require a microSD reader. Existing files on the inserted card must not be formatted or overwritten; current SD mount uses autoformat=false.
 
+## GitHub Pages deployment permission (failure diagnosed 25 October 2026)
+
+The beta firmware build passed in [workflow #40142288944](https://github.com/TMA-X-Official/PokeByte/actions/runs/40142288944), but GitHub Pages rejected the deployment with:
+
+`Branch "pokebyte-phase4-waveshare-release-prep" is not allowed to deploy to github-pages due to environment protection rules.`
+
+This is **not a firmware build or ESP32 issue**, and 404 is expected until the Pages deployment succeeds. The repository variable `POKEBYTE_BETA_PAGES_ENABLED=true` and the Pages build source `GitHub Actions` are **not sufficient alone**.
+
+Fix as repository owner (no new commits or firmware uploads needed):
+
+1. Open [Settings → Environments](https://github.com/TMA-X-Official/PokeByte/settings/environments) → `github-pages`.
+2. Under **Deployment branches and tags**, choose **Selected branches and tags** and **Add deployment branch or tag rule**.
+3. Choose **Branch** (not Tag). Enter the exact branch name `pokebyte-phase4-waveshare-release-prep` (no `refs/heads/` prefix), then **Add rule**. Keep the existing `main` branch rule if present.
+4. Save any protection changes. Return to [the failed workflow run](https://github.com/TMA-X-Official/PokeByte/actions/runs/40142288944) and choose **Re-run failed jobs** (or re-run the failed deployment job).
+5. Only after **both package and deployment jobs** succeed, check the expected website `https://tma-x-official.github.io/PokeByte/beta/`. **Do not flash the board based on a 404 or a partial workflow success.**
+
+GitHub official guidance: https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments
+
 ## One-time project-owner GitHub Pages setup
 
 This setup is needed only by the **repository owner**, not ordinary visitors.
