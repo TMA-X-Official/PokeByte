@@ -99,8 +99,8 @@ void clouds(Arduino_Canvas*c,uint32_t t,const std::string&m){
  Palette p=colors(m);
  // Two separate drifting multi-lobe sprites: prominent and smaller/distant.
  // Slow 1-2 pixels/sec. Wrap through side edges after leaving the screen.
- const int largeX=int((int64_t(t/650)+472)%620)-132;
- const int smallX=465-int((int64_t(t/870)+71)%590);
+ const int largeX=int((int64_t(t/650)+105)%600)-85;
+ const int smallX=397-int((int64_t(t/870)+30)%560);
  cloud(c,largeX,58,false,p.light,p.body,p.shade);
  cloud(c,smallX,139,true,p.light,p.body,p.shade);
 }
