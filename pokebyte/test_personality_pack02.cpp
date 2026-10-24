@@ -24,6 +24,15 @@ int main(){
  assert(pokebyteSocialHappyPlan(PB_SHY,15,all,40,&p)&&p.mode==PB_IDLE);
  assert(pokebyteSocialHappyPlan(PB_SHY,85,all,40,&p)&&p.mode==PB_GESTURE);
  assert(pokebyteSocialHappyPlan(PB_CALM,85,all,40,&p)&&p.mode==PB_GESTURE);
+ // The original caress heart now occasionally invokes a genuine PMD
+ // gesture, particularly with strong Bond. Never request non-existent art.
+ uint8_t greet=0;
+ assert(!pokebyteSocialGreeting(PB_SHY,15,all,0,&greet));
+ assert(pokebyteSocialGreeting(PB_SHY,85,all,0,&greet));
+ assert(greet==9 || greet==10 || greet==7);
+ assert(!pokebyteSocialGreeting(PB_SHY,85,all,90,&greet));
+ assert(pokebyteSocialGreeting(PB_PLAYFUL,85,all,70,&greet));
+ assert(!pokebyteSocialGreeting(PB_PLAYFUL,85,(1u<<0),0,&greet));
  // Missing special animation => never request unavailable Pose/Nod/Breath.
  const uint16_t bare=(1u<<0)|(1u<<1)|(1u<<2);
  assert(pokebyteSocialHappyPlan(PB_SHY,85,bare,40,&p)&&p.mode!=PB_GESTURE);
