@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Pack 01.2 Sleepy Text Windows
+name: PokeByte Phase 3 Personality Pack 02 Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-pack01-sleepy-label]
+    branches: [pokebyte-phase3-personality-pack-02]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -95,8 +95,31 @@ jobs:
 
       - name: Personality action policy and missing-sprite fallback tests
         run: |
-          g++ -std=c++17 -O2 -I. pokebyte/personality_pack01.cpp pokebyte/test_personality_pack01.cpp -o persona-policy-test.exe
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack01.cpp pokebyte/personality_pack02.cpp pokebyte/test_personality_pack01.cpp -o persona-policy-test.exe
           ./persona-policy-test.exe
+
+      - name: Pack 02 bond and temperament policy tests
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack02.cpp pokebyte/test_personality_pack02.cpp -o persona-social-test.exe
+          ./persona-social-test.exe
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-PLAYFUL-LOW-BOND.bat
+          test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SHY-HIGH-BOND.bat
+
+      - name: Eight isolated Charmander temperament and bond previews
+        timeout-minutes: 6
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          rm -f tamapoke_pc_save.dat
+          for temperament in playful calm curious shy; do
+            for bond in low high; do
+              SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --temperament "$temperament" --bond-preview "$bond" --time-of-day day
+              test -s tamapoke-test.ppm
+              test ! -e tamapoke_pc_save.dat
+              mv tamapoke-test.ppm "social-$temperament-$bond.ppm"
+            done
+          done
+          python -c 'import glob,hashlib; f=glob.glob("social-*.ppm"); h=[hashlib.sha256(open(x,"rb").read()).hexdigest() for x in f]; assert len(f)==8 and len(set(h))==8, (f,h); print("8 mood/bond previews have distinct screenshots and no save writes")'
+          rm -f social-*.ppm
 
       - name: Safe Charmander mood previews without save mutation
         timeout-minutes: 3
@@ -145,7 +168,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Sleepy-Label-Windows
+          name: PokeByte-Phase3-Personality-Pack-02-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
