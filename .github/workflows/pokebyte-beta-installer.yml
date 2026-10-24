@@ -1,0 +1,97 @@
+name: PokéByte Phase 4 experimental browser installer bundle
+
+on:
+  push:
+    branches: [pokebyte-phase4-waveshare-release-prep]
+    paths:
+      - 'TamaPoke.ino'
+      - 'sdmon.cpp'
+      - 'sdmon.h'
+      - 'pokebyte/**'
+      - 'web/pokebyte/**'
+      - 'tools/build_pokebyte_beta_site.py'
+      - '.github/workflows/pokebyte-beta-installer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-site:
+    name: Package verified experimental ESP32 firmware into browser installer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+      - name: ESP32-S3 compiler and libraries
+        run: |
+          arduino-cli config init --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.10
+          arduino-cli lib install "GFX Library for Arduino" SensorLib XPowersLib U8g2
+      - name: Build SAME Waveshare target as firmware CI
+        run: |
+          mkdir -p "$RUNNER_TEMP/TamaPoke"
+          cp ./*.ino ./*.cpp ./*.h "$RUNNER_TEMP/TamaPoke/"
+          cp -R pokebyte "$RUNNER_TEMP/TamaPoke/pokebyte"
+          cp pokebyte/personality_pack0*.cpp pokebyte/personality_pack0*.h "$RUNNER_TEMP/TamaPoke/"
+          arduino-cli compile --warnings=all \
+            --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
+            --output-dir "$RUNNER_TEMP/PokeByte-fw-beta" \
+            "$RUNNER_TEMP/TamaPoke"
+      - name: Strict partition and firmware verification, stage HTTPS test page
+        run: |
+          python3 tools/build_pokebyte_beta_site.py \
+            --firmware-dir "$RUNNER_TEMP/PokeByte-fw-beta" \
+            --site-dir "$RUNNER_TEMP/beta-site" \
+            --commit "$GITHUB_SHA"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"beta-site"/"beta"
+          m=json.loads((d/"manifest.json").read_text())
+          parts=m["builds"][0]["parts"]
+          assert m["new_install_prompt_erase"] is True
+          assert [p["offset"] for p in parts]==[0,32768,57344,65536]
+          assert "TamaPoke.ino.merged.bin" not in str(list(d.rglob("*")))
+          assert all((d/p["path"]).exists() for p in parts)
+          assert (d/"index.html").exists()
+          assert "disabled" in (d/"../index.html").resolve().read_text()
+          print("PASS: experiment manifest has region-scoped flash, original installer remains locked")
+          PY
+      - name: Upload experimental website bundle (NOT automatically a public release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Phase4-EXPERIMENTAL-WEB-CANDIDATE
+          path: ${{ runner.temp }}/beta-site/
+          retention-days: 7
+          if-no-files-found: error
+
+  # Only repo owner can enable this via Settings -> Secrets and variables ->
+  # Actions -> Variables -> POKEBYTE_BETA_PAGES_ENABLED=true, and Settings ->
+  # Pages -> Build and deployment -> Source: GitHub Actions.
+  # This avoids accidentally publishing untested firmware when branch changes.
+  deploy-beta:
+    name: Optional GitHub Pages deployment (explicit owner opt-in only)
+    needs: build-test-site
+    if: ${{ vars.POKEBYTE_BETA_PAGES_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: PokeByte-Phase4-EXPERIMENTAL-WEB-CANDIDATE
+          path: ./site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+      - id: deployment
+        uses: actions/deploy-pages@v4
