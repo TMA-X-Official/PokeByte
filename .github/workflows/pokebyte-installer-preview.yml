@@ -2,7 +2,7 @@ name: PokéByte installer preview safety
 
 on:
   push:
-    branches: [pokebyte-phase5-waveshare-release-prep]
+    branches: [pokebyte-phase4-waveshare-release-prep]
     paths:
       - 'web/pokebyte/**'
       - 'tools/test_pokebyte_installer_preview.py'
