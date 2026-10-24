@@ -13,6 +13,8 @@
 
 **✅ Phase 0 complete · ✅ Phase 1 complete · ✅ Phase 2 complete (Windows PC playtests approved, 24 October 2026).** The five remastered home and mini-game scenes are user-approved, along with Balanced pollen, grass movement, fireflies, optional rain and optional snowfall. Animated cloud overlays were rejected and removed; the original artwork stays intact. **Next: Phase 3 — More Pokémon personality.** The physical Waveshare firmware remains unchanged; hardware release is Phase 5. See the [full PokéByte roadmap](ROADMAP.md) for details.
 
+**🟡 Phase 3 in progress — Personality Pack 01 approved (Windows, 24 October 2026).** The user accepted mood-aware original-sprite reactions and the corrected Hungry / Sleepy labels. Pack 02 (bonding and individual temperament) is next; full Phase 3 and the physical Waveshare release are not yet complete. [Follow the roadmap](ROADMAP.md).
+
 ## Welcome to PokéByte
 
 **PokéByte** is a personal, non-commercial Pokémon-inspired virtual-pet project for **Windows PC** and the **Waveshare ESP32-S3-Touch-AMOLED-1.75** (round 466 × 466 display).
