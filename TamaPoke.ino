@@ -1003,6 +1003,11 @@ void render() {
   // drawScene cubre los 466x466 completos: sin fillScreen(NEGRO) previo para
   // que un flush DMA solapado nunca capture negro a medias (anti-parpadeo)
   drawScene(pet.isEgg() ? 0 : DEX_TBL[pet.speciesId].biome, millis(), gNight);
+#ifdef POKEBYTE_PC
+  // Enhanced background only in PC test build; ESP32 and original menus untouched.
+  extern void pokebyteEnhanceOriginalScene(Arduino_Canvas*, uint8_t, uint32_t, bool, int);
+  pokebyteEnhanceOriginalScene(gfx, pet.isEgg() ? 0 : DEX_TBL[pet.speciesId].biome, millis(), gNight, h);
+#endif
 
   if (pet.ceremony) {
     const DexEntry &d = DEX_TBL[pet.speciesId];
