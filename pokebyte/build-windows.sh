@@ -8,7 +8,7 @@ x86_64-w64-mingw32-g++ --version >/dev/null 2>&1 && CXX=x86_64-w64-mingw32-g++ |
 "$CXX" -std=c++17 -O2 -DPOKEBYTE_PC -Ipc/shim -I. \
  pc/pc_sketch.cpp pet.cpp i18n.cpp sdmon.cpp \
  pc/shim/emu_core.cpp pc/shim/emu_sd.cpp pc/shim/emu_preferences.cpp \
- pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp \
+ pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp pokebyte/ambient_fx.cpp \
  -lSDL2 -static-libgcc -static-libstdc++ \
  -o "$OUT/PokeByte-Phase1-PC.exe"
 for dll in SDL2.dll libwinpthread-1.dll; do
@@ -34,11 +34,11 @@ cd /d "%~dp0"
 start "" "PokeByte-Phase1-PC.exe" --scale 2
 BAT
 cat > "$OUT/README.txt" <<'TEXT'
-POKEBYTE PHASE 1 - GRASS MEADOW V2
+POKEBYTE PHASE 2 - AMBIENT PLAYTEST
 Run PLAY-POKEBYTE.bat on Windows 10/11 (64-bit).
-Press B to switch between the original background and Grass Meadow.
+Press B to switch original/remastered scenery. Press A to toggle subtle ambient particles. Press W to toggle optional rain.
 Click to tap; hold and drag the mouse to swipe the original menus.
-The game remembers your background choice in pokebyte-background.cfg.
+The game remembers background and ambient preferences in .cfg files. Rain is purely a manual visual test and does not use live weather data.
 The original TamaPoke v1.17 game logic, interactions and sprites remain intact.
 Saves: tamapoke_pc_save.dat in this folder. These are separate from your Waveshare saves.
 Battery hardware and sound are not emulated on PC.

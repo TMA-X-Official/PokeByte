@@ -1,4 +1,5 @@
 #include "pokebyte_scene.h"
+#include "ambient_fx.h"
 #include "../pc/shim/Arduino_GFX_Library.h"
 #include <fstream>
 #include <iostream>
@@ -57,6 +58,7 @@ bool pokebyteDrawSceneOverride(Arduino_Canvas *canvas){
  init();
  if(!forestEnabled||forest.size()!=size_t(W)*H)return false;
  std::copy(forest.begin(),forest.end(),canvas->frame.begin());
+ pokebyteApplyAmbient(canvas,false);
  return true;
 }
 void pokebyteToggleBackground(){
@@ -75,5 +77,6 @@ bool pokebyteDrawMinigameSceneOverride(Arduino_Canvas *canvas){
  if(!forestEnabled||minigameForest.size()!=size_t(W)*H)return false;
  if(canvas->frame.size()!=size_t(W)*H)return false;
  std::copy(minigameForest.begin(),minigameForest.end(),canvas->frame.begin());
+ pokebyteApplyAmbient(canvas,true);
  return true;
 }
