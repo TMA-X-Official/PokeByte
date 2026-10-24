@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="PokéByte — a safe, future browser-based installer for the Waveshare ESP32-S3-Touch-AMOLED-1.75. Hardware release preview only.">
-  <title>PokéByte | Waveshare Installer Preview</title>
+  <meta name="description" content="PokéByte one-click browser installer for Waveshare ESP32-S3-Touch-AMOLED-1.75. Firmware release preview, currently locked for safety.">
+  <title>PokéByte | One-Click Waveshare Installer Preview</title>
   <style>
     :root{--bg:#091424;--panel:#122238;--panel2:#172c43;--ink:#f7f5e9;--muted:#b3c5d3;--line:#344960;--gold:#ffc66d;--mint:#8fe0bf;--deep:#102c3b;--shadow:0 18px 46px #03101f9c}
     *{box-sizing:border-box}
@@ -75,8 +75,8 @@
     <div>
       <p class="eyebrow">Phase 4 · Waveshare hardware release</p>
       <div class="status"><span aria-hidden="true"></span> PREVIEW ONLY — INSTALLATION LOCKED</div>
-      <h1>Your pocket Pokémon.<br><em>On real hardware.</em></h1>
-      <p class="lede" id="page-heading">A dedicated, browser-based home for installing PokéByte on the <strong>Waveshare ESP32-S3-Touch-AMOLED-1.75</strong>. Keep the original Pokémon sprites and the approved experience from Phases 1–3.</p>
+      <h1>Plug in. Click install.<br><em>Play PokéByte.</em></h1>
+      <p class="lede" id="page-heading">One website to install PokéByte on your <strong>Waveshare ESP32-S3-Touch-AMOLED-1.75</strong>. No desktop app, no firmware ZIP, no microSD adapter. Connect the USB-C data cable, grant your browser permission, then let the website do the work.</p>
     </div>
     <aside class="device" aria-label="Illustration of the future round-screen device">
       <div class="screen" aria-hidden="true"><b>POKÉBYTE</b><span>466 × 466</span><span>PHASES 1—3</span></div>
@@ -84,21 +84,21 @@
     </aside>
   </section>
   <aside class="notice" role="status">
-    <strong>Firmware is not ready yet.</strong> This page is safe to preview, but cannot connect to, write to, erase, or flash your board. The Waveshare-specific build, backups and hardware testing must be completed first. Do not use TamaPoke's existing installer to install a PokéByte upgrade.
+    <strong>Installer preview — not live yet.</strong> The user experience below is the target, not a working flash page. The install button stays disabled until real PokéByte firmware (approved Phases 1–3), backup/restore testing, safe updates and automatic sprite/background transfer are verified. The original TamaPoke installer installs original TamaPoke, not PokéByte.
   </aside>
   <section id="instructions" aria-labelledby="instructions-heading">
-    <h2 id="instructions-heading">How installation will work</h2>
-    <p class="section-intro">Once the approved firmware is ready, this page will guide you through a safe release process. Nothing below initiates a connection or changes files today.</p>
+    <h2 id="instructions-heading">One-click installation, no manual downloads</h2>
+    <p class="section-intro">For the finished release, you'll only need a compatible Waveshare board, a USB-C data cable and desktop Chrome or Edge. The browser handles the firmware and game assets; you don't download or install any separate software. The browser's device-permission prompt is still required.</p>
     <div class="steps">
-      <article class="step"><div class="head"><span class="number">01</span><h3>Check your Waveshare model</h3></div><p>Use the <strong>ESP32-S3-Touch-AMOLED-1.75</strong>, with the round 466 × 466 display. The <strong>1.75C</strong> is a different board and will not be accepted by this release.</p></article>
-      <article class="step"><div class="head"><span class="number">02</span><h3>Protect your Pokémon</h3></div><p>Back up the complete flash image, saved Pokémon/NVS, and current microSD first. The installer will stay locked until our backup and recovery instructions have been verified.</p></article>
-      <article class="step"><div class="head"><span class="number">03</span><h3>Install verified firmware</h3></div><p>A future <strong>ESP Web Tools</strong> installer will guide a USB connection in a supported desktop browser. There is no firmware manifest or flashable PokéByte image here yet.</p></article>
-      <article class="step"><div class="head"><span class="number">04</span><h3>Load approved game assets</h3></div><p>Install the exact <strong>12 approved backgrounds</strong> and <strong>303 original Pokémon BIN files</strong> using a verified, non-destructive microSD procedure. Your saved Pokémon and existing card contents matter.</p></article>
+      <article class="step"><div class="head"><span class="number">01</span><h3>Connect with USB-C</h3></div><p>Use the round <strong>ESP32-S3-Touch-AMOLED-1.75</strong> (466 × 466). Open this page in desktop Chrome or Edge and connect a data-capable cable. <strong>The 1.75C is not supported.</strong></p></article>
+      <article class="step"><div class="head"><span class="number">02</span><h3>Click Install</h3></div><p>Choose the USB device when the browser asks. The finished installer will check compatibility, protect existing saved Pokémon through a verified backup/update path and refuse unsafe devices. <strong>No command line or separate installer.</strong></p></article>
+      <article class="step"><div class="head"><span class="number">03</span><h3>Automatic firmware setup</h3></div><p>The page will fetch verified <strong>PokéByte firmware</strong> directly from the hosted release and write it over USB. You will not need to download a .bin, install Python or use Arduino IDE. The install will not silently erase NVS or format the SD card.</p></article>
+      <article class="step"><div class="head"><span class="number">04</span><h3>Assets automatically verified</h3></div><p>The page will check and, when needed, transfer the <strong>12 approved backgrounds</strong> and <strong>303 original Pokémon BIN files</strong> to the existing microSD over USB, without a card reader. Already-verified files should be skipped; unique card contents must be preserved.</p></article>
     </div>
   </section>
   <section class="install" aria-labelledby="install-heading">
-    <div><p class="eyebrow">Release readiness</p><h2 id="install-heading">Install PokéByte</h2><p>Installation will unlock after the hardware version includes all approved Windows features, the ESP32-S3 binary is verified, and backup and restore procedures pass physical testing.</p></div>
-    <div class="install-action"><button type="button" disabled aria-disabled="true" title="PokéByte firmware is not yet verified for hardware">🔒 Install unavailable</button><span class="why">No USB access · No Web Serial · No flashing</span></div>
+    <div><p class="eyebrow">One-click setup · final release target</p><h2 id="install-heading">Install PokéByte</h2><p>Once hardware tests pass, this single button will begin the guided USB installation, automatically retrieve firmware and then complete the required sprite/background verification and transfer. The current preview cannot flash anything.</p></div>
+    <div class="install-action"><button type="button" disabled aria-disabled="true" title="Final PokéByte ESP32 firmware has not been hardware-validated">🔒 One-click Install — coming soon</button><span class="why">Safely locked · No USB access or flashing in this preview</span></div>
   </section>
   <section aria-labelledby="included-heading">
     <h2 id="included-heading">What the final release will include</h2>
@@ -113,6 +113,10 @@
       <span class="feature">Original sprites and care mechanics</span>
       <span class="feature">No Adventure or Battle add-ons</span>
     </div>
+  </section>
+  <section aria-labelledby="details-heading" style="margin-bottom:36px;border-top:1px solid var(--line);padding-top:18px">
+    <h2 id="details-heading" style="font-size:1.25rem">For existing TamaPoke owners</h2>
+    <p class="section-intro">Your original Pokémon and microSD contents matter. A future installer must preserve the existing save and avoid erasing or formatting storage. The original TamaPoke USB sprite uploader can send files but cannot back up a full microSD. We will not enable an upgrade until an appropriate safe migration and recovery procedure is verified on physical hardware.</p>
   </section>
 </main>
 <footer><div class="shell foot">
