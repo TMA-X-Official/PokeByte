@@ -10,7 +10,7 @@ bool has(uint16_t mask,uint8_t act){return (mask & (uint16_t(1u)<<act))!=0;}
 bool chooseGesture(uint8_t kind,uint16_t mask,uint8_t* out){
  // A short genuine stretch / flourish / greeting in PMD action table.
  const uint8_t* order=nullptr;
- static const uint8_t stretch[]={10,9,7},victory[]={7,9,10},
+ static const uint8_t stretch[]={10,9,7},victory[]={8,7,9},
                       friendly[]={9,7,10};
  if(kind==PB_SURPRISE_WAKE)order=stretch;
  else if(kind==PB_SURPRISE_VICTORY)order=victory;
@@ -75,6 +75,7 @@ bool pokebyteSurpriseChoose(uint32_t now,uint8_t temperament,uint8_t bond,
    pending=PB_SURPRISE_NONE;return false;
  }
  uint8_t act=0;
+ out->followupAction=255;
  if(type==PB_SURPRISE_WANDER){
   if(!(has(available,1)&&has(available,2))){
    if(!isDemo)pending=PB_SURPRISE_NONE;
@@ -89,7 +90,19 @@ bool pokebyteSurpriseChoose(uint32_t now,uint8_t temperament,uint8_t bond,
    return false;
   }
   out->mode=2;out->action=act;out->targetX=233;
-  out->durationMs=0; // caller uses genuine original animation's full frame timing
+  // The second stage makes Wake, Victory and Friendship distinct rather than
+  // three interchangeable one-gesture clips. Use ONLY original PMD actions.
+  // Skip missing clips and never repeat the exact first clip as the follow-up.
+  static const uint8_t wakeFollow[]={9,7,10};
+  static const uint8_t victoryFollow[]={7,9,10};
+  static const uint8_t friendFollow[]={7,10,9};
+  const uint8_t* choices=type==PB_SURPRISE_WAKE?wakeFollow:
+        type==PB_SURPRISE_VICTORY?victoryFollow:friendFollow;
+  for(unsigned i=0;i<3;i++)
+    if(choices[i]!=act && has(available,choices[i])){
+      out->followupAction=choices[i];break;
+    }
+  out->durationMs=0; // real PMD frame timings for each stage
  }
  out->event=type;
  if(isDemo)demoPlayed=true;
