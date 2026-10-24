@@ -142,12 +142,12 @@ const uint8_t *SdThumbs::get(int16_t dex) const {
 
 bool sdBegin() {
   SD_MMC.setPins(SDMMC_CLK, SDMMC_CMD, SDMMC_DATA);
-  sdReady = SD_MMC.begin("/sdcard", true /* modo 1-bit */, true /* formatea si no monta */);
+  sdReady = SD_MMC.begin("/sdcard", true /* 1-bit SDMMC */, false /* NEVER auto-format user SD */);
   if (sdReady) {
     Serial.printf("SD montada: %llu MB\n", SD_MMC.cardSize() / (1024ULL * 1024ULL));
     SD_MMC.mkdir("/mons");
   } else {
-    Serial.println("SD no detectada (el juego usa los sprites de flash)");
+    Serial.println("SD no disponible; NO se formatea. Revisar FAT/archivos y preservar backup.");
   }
   return sdReady;
 }
