@@ -65,6 +65,13 @@
 - **Protect physical Pokémon:** Don't flash a firmware, repartition, wipe Preferences/NVS or format any SD card until complete user flash/NVS/microSD backups and physical board model/port verification. **No hardware flash done.** A no-save Windows test is not hardware validation.
 - **Next work:** real embedded feature port, compile/test ESP32-S3 firmware, stage exact approved background BMPs and 303 original SD `.bin` assets, verify performance/RTC/PMU/touch/audio/SD, then safe backup/flash with explicit user approval. No new gameplay features.
 
+## Phase 5 recovery files (24 October 2026)
+
+- **Last accepted executable:** `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip` — exact sha256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`.
+- **Exact approved SD data staging (not firmware):** `PokeByte-Phase5-Verified-MicroSD-Assets-STAGING.zip` — SHA-256 `d70a674139e0e5a7a7acce4a508f7b8b2c1e9a33250c04d19ef3d9078e861442`. Includes 12 466x466 BMP scenes in `pokebyte/` plus 303 original BIN data assets in `mons/`, with an internal checksum manifest. Stage paths need real embedded firmware support; no SD flash/copy done.
+- **Private new-chat checkpoint:** `PokeByte-Phase5-Waveshare-Release-Checkpoint.zip` — SHA-256 `077fa8fb2d623f094185235a279554e3a2bc7f9f3b97eb9f6815896531d86c99`. Contains approved Phase 3 executable, original background backup ZIP, early conversation text upload, verified SD staging archive and a Phase 5 README. The user should retain this ZIP locally and upload it to a new chat when actual binary files are required.
+- **Review:** [draft PR #19](https://github.com/TMA-X-Official/PokeByte/pull/19), [CI #40132890760 passed compile/regression](https://github.com/TMA-X-Official/PokeByte/actions/runs/40132890760). **No device tested and no hardware-ready approved firmware generated yet.**
+
 ## Practical recovery in a new ChatGPT conversation
 
 1. Start with: **"Continue PokéByte at Phase 5 Waveshare release. Phases 1–3 are the user-approved Windows baseline, and Phase 4 (Adventure and Battles) was explicitly cancelled and removed from the active roadmap. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE5-WAVESHARE-RELEASE.md; continue the phase5 release-prep branch, and do not erase/flash until backup and user consent. Preserve exact approved art and original saves."**
