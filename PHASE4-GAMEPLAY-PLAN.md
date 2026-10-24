@@ -1,6 +1,6 @@
 # PokéByte Phase 4 — Gameplay Expansion (working plan)
 
-**Project status:** Pack 01 Forest Trail **implemented as a Windows prototype and automatically tested**, following the user's approval to start Phase 4 Adventure Mode. **User visual/playtest acceptance is still pending.** Date: 24 October 2026.
+**Project status:** The user **rejected** Forest Trail Adventure (Quiet / Item / Wild) after inspecting its screenshot and explicitly requested a **classic-style Pokémon battle system instead**. PR #17 was closed without merging. Current Phase 4 Pack 01 is the turn-based battle Windows prototype on [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18). **Battle user playtest pending.**
 
 **Baseline:** [Phase 3 approved Windows source](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), [known-good artwork and executable manifest](APPROVED-ASSETS.md), and [continuity note](PROJECT-CONTINUITY.md). Preserve the working original hardware firmware on `main`. Windows-first experiments only; Phase 5 is for Waveshare firmware.
 
@@ -16,15 +16,15 @@ The original conversation described both a simple battle system and long-term Gy
 
 | Pack | Focus | Prototype deliverable / acceptance gate |
 | --- | --- | --- |
-| **01** | **Adventure Mode** | A safe, playable exploration loop on Windows: enter from home, see a forest/meadow route, trigger a bounded encounter or find, return home without altering saves |
-| **02** | **Wild encounters and turn-based battles** | One controlled 1v1 fight using real ATK/DEF/SPD and original PMD attack/hurt/idle sprites; sensible battle UI and type interactions; clear win/loss/flee outcomes |
+| **01** | **Classic-style 1v1 Pokémon battles (revised after user feedback)** | FIGHT/BAG/POKEMON/RUN, 4 moves + PP, original PMD Attack/Hurt, HP, simplified types, 3 save-safe opponent previews; awaiting user assessment |
+| **02** | **Deeper battle mechanics / opponents** | Expand type/move fidelity, challenge variety and meaningful progression after the Pack 01 basic 1v1 UI is accepted |
 | **03** | **Collectible items and new minigames** | Small inventory prototype, safe reward logic and one or more optional games; retain original ball and bag training activities |
 | **04** | **Gyms, badges, achievements, Trainer Rank** | A replayable Gym challenge, earned badge/trainer-rank progression and clearer long-term goals; distinguish new Gym badges from the eight existing per-Pokémon medals |
 | **05** | **Unlockable habitats and rare discoveries** | Additional *new* adventure area choices, carefully bounded shiny-related discovery/reward systems, unlockables while preserving the five original approved home scenes |
 
 Each pack is proposed, not automatically accepted. Review the visible behavior and pacing with the user before expanding scope.
 
-## Pack 01 — suggested first Windows preview
+## Rejected Pack 01 Forest Trail — historical specification only
 
 **Primary design constraint:** Adventure is a *new optional mode*, not a modification of the existing care loop.
 
@@ -48,6 +48,14 @@ Suggested first milestone:
 - Do not alter original level progression, evolution, care routines, existing 8 medals, PMD binary art, save keys or approved backgrounds.
 - All 303 original sprite BINs remain bit-identical, and all 12 approved BMPs remain bit-identical in each delivered Windows ZIP.
 
+## Current Pack 01 — Classic Pokémon-style battle test
+
+**Direct user decision:** Remove Adventure Quiet, Adventure Item and Adventure Wild completely from current gameplay and preview ZIPs, and replace Adventure Mode with battles modeled on familiar classic Pokémon 1v1 combat. This overrides the old Forest Trail proposal above. The previous Adventure pack [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) is **rejected and closed unmerged**.
+
+The replacement [battle branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles) and [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) start directly from the **approved Phase 3 code** with no adventure code carried over. Planned initial visible 1v1 behavior: HP panels, two original PMD Pokémon sprites, type-aware attack damage, four moves and PP, turn-order Speed, FIGHT/BAG/POKEMON/RUN, safe win/faint/run and always-available HOME. Three deterministic no-save Charmander battle demos versus Bulbasaur, Squirtle and Pikachu. Preserve the 12 exact BMP and 303 exact PMD files. This is still an **unapproved Windows prototype**, and no full party/inventory/EXP/badges system exists yet.
+
+**Battle fidelity scope:** The new prototype emulates the broad classic battle experience in original code and UI; it is not a copy of Nintendo's engine/assets. We will tune detailed mechanics from user playtesting. The original virtual pet save and all approved personality/environment features remain unchanged.
+
 ## Packs 02–05 design safeguards
 
 **Battles:** Original source already supplies `Pet::atkStat()`, `defStat()`, `speStat()`, individual genes, care/energy and the PMD `ATTACK`/`HURT` actions. Battle HP, damage formulas, available moves and type matchups should be deterministic and testable before adding progression; never confuse pet's four 0–100 *care* needs with battle HP. Respect timing, cancelability and no-permanent-penalty preview mode.
@@ -69,4 +77,4 @@ Suggested first milestone:
 
 ## Development checkpoint
 
-**Implemented in review:** [Forest Trail branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype), [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17), [passing Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216). Final tester packaged with all 12 original approved scenes and 303 original sprites, SHA-256 `d914e79c7942305fe274e7144bdf21887c4b751f9c01ab6bde63f816d8bfb434`. **Next action:** user playtest, collect feedback, revise if needed. **Do not mark Pack 01 or Phase 4 complete** without explicit user approval.
+**Latest decision:** Forest Trail implementation rejected; PR #17 closed without merge. Replacement classic battle interface is under Windows testing on [draft PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18). **Next action:** visual review of the new battle ZIP and user feedback. Never ship previous Adventure/Forest Trail launchers. **Do not mark Pack 01 or Phase 4 complete** without explicit user acceptance.
