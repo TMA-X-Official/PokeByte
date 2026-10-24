@@ -1,8 +1,8 @@
-name: PokeByte Phase 1 ball + training mini-game test
+name: PokeByte Phase 2 atmospheric Windows test
 
 on:
   push:
-    branches: [pokebyte-phase1-minigames-scene]
+    branches: [pokebyte-phase2-ambient-polish]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -43,6 +43,8 @@ jobs:
         run: |
           python pokebyte/apply_pc_patch.py
           grep -q 'pokebyteToggleBackground' pc/desktop_main.cpp
+          grep -q 'pokebyteToggleAmbient' pc/desktop_main.cpp
+          grep -q 'pokebyteToggleWeather' pc/desktop_main.cpp
 
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
@@ -84,7 +86,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Minigame-Scenery-Windows
+          name: PokeByte-Phase2-Ambient-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
