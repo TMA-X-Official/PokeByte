@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Pack 03 One-Shot Fix Windows
+name: PokeByte Phase 3 Distinct Surprises Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-pack03-one-shot-fix]
+    branches: [pokebyte-phase3-pack03-distinct-moments]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -133,7 +133,7 @@ jobs:
 
       - name: Verify every surprise ends in normal idle instead of replaying
         run: |
-          python -c 'from pathlib import Path; s=Path("TamaPoke.ino").read_text(encoding="utf-8"); assert "void pokebyteFinishOneSurprise(uint32_t now)" in s and "beh.until=now+4500" in s and "pokebyteSurpriseMarkFinished()" in s; assert "if (pbSurpriseRunning) pokebyteFinishOneSurprise(now)" in s; assert "if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);" in s; print("One-shot animation expiration and walk-target return to Idle wired")'
+          python -c 'from pathlib import Path; s=Path("TamaPoke.ino").read_text(encoding="utf-8"); assert "void pokebyteFinishOneSurprise(uint32_t now)" in s and "beh.until=now+4500" in s and "pokebyteSurpriseMarkFinished()" in s; assert "void pokebyteAdvanceSurprise(uint32_t now)" in s and s.count("pokebyteAdvanceSurprise(now)")>=2; assert "pbSurpriseStage=2" in s and "pbSurpriseFollowup" in s; print("Distinct staged surprises terminate and return to quiet Idle")'
           python -c 'from pathlib import Path; s=Path("pokebyte/personality_pack03.cpp").read_text(encoding="utf-8"); assert "if(isDemo && demoPlayed)return false" in s and "Back to normal" in s; assert "demoLast" not in s; print("All preview surprise replays disabled")'
 
       - name: Four save-safe one-click Charmander surprise previews
@@ -203,7 +203,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Pack03-One-Shot-Windows
+          name: PokeByte-Phase3-Pack03-Distinct-Surprises-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30

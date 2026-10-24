@@ -5,7 +5,8 @@
 enum : uint8_t { PB_SURPRISE_NONE=0, PB_SURPRISE_WAKE=1,
   PB_SURPRISE_VICTORY=2, PB_SURPRISE_WANDER=3, PB_SURPRISE_FRIENDSHIP=4 };
 struct PokeByteSurprisePlan {
- uint8_t event=PB_SURPRISE_NONE, action=0, mode=0; // 0/2=existing Idle/Gesture, 1=Walk
+ uint8_t event=PB_SURPRISE_NONE, action=0, mode=0; // 0/2=Idle/Gesture, 1=Walk
+ uint8_t followupAction=255; // 255 means no second gesture; never invent a missing PMD action
  int16_t targetX=233;
  uint32_t durationMs=2800;
 };

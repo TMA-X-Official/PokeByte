@@ -18,10 +18,22 @@ def difference_in_label(p,q):
             i=(y*W+x)*3
             if p[i:i+3]!=q[i:i+3]:pixels+=1
     return pixels
+# Compare the actual Pokémon pixel area, not just differing preview captions.
+def sprite_pixels(p):
+    out=bytearray()
+    for y in range(170,308):
+        for x in range(126,343):
+            i=(y*W+x)*3
+            out.extend(p[i:i+3])
+    return bytes(out)
+seen=set()
 for event in EVENTS:
     start=frame("surprise-"+event+".ppm")
     end=frame("finished-"+event+".ppm")
+    pixels=sprite_pixels(start)
+    assert pixels not in seen,(event,"surprise sprite looks identical to another event")
+    seen.add(pixels)
     changed=difference_in_label(start,end)
     assert changed>90,(event,changed,"surprise did not visibly return to normal")
     print(f"{event}: UI/sprite region changed after 14s ({changed} pixels), save-free")
-print("PASS: Four one-shot surprises have distinct post-event real renderer screenshots")
+print("PASS: Four different original-sprite moments and four normal-return screenshots")
