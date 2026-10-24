@@ -223,7 +223,8 @@ jobs:
             mv tamapoke-test.ppm "battle-$foe.ppm"
           done
           python -c 'import hashlib; names=("bulbasaur","squirtle","pikachu"); hs=[hashlib.sha256(open("battle-"+n+".ppm","rb").read()).hexdigest() for n in names]; assert len(set(hs))==3,hs; print("Three distinct battle opponents and no save mutation")'
-          rm -f battle-*.ppm
+          # Preserve these three battle render snapshots as CI evidence.
+          test -s battle-bulbasaur.ppm && test -s battle-squirtle.ppm && test -s battle-pikachu.ppm
 
       - name: Upload Windows executable and original sprites
         if: always()
