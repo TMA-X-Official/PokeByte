@@ -51,6 +51,11 @@ assert "1.75C" in site
 assert "no firmware" in site.lower() or "not ready" in site.lower()
 assert "Adventure or Battle add-ons" in site, "Cancelled Adventure/Battle must not ship"
 assert "303" in site and "12 approved backgrounds" in site
+assert "Plug in. Click install." in site
+assert "No desktop app, no firmware ZIP, no microSD adapter" in site
+assert "Automatic firmware setup" in site
+assert "Assets automatically verified" in site
+assert "One-click Install" in site
 assert ORIGINAL_PAGE.exists() and ORIGINAL_MANIFEST.exists(), "Original installer must be preserved"
 assert "TamaPoke" in ORIGINAL_MANIFEST.read_text(encoding="utf-8")
 assert "tamapoke.bin" in ORIGINAL_MANIFEST.read_text(encoding="utf-8")
