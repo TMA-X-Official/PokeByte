@@ -1006,7 +1006,7 @@ void render() {
 #ifdef POKEBYTE_PC
   // Enhanced background only in PC test build; ESP32 and original menus untouched.
   extern void pokebyteEnhanceOriginalScene(Arduino_Canvas*, uint8_t, uint32_t, bool, int);
-  pokebyteEnhanceOriginalScene(gfx, pet.isEgg() ? 0 : DEX_TBL[pet.speciesId].biome, millis(), gNight, h);
+  pokebyteEnhanceOriginalScene(gfx, pet.isEgg() ? 0 : DEX_TBL[pet.speciesId].biome, millis(), pet.sleeping, h);
 #endif
 
   if (pet.ceremony) {
