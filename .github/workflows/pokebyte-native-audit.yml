@@ -1,0 +1,41 @@
+name: PokéByte Waveshare Phase 4 native-port audit
+
+on:
+  push:
+    branches: [pokebyte-phase4-waveshare-release-prep]
+    paths:
+      - 'TamaPoke.ino'
+      - 'sdmon.*'
+      - 'pokebyte/embedded_scene.h'
+      - 'pokebyte/personality_pack0*'
+      - 'tools/test_waveshare_port.py'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/pokebyte-native-audit.yml'
+  pull_request:
+    paths:
+      - 'TamaPoke.ino'
+      - 'sdmon.*'
+      - 'pokebyte/embedded_scene.h'
+      - 'pokebyte/personality_pack0*'
+      - 'tools/test_waveshare_port.py'
+  workflow_dispatch:
+
+jobs:
+  embedded-source-and-original-pmd-planner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit embedded scene paths, verified art, no SD autoformat
+        run: python3 tools/test_waveshare_port.py
+      - name: Pack 01 approved mood and gesture planner
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack01.cpp pokebyte/personality_pack02.cpp pokebyte/test_personality_pack01.cpp -o /tmp/pb-personality01
+          /tmp/pb-personality01
+      - name: Pack 02 stable temperament and bond
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack02.cpp pokebyte/test_personality_pack02.cpp -o /tmp/pb-personality02
+          /tmp/pb-personality02
+      - name: Pack 03 distinct one-shot original PMD surprises
+        run: |
+          g++ -std=c++17 -O2 -I. pokebyte/personality_pack03.cpp pokebyte/test_personality_pack03.cpp -o /tmp/pb-personality03
+          /tmp/pb-personality03
