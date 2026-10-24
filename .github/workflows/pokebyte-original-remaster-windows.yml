@@ -1,0 +1,57 @@
+name: PokéByte original-scene remaster Windows test
+on:
+  push:
+    branches: [pokebyte-original-scene-remaster]
+    paths: [TamaPoke.ino, 'pokebyte/**', '.github/workflows/pokebyte-original-remaster-windows.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-python
+            tar
+            xz
+      - name: Unpack original desktop compatibility code
+        run: |
+          base64 --decode pc-port.tar.xz.b64 > port.tar.xz
+          echo '302077390e4276f13a7491956f4347810b530958ec7ce9bfce5014016dcfa72c  port.tar.xz' | sha256sum --check
+          tar -xJf port.tar.xz
+          test -f pc/desktop_main.cpp
+      - name: Add remastered scenery and fix SDL clipping
+        run: python pokebyte/apply_remaster_pc.py
+      - name: Compile real TamaPoke gameplay for Windows
+        run: bash pokebyte/build_remaster_windows.sh
+      - name: Verify original game starts in all five time modes
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Original-Remaster-PC
+          for mode in morning day afternoon evening night; do
+            SDL_VIDEODRIVER=dummy timeout 35s ./PokeByte-Remaster-PC.exe --test-home --screenshot --time-of-day "$mode"
+            test -s tamapoke-test.ppm
+            mv tamapoke-test.ppm "test-$mode.ppm"
+            rm -f tamapoke_pc_save.dat
+          done
+          python -c 'import hashlib,glob; h=[hashlib.sha256(open(f,"rb").read()).hexdigest() for f in glob.glob("test-*.ppm")]; assert len(h)==5 and len(set(h))==5, h;print("Five distinct time-of-day scene screenshots passed")'
+          rm -f test-*.ppm
+      - name: Upload playable Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Original-Remaster-PC-Windows
+          path: pc/build/windows/PokeByte-Original-Remaster-PC/
+          if-no-files-found: error
+          retention-days: 30
