@@ -1,8 +1,8 @@
-name: PokeByte Phase 2 atmospheric Windows test
+name: PokeByte Phase 2 Ambient Pack 01 Windows
 
 on:
   push:
-    branches: [pokebyte-phase2-ambient-polish]
+    branches: [pokebyte-phase2-ambient-pack-01]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -54,6 +54,25 @@ jobs:
           test -s pc/build/windows/PokeByte-Phase1-PC/assets/sunset-forest.bmp
           python -c 'import struct; h=open("pc/build/windows/PokeByte-Phase1-PC/assets/sunset-forest.bmp","rb").read(54); assert h[:2]==b"BM" and struct.unpack_from("<ii",h,18)==(466,466)'
 
+      - name: Make temporary test-only scene fixtures
+        run: |
+          python pokebyte/test_modes_ci.py
+          test -s pc/build/windows/PokeByte-Phase1-PC/assets/meadow_morning.bmp
+          test -s pc/build/windows/PokeByte-Phase1-PC/assets/minigame_night.bmp
+
+      - name: Verify five different lighting modes
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          for mode in morning day afternoon evening night; do
+            SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-home --time-of-day "$mode"
+            test -s tamapoke-test.ppm
+            mv tamapoke-test.ppm "mode-$mode.ppm"
+            rm -f tamapoke_pc_save.dat
+          done
+          python -c 'import hashlib,glob; fs=glob.glob("mode-*.ppm"); hs=[hashlib.sha256(open(f,"rb").read()).digest() for f in fs]; assert len(fs)==5 and len(set(hs))==5,(fs,hs);print("Five scene modes render uniquely")'
+          rm -f mode-*.ppm
+
       - name: Windows startup and screenshot verification
         timeout-minutes: 2
         run: |
@@ -86,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase2-Ambient-Windows
+          name: PokeByte-Ambient-Pack-01-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
