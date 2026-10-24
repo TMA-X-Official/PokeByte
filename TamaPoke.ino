@@ -26,6 +26,7 @@
 #include "pokebyte/personality_pack01.h"
 #include "pokebyte/personality_pack02.h"
 #include "pokebyte/personality_pack03.h"
+#include "pokebyte/adventure_pack01.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -68,6 +69,14 @@ uint8_t pbSurpriseEvent = PB_SURPRISE_NONE;
 uint8_t pbSurpriseStage = 0;
 uint8_t pbSurpriseFollowup = 255;
 uint32_t pbSurpriseWalkTick = 0;
+// Phase 4 Pack 01: optional, non-persistent forest trail (PC only).
+PokeByteAdventureState pbAdventure;
+PmdMon pbAdventureWild;
+bool pbAdventureDemoBooted = false;
+void pokebyteAdventureRender();  // kept independent of the existing home renderer
+void pokebyteAdventureReturnHome();
+void pokebyteAdventureOpenFromHome();
+void pokebyteToggleAdventure();
 #endif
 #define PET_GROUND 304  // linea de suelo de la mascota
 PmdMon galleryPmd;  // sprite grande de la vista detalle de la galeria (PMD/TPK2, legal)
@@ -541,7 +550,11 @@ void handleTouch() {
     // pulsacion larga sin moverse sobre el bicho -> dialogo de soltar
     if (!holdFired && !swallowGesture && !galleryOpen && !cardOpen && !kbOpen && !clockOpen && millis() - tStart > 3000 &&
         abs(tXl - tX0) < 30 && abs(tYl - tY0) < 30 && inPetZone(tX0, tY0) &&
-        !pet.isEgg() && !confirmUntil && !pet.ceremony) {
+        !pet.isEgg() && !confirmUntil && !pet.ceremony
+#ifdef POKEBYTE_PC
+        && pbAdventure.stage==PB_ADV_CLOSED
+#endif
+        ) {
       confirmUntil = millis() + 10000;
       holdFired = true;
     }
@@ -562,6 +575,9 @@ void handleTouch() {
 void openClock();  // prototipo
 
 void onSwipeV(int dir) {
+#ifdef POKEBYTE_PC
+  if(pbAdventure.stage!=PB_ADV_CLOSED)return;
+#endif
   if (pet.awaitingStarter()) return;  // bloqueado durante la eleccion de inicial
   if (gameOpen || galleryOpen || kbOpen || sackOpen || pet.ceremony) return;
   if (clockOpen) { clockOpen = false; return; }
@@ -579,6 +595,9 @@ void onSwipeV(int dir) {
 
 // deslizar: dir +1 = hacia la derecha
 void onSwipe(int dir) {
+#ifdef POKEBYTE_PC
+  if(pbAdventure.stage!=PB_ADV_CLOSED)return;
+#endif
   if (pet.awaitingStarter()) return;  // bloqueado durante la eleccion de inicial
   if (gameOpen || kbOpen || clockOpen) return;
   if (cardOpen) {  // dentro de la ficha: cambiar entre las 4 paginas
@@ -615,6 +634,18 @@ void onSwipe(int dir) {
 }
 
 void onTap(int16_t x, int16_t y) {
+#ifdef POKEBYTE_PC
+  if(pbAdventure.stage!=PB_ADV_CLOSED){
+    if(y<145 && x<192) { pokebyteAdventureReturnHome();return; }
+    if(y>=373 && y<=442 && x>=229 && x<=373) { pokebyteAdventureReturnHome();return; }
+    if((pbAdventure.stage==PB_ADV_READY || pbAdventure.stage==PB_ADV_RESULT)
+       && y>=373 && y<=442 && x>=93 && x<229){
+      pbAdventureWild.unload();
+      pokebyteAdventureStartStep(&pbAdventure,millis(),uint16_t(random(500)));
+    }
+    return; // Never tap original pet/menus while exploring.
+  }
+#endif
   // Serial.printf("TOUCH %d %d\n", x, y);  // diagnostico (silenciado: satura el log)
   if (pet.awaitingStarter()) {  // primera partida: elegir inicial
     for (int i = 0; i < 3; i++) {
@@ -718,6 +749,16 @@ void onTap(int16_t x, int16_t y) {
       return;
     }
   }
+#ifdef POKEBYTE_PC
+  // Small optional button on the meadow edge. Original four care controls
+  // retain their hitboxes, art and mechanics.
+  if(x>=311 && x<=438 && y>=260 && y<=306 &&
+     pokebyteAdventureCanEnter(pet.isEgg(),pet.sleeping,pet.ceremony!=CER_NONE,pet.energy)
+     && !pbSurpriseRunning){
+    pokebyteAdventureOpenFromHome();
+    return;
+  }
+#endif
   // tocar al bicho = caricia
   if (inPetZone(x, y)) {
     Serial.println("PET");
@@ -1001,6 +1042,28 @@ void printT(const char *s) {
 }
 
 void render() {
+#ifdef POKEBYTE_PC
+  // --adventure-demo uses only RAM; four live launcher entry paths share this
+  // exact real renderer. Opening from regular home remains player-triggered.
+  if(pokebyteAdventureDemoActive() && !pbAdventureDemoBooted && !pet.isEgg()){
+    pbAdventureDemoBooted=true;
+    pokebyteAdventureOpenFromHome();
+    if(pbAdventure.stage==PB_ADV_READY){
+      uint16_t forced=pokebyteAdventureDemoEvent()==PB_ADV_QUIET?11:
+         pokebyteAdventureDemoEvent()==PB_ADV_ITEM?45:365;
+      pokebyteAdventureStartStep(&pbAdventure,millis()-1700u,forced);
+    }
+  }
+  if(pbAdventure.stage!=PB_ADV_CLOSED){
+    if(pet.sleeping||pet.isEgg()||pet.ceremony!=CER_NONE)
+      pokebyteAdventureReturnHome();
+    else {
+      pokebyteAdventureUpdate(&pbAdventure,millis());
+      pokebyteAdventureRender();
+      return;
+    }
+  }
+#endif
   if (pet.awaitingStarter()) {  // primera partida: elegir inicial (prioridad total)
     renderStarterSelect();
     return;
@@ -1101,6 +1164,17 @@ void render() {
     drawBars();
     drawButtons();
     drawCelebration();
+#ifdef POKEBYTE_PC
+    // Adventure entry is separate from original care buttons and never shown
+    // over an active ceremony, egg or low-energy/sleeping Pokemon.
+    if(pokebyteAdventureCanEnter(pet.isEgg(),pet.sleeping,pet.ceremony!=CER_NONE,pet.energy)
+       && !pbSurpriseRunning){
+      gfx->fillRoundRect(313,264,120,37,10,C565(0x28,0x55,0x42));
+      gfx->drawRoundRect(313,264,120,37,10,C565(0xc5,0xe6,0xb5));
+      gfx->setTextColor(UI_WHITE);
+      setSize(2); setCur(319,276); printT("ADVENTURE");
+    }
+#endif
     if (pet.wantEvolveButton()) drawEvolveButton();        // CTA rojo: evolucionar
     else if (pet.canRunawayNow()) drawRunawayButton();     // CTA sombrio: escapada (abandono)
     else if (pet.wantFarewellButton()) drawFarewellButton();  // CTA dorado: despedida
@@ -1162,6 +1236,101 @@ void render() {
 
   gfx->flush();
 }
+
+
+#ifdef POKEBYTE_PC
+// ----- Phase 4 Pack 01: isolated forest trail preview -----
+// No Pet state, existing save keys, original scene BMPs or PMD sprite blobs
+// are modified. Future packs will add battle/item systems after user review.
+void pokebyteAdventureOpenFromHome(){
+  if(pbAdventure.stage!=PB_ADV_CLOSED || gameOpen || sackOpen || galleryOpen ||
+     cardOpen || kbOpen || clockOpen || confirmUntil || choiceKind ||
+     !pokebyteAdventureCanEnter(pet.isEgg(),pet.sleeping,
+                                  pet.ceremony!=CER_NONE,pet.energy) ||
+     pbSurpriseRunning)return;
+  pokebyteAdventureOpen(&pbAdventure);
+}
+void pokebyteAdventureReturnHome(){
+  pbAdventureWild.unload();
+  pokebyteAdventureClose(&pbAdventure);
+  beh.mode=0;beh.act=PMD_IDLE;
+  beh.x=beh.targetX=233;
+  beh.t0=millis();beh.until=0; // normal approved personality planner resumes
+}
+void pokebyteToggleAdventure(){
+  if(pbAdventure.stage!=PB_ADV_CLOSED) pokebyteAdventureReturnHome();
+  else pokebyteAdventureOpenFromHome();
+}
+void pokebyteAdventureRender(){
+  uint32_t now=millis();
+  gNight=(sceneHour()<6 || sceneHour()>=20);
+  // Reuse the user's exact approved art. The path appears ONLY in this mode.
+  drawScene(2,now,gNight);
+  const uint16_t green=C565(0x28,0x55,0x42);
+  const uint16_t cream=C565(0xf8,0xf2,0xda);
+  const uint16_t brown=C565(0xc4,0xa3,0x72);
+  // Tiny winding route markers, drawn in adventure only.
+  gfx->fillTriangle(226,273,184,328,281,328,brown);
+  gfx->fillTriangle(226,266,210,285,253,285,cream);
+  gfx->fillCircle(115,290,8,green);
+  gfx->fillCircle(348,287,9,green);
+  gfx->fillRoundRect(86,38,294,61,13,green);
+  gfx->setTextColor(UI_WHITE);
+  setSize(3);setCur(centerX("FOREST TRAIL",3),46);printT("FOREST TRAIL");
+  setSize(2);setCur(centerX("Meadow Path 01",2),79);printT("Meadow Path 01");
+  // Quick escape is always available even while the walk animation runs.
+  gfx->fillRoundRect(88,109,100,35,8,cream);
+  gfx->drawRoundRect(88,109,100,35,8,green);
+  gfx->setTextColor(green);
+  setSize(2);setCur(106,119);printT("< HOME");
+  uint8_t action=PMD_IDLE;
+  int heroX=233;
+  if(pbAdventure.stage==PB_ADV_WALKING){
+    action=pmd.has(PMD_WALKR)?PMD_WALKR:PMD_IDLE;
+    uint32_t elapsed=uint32_t(now-pbAdventure.stepAt);
+    if(elapsed>1700u)elapsed=1700u;
+    heroX=166+int(elapsed*105u/1700u);
+  }else if(pbAdventure.stage==PB_ADV_RESULT && pbAdventure.event==PB_ADV_WILD){
+    heroX=148;
+  }
+  if(!pmd.has(action))action=PMD_IDLE;
+  if(pmd.has(action)) drawPmdAct(action,heroX,308,now,true,false,3);
+  if(pbAdventure.stage==PB_ADV_RESULT){
+    if(pbAdventure.event==PB_ADV_WILD){
+      // Real unmodified original PMD wild Pokemon. No encounter/battle data
+      // is saved and no new Dex entry is registered.
+      if(!pbAdventureWild.loaded && pbAdventure.wildDex)
+        pbAdventureWild.load(pbAdventure.wildDex,false);
+      if(pbAdventureWild.has(PMD_IDLE))
+        drawPmdActM(pbAdventureWild,PMD_IDLE,320,301,now,true,false,3);
+    }else if(pbAdventure.event==PB_ADV_ITEM){
+      drawMap(SPR_ICON_BERRY_B,16,277,213,3,false);
+    }
+  }
+  gfx->fillRoundRect(56,319,354,52,12,cream);
+  gfx->drawRoundRect(56,319,354,52,12,green);
+  char msg[72];
+  if(pbAdventure.stage==PB_ADV_READY)
+    snprintf(msg,sizeof(msg),"A peaceful forest path awaits.");
+  else if(pbAdventure.stage==PB_ADV_WALKING)
+    snprintf(msg,sizeof(msg),"Exploring the meadow...");
+  else if(pbAdventure.event==PB_ADV_WILD && pbAdventure.wildDex)
+    snprintf(msg,sizeof(msg),"Wild %s appeared!",dexName(pbAdventure.wildDex));
+  else
+    snprintf(msg,sizeof(msg),"%s",pokebyteAdventureEventLabel(pbAdventure.event));
+  gfx->setTextColor(green);
+  setSize(2);setCur(centerX(msg,2),337);printT(msg);
+  // 1x no-progress panel: nothing here grants real items or affects stats.
+  gfx->fillRoundRect(107,383,119,45,11,green);
+  gfx->fillRoundRect(240,383,119,45,11,C565(0x72,0x58,0x46));
+  gfx->setTextColor(UI_WHITE);
+  const char* actionLabel=pbAdventure.stage==PB_ADV_RESULT?"AGAIN":
+                          pbAdventure.stage==PB_ADV_WALKING?"WALKING":"WALK";
+  setSize(2);setCur(166-textW(actionLabel,2)/2,397);printT(actionLabel);
+  setCur(296-textW("HOME",2)/2,397);printT("HOME");
+  gfx->flush();
+}
+#endif
 
 // ---------- minijuego: toques con la pokeball ----------
 
