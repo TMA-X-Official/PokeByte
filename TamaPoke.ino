@@ -1319,14 +1319,23 @@ void pokebyteBattleRender(){
  setCur(34,75);printT(line);
  setCur(34,105);printT("HP");pokebyteBattleHP(68,108,153,pbBattle.enemyHp,pbBattle.enemyMaxHp);
  // Opponent uses the exact same original PMD binary sprite loader.
- uint8_t enemyAct=pbBattleEnemy.has(PMD_IDLE)?PMD_IDLE:PMD_HURT;
+ // Animate the ORIGINAL PMD attack/hurt frames instead of only shrinking HP.
+ // The player's strike leads, then the foe responds. Missing clips use Idle.
+ bool acting=(pbBattle.stage==PB_BATTLE_MESSAGE ||
+              pbBattle.stage==PB_BATTLE_FINISHED) &&
+             pbBattle.until>now && pbBattle.lastAction!=0;
+ bool playerStrike=acting && pbBattle.lastAction==1 &&
+                   pbBattle.until-now>720u;
+ bool foeStrike=acting && !playerStrike && pbBattle.enemyHp>0;
+ uint32_t clipTime=acting?1500u-(pbBattle.until-now):now;
+ uint8_t enemyAct=playerStrike && pbBattleEnemy.has(PMD_HURT)?PMD_HURT:
+                  foeStrike && pbBattleEnemy.has(PMD_ATTACK)?PMD_ATTACK:PMD_IDLE;
  if(pbBattleEnemy.has(enemyAct))
-   drawPmdActM(pbBattleEnemy,enemyAct,341,256,now,true,false,3);
- uint8_t allyAct=PMD_IDLE;
- if(pbBattle.stage==PB_BATTLE_MESSAGE && pbBattle.lastAction==1 && pbBattle.until>now)
-   allyAct=pmd.has(PMD_ATTACK)?PMD_ATTACK:PMD_IDLE;
- if(!pmd.has(allyAct))allyAct=PMD_IDLE;
- if(pmd.has(allyAct))drawPmdAct(allyAct,132,310,now,true,false,3);
+   drawPmdActM(pbBattleEnemy,enemyAct,341,256,clipTime,!acting,false,3);
+ uint8_t allyAct=playerStrike && pmd.has(PMD_ATTACK)?PMD_ATTACK:
+                 foeStrike && pmd.has(PMD_HURT)?PMD_HURT:PMD_IDLE;
+ if(pmd.has(allyAct))
+   drawPmdAct(allyAct,132,310,clipTime,!acting,false,3);
  pokebyteBattlePanel(232,233,206,74,cream);
  gfx->setTextColor(ink);setSize(2);
  snprintf(line,sizeof(line),"%s Lv%u",dexName(pet.speciesId),pbBattle.playerLevel);
@@ -1369,7 +1378,8 @@ void pokebyteBattleRender(){
    setCur(42,378);printT("Party switching comes later.");
    setCur(185,428);printT("< BACK");
  }else if(pbBattle.stage==PB_BATTLE_MESSAGE){
-   setSize(2);setCur(34,357);printT(pbBattle.message);
+   setSize(textW(pbBattle.message,2)>396?1:2);
+   setCur(34,357);printT(pbBattle.message);
    setCur(38,411);printT("Battle turn resolving...");
  }else{
    setSize(3);setCur(centerX(pbBattle.message,3),350);printT(pbBattle.message);
