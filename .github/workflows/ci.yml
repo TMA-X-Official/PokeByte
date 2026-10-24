@@ -42,7 +42,33 @@ jobs:
           cp pokebyte/personality_pack0*.cpp pokebyte/personality_pack0*.h "$RUNNER_TEMP/TamaPoke/"
           arduino-cli compile --warnings=all \
             --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
+            --output-dir "$RUNNER_TEMP/PokeByte-firmware-dev" \
             "$RUNNER_TEMP/TamaPoke"
+
+      - name: Label DEV artifacts with checksums (NOT a hardware release)
+        run: |
+          cd "$RUNNER_TEMP/PokeByte-firmware-dev"
+          sha256sum ./*.bin > SHA256SUMS.txt
+          cat > DO-NOT-FLASH.txt <<'WARNING'
+          POKEBYTE ESP32-S3 HARDWARE-PORT DEVELOPMENT BUILD.
+          This artifact is NOT user-approved and is NOT for flashing.
+          A passing compile does NOT validate the Waveshare LCD, RTC, PMU,
+          touch, power, audio, PSRAM, SD assets, original Pokemon saves,
+          firmware rollback, or the no-adapter USB asset uploader.
+          DO NOT merge or publish as a consumer installer release.
+          The one-click installer stays LOCKED until explicit hardware
+          acceptance, full-flash/NVS backups and recovery are verified.
+          WARNING
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Phase4-ESP32S3-DEV-DO-NOT-FLASH
+          path: |
+            ${{ runner.temp }}/PokeByte-firmware-dev/*.bin
+            ${{ runner.temp }}/PokeByte-firmware-dev/SHA256SUMS.txt
+            ${{ runner.temp }}/PokeByte-firmware-dev/DO-NOT-FLASH.txt
+          if-no-files-found: error
+          retention-days: 7
 
   generated:
     name: Generated headers up to date
