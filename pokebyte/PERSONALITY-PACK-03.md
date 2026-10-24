@@ -24,7 +24,7 @@ Extract the final Windows ZIP in a **new** folder, then double-click one of thes
 | `TEST-SURPRISE-WANDER.bat` | Charmander walks toward one side of the meadow, **Curious Explorer** |
 | `TEST-SURPRISE-FRIENDSHIP.bat` | Charmander uses a friendly PMD gesture, **Friendship Moment** |
 
-All four preview launchers create an **in-memory Charmander** and **never read or write `tamapoke_pc_save.dat`**. The caption appears only in these previews, not in normal game. The demos can repeat after a short interval so they are obvious; real events remain rare.
+All four preview launchers create an **in-memory Charmander** and **never read or write `tamapoke_pc_save.dat`**. The caption appears only in these previews, not in normal game. **Fixed playtest behavior:** Each surprise preview now fires **once** per .bat launch, completes its original sprite animation or meadow-edge walk, settles into real Idle for around 4.5 seconds, and then returns to normal Pack 02 temperament behavior. The caption changes to **Back to normal** when the surprise finishes. To replay the surprise, close the window and double-click the same launcher again. This avoids the earlier 10-second auto-replay that made Wake look stuck. The actual game retains its existing rare events and cooldowns.
 
 After checking all four previews, open `PLAY-POKEBYTE.bat` to test the ordinary game. Press **P** to compare original/classic behavior, **B** classic vs remastered scenery, **A** ambience, **W** rain and **S** snow. All previously approved scenery and interactions should look identical.
 
