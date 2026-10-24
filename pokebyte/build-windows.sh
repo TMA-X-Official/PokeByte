@@ -8,7 +8,7 @@ x86_64-w64-mingw32-g++ --version >/dev/null 2>&1 && CXX=x86_64-w64-mingw32-g++ |
 "$CXX" -std=c++17 -O2 -DPOKEBYTE_PC -Ipc/shim -I. \
  pc/pc_sketch.cpp pet.cpp i18n.cpp sdmon.cpp \
  pc/shim/emu_core.cpp pc/shim/emu_sd.cpp pc/shim/emu_preferences.cpp \
- pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp pokebyte/ambient_fx.cpp \
+ pc/emu_stubs.cpp pc/desktop_main.cpp pokebyte/pokebyte_scene.cpp pokebyte/ambient_fx.cpp pokebyte/personality_pack01.cpp \
  -lSDL2 -static-libgcc -static-libstdc++ \
  -o "$OUT/PokeByte-Phase1-PC.exe"
 for dll in SDL2.dll libwinpthread-1.dll; do
@@ -44,13 +44,19 @@ for mode in morning day afternoon evening night; do
   upper=$(printf '%s' "$mode" | tr '[:lower:]' '[:upper:]')
   printf '@echo off\r\ncall "%%~dp0PLAY-POKEBYTE.bat" %s\r\n' "$mode" > "$OUT/PLAY-${upper}.bat"
 done
+# Isolated visual demos start a fresh Charmander without reading or writing
+# tamapoke_pc_save.dat; existing Pokémon remain completely safe.
+for mood in happy tired hungry; do
+  upper=$(printf '%s' "$mood" | tr '[:lower:]' '[:upper:]')
+  printf '@echo off\r\ncd /d "%%~dp0"\r\nstart "" "PokeByte-Phase1-PC.exe" --scale 2 --test-home --no-save --personality-demo %s\r\n' "$mood" > "$OUT/TEST-${upper}-CHARMANDER.bat"
+done
 cat > "$OUT/README.txt" <<'TEXT'
-POKEBYTE PHASE 2 - CLOUD-FREE WEATHER & SNOW / BALANCED
-Run PLAY-POKEBYTE.bat on Windows 10/11 (64-bit). Changes between the five approved time-of-day scenes AUTOMATICALLY while running. PLAY-MORNING/DAY/AFTERNOON/EVENING/NIGHT launchers lock the scene for quick previews.
-Press B to switch original/remastered scenery. Press A to toggle BALANCED pollen, grass and fireflies (ON by default). Press W for light rain, S for falling snow. Rain and snow are mutually exclusive and both start OFF. ALL animated clouds removed.
+POKEBYTE PHASE 3 - PERSONALITY PACK 01 / ORIGINAL SPRITES
+Run PLAY-POKEBYTE.bat for the real persistent game on Windows 10/11 (64-bit). Changes between the five approved time-of-day scenes AUTOMATICALLY while running. PLAY-MORNING/DAY/AFTERNOON/EVENING/NIGHT launchers lock the scene for quick previews.
+Press P to toggle enhanced mood-aware reactions / original idle behavior. Press B to switch original/remastered scenery. Press A to toggle BALANCED pollen, grass and fireflies (ON by default). Press W for light rain, S for falling snow. Rain and snow are mutually exclusive and both start OFF. ALL animated clouds removed.
 Click to tap; hold and drag the mouse to swipe the original menus.
 The game remembers background and ambient preferences in .cfg files. Rain and snow are manual, visual-only weather and do not use real forecasts.
-The original TamaPoke v1.17 game logic, interactions and sprites remain intact.
+TEST-HAPPY-CHARMANDER.bat, TEST-TIRED-CHARMANDER.bat, TEST-HUNGRY-CHARMANDER.bat: safe standalone visual demos. They DO NOT read or change your real saved Pokemon and always use the original Charmander PMD animations. Real game behavior reflects actual needs, not the preview modes. Missing gestures safely fall back to Idle/Walk. The original TamaPoke v1.17 care, evolution, stats, interactions and sprites remain intact.
 Saves: tamapoke_pc_save.dat in this folder. These are separate from your Waveshare saves.
 Battery hardware and sound are not emulated on PC.
 Code: based on TamaPoke by socquique (MIT).
