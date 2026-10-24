@@ -12,7 +12,7 @@
 | 1 — Remastered environments | **Completed, user-approved on Windows** | Five distinct day-part scenes and their matching minigame scenes |
 | 2 — Living environment | **Completed, user-approved on Windows** | Balanced pollen, grass movement, evening/night fireflies, manual rain/snow; **no animated overlay clouds** |
 | 3 — Personality | **Completed, user-approved on Windows 24 Oct 2026** | Pack 01 moods; Pack 02 temperament/Bond; Pack 03 four distinct one-shot surprises |
-| 5 — Waveshare release | **In progress — safe firmware port preparation; not ready to flash** | The user skipped Phase 4; Waveshare target must include approved Phase 1–3 only, with original art, sprites, save and hardware safeguards |
+| 4 — Waveshare release | **In progress — backup and embedded port preparation; NOT ready to flash** | Bring accepted Phases 1–3 to ESP32-S3-Touch-AMOLED-1.75 with exact approved art and no Adventure/Battle features |
 
 ### Non-negotiable preservation
 
@@ -53,19 +53,19 @@
 - The user provided their earlier approved Windows ZIP as backup. The corrected approved-art Windows ZIP was assembled using that backup's 12 exact BMPs and all 303 unchanged PMD sprites and was approved.
 - Preserve the user's known-good backups before any trial replacement. Always compare file-by-file and test all five scenes, mini-games, surprise demos, and saves.
 
-## Phase 4 — CANCELLED; Phase 5 now active (controlling user decision)
+## Cancelled gameplay-expansion experiments — hardware release renumbered Phase 4
 
 - After viewing the Forest Trail screen, the user explicitly rejected **Adventure Quiet, Adventure Item, Adventure Wild**. The Adventure PR [#17](https://github.com/TMA-X-Official/PokeByte/pull/17) was closed **without merge**.
 - After personally viewing the classic battle screen, the user explicitly rejected the **battle system** as well. The battle PR [#18](https://github.com/TMA-X-Official/PokeByte/pull/18) was closed **without merge**.
-- User says: **skip Phase 4**, **remove the Phase 4 step from GitHub**, and **proceed directly to Phase 5 — Waveshare release**. This supersedes every older proposed Phase 4 pack, Adventure-first plan and battle-first plan.
-- The active [ROADMAP.md](ROADMAP.md) has **no Phase 4 row**. The abandoned proposal is kept **only** in [archive/REJECTED-PHASE4-HISTORY.md](archive/REJECTED-PHASE4-HISTORY.md) and closed PR history. **Neither rejected feature is allowed in a release or rebuilt test baseline.**
+- User says: **remove the rejected gameplay-expansion stage** and **renumber the Waveshare hardware release as Phase 4**. This supersedes every older proposed Phase 4 pack, Adventure-first plan and battle-first plan.
+- The active [ROADMAP.md](ROADMAP.md) now lists only **Phases 1–4**, with **Phase 4 as Waveshare Release**. The abandoned proposal is kept **only** in [archive/REJECTED-PHASE4-HISTORY.md](archive/REJECTED-PHASE4-HISTORY.md) and closed PR history. **Neither rejected feature is allowed in a release or rebuilt test baseline.**
 - **Approved source remains Phase 3:** [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), approved ZIP SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`.
-- **Active Phase 5 engineering source branch:** [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep) branched **directly from approved Phase 3**, not from Phase 4. Its first code safety fix disables `SD_MMC` auto-format on failed mount. Its [`tools/phase5_prepare_sd.py`](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase5-waveshare-release-prep/tools/phase5_prepare_sd.py) validates/stages the exact approved BMP/PMD SD data without touching hardware. [PHASE5-WAVESHARE-RELEASE.md](PHASE5-WAVESHARE-RELEASE.md) has release gates.
+- **Active Phase 4 engineering source branch:** [`pokebyte-phase4-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-waveshare-release-prep) branched **directly from approved Phase 3**, not from Phase 4. Its first code safety fix disables `SD_MMC` auto-format on failed mount. Its [`tools/phase4_prepare_sd.py`](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase4-waveshare-release-prep/tools/phase4_prepare_sd.py) validates/stages the exact approved BMP/PMD SD data without touching hardware. [PHASE4-WAVESHARE-RELEASE.md](PHASE4-WAVESHARE-RELEASE.md) has release gates.
 - **Critical engineering gap:** existing approved Phase 1/2/3 scenery/ambient/personality code still contains desktop-only `#ifdef POKEBYTE_PC` paths and host SDL/file APIs. **A firmware compile of the current Phase 5 branch will still run much of the original game, not all PokéByte-approved Windows features.** It is a preparation branch, not a release candidate.
 - **Protect physical Pokémon:** Don't flash a firmware, repartition, wipe Preferences/NVS or format any SD card until complete user flash/NVS/microSD backups and physical board model/port verification. **No hardware flash done.** A no-save Windows test is not hardware validation.
 - **Next work:** real embedded feature port, compile/test ESP32-S3 firmware, stage exact approved background BMPs and 303 original SD `.bin` assets, verify performance/RTC/PMU/touch/audio/SD, then safe backup/flash with explicit user approval. No new gameplay features.
 
-## Phase 5 recovery files (24 October 2026)
+## Hardware-release recovery files (historical filenames retain Phase 5) (24 October 2026)
 
 - **Last accepted executable:** `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip` — exact sha256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`.
 - **Exact approved SD data staging (not firmware):** `PokeByte-Phase5-Verified-MicroSD-Assets-STAGING.zip` — SHA-256 `d70a674139e0e5a7a7acce4a508f7b8b2c1e9a33250c04d19ef3d9078e861442`. Includes 12 466x466 BMP scenes in `pokebyte/` plus 303 original BIN data assets in `mons/`, with an internal checksum manifest. Stage paths need real embedded firmware support; no SD flash/copy done.
@@ -74,11 +74,14 @@
 
 ## Practical recovery in a new ChatGPT conversation
 
-1. Start with: **"Continue PokéByte at Phase 5 Waveshare release. Phases 1–3 are the user-approved Windows baseline, and Phase 4 (Adventure and Battles) was explicitly cancelled and removed from the active roadmap. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE5-WAVESHARE-RELEASE.md; continue the phase5 release-prep branch, and do not erase/flash until backup and user consent. Preserve exact approved art and original saves."**
+**Numbering update:** This project formerly labeled Waveshare deployment as Phase 5 because a Phase 4 Gameplay Expansion had been proposed. Both experimental gameplay implementations were rejected, and the user explicitly requested continuous public numbering: **Phases 1–3 approved, Phase 4 = Waveshare Release.** Legacy archive filenames with `Phase5` are preserved for checksum provenance only.
+
+
+1. Start with: **"Continue PokéByte at Phase 4 — Waveshare Release. Phases 1–3 are the approved Windows baseline; the former gameplay-expansion experiments were rejected and archived. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE4-WAVESHARE-RELEASE.md and continue pokebyte-phase4-waveshare-release-prep. Never flash or format without a verified full flash/NVS/microSD backup and user approval. Preserve original sprites and approved artwork."**
 2. Upload the privately retained **PokéByte Continuity Archive ZIP**, or at minimum the approved Phase 3 Windows ZIP, the backup ZIP, and the previous-chat export.
 3. Verify the ZIP and [asset hashes](APPROVED-ASSETS.md) before providing a new Windows build. Source-only CI art is **not** enough. Never invent a local download link.
 4. Check the GitHub roadmap and most recent PR; don't assume a new conversation has access to the prior session or uploaded binary files.
-5. Continue Phase 5 on its isolated Waveshare prep branch. Port the PC-only approved features to embedded hardware before claiming any upgrade; build and test, make verified backups, and only then plan a physical flash with explicit user approval.
+5. Continue Phase 4 on its isolated Waveshare prep branch. Port the PC-only approved features to embedded hardware before claiming any upgrade; build and test, make verified backups, and only then plan a physical flash with explicit user approval.
 
 ## History coverage and privacy
 
