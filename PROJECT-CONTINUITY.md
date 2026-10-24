@@ -12,8 +12,7 @@
 | 1 — Remastered environments | **Completed, user-approved on Windows** | Five distinct day-part scenes and their matching minigame scenes |
 | 2 — Living environment | **Completed, user-approved on Windows** | Balanced pollen, grass movement, evening/night fireflies, manual rain/snow; **no animated overlay clouds** |
 | 3 — Personality | **Completed, user-approved on Windows 24 Oct 2026** | Pack 01 moods; Pack 02 temperament/Bond; Pack 03 four distinct one-shot surprises |
-| 4 — Gameplay expansion | **In development — Pack 01 classic-style Pokémon battles, awaiting user approval** | User explicitly rejected Adventure Quiet / Item / Wild and wants turn-based 1v1 battles with classic FIGHT/BAG/POKEMON/RUN actions |
-| 5 — Waveshare release | **Not started** | Device build, flash, backup and hardware testing reserved for later |
+| 5 — Waveshare release | **In progress — safe firmware port preparation; not ready to flash** | The user skipped Phase 4; Waveshare target must include approved Phase 1–3 only, with original art, sprites, save and hardware safeguards |
 
 ### Non-negotiable preservation
 
@@ -54,48 +53,25 @@
 - The user provided their earlier approved Windows ZIP as backup. The corrected approved-art Windows ZIP was assembled using that backup's 12 exact BMPs and all 303 unchanged PMD sprites and was approved.
 - Preserve the user's known-good backups before any trial replacement. Always compare file-by-file and test all five scenes, mini-games, surprise demos, and saves.
 
-## Phase 4 — user-accepted direction (next work)
+## Phase 4 — CANCELLED; Phase 5 now active (controlling user decision)
 
-The user provided a previous-chat text export and confirmed focus on **Gameplay Expansion**:
-
-- **More gameplay:** adventure mode, wild Pokémon encounters, **turn-based** battles, additional minigames and collectible items.
-- **Long-term progression:** Gym challenges, badges, achievements, unlockable habitats, shiny hunting improvements and rewards.
-- User initially supported an Adventure-first plan, **but later inspected the Forest Trail screenshot and explicitly rejected the entire Adventure Quiet/Item/Wild experience**. That decision supersedes Adventure-first: **the current priority is classic-style turn-based Pokémon battles**. Do not recreate/ship the rejected Forest Trail or its three launchers.
-- Revised packs: **01 classic-style battle prototype** → **02 deeper battle mechanics/encounters** → **03 items & more minigames** → **04 gyms, badges & progression** → **05 habitats, shiny and rare discovery systems**. Future scope remains subject to user approval.
-- Avoid breaking existing level progression (one level per hour of real time). **Trainer Rank should be separate** from Pokémon level.
-- Existing code already has Gen 1 ATK/DEF/SPD derived from real base stats, genes and training, 8 original medals, shiny egg odds, stages of bond, a ball mini-game and strength-bag training. Reuse rather than duplicate them.
-- See [PHASE4-GAMEPLAY-PLAN.md](PHASE4-GAMEPLAY-PLAN.md) for the working proposal and safe acceptance criteria.
-- **The first Forest Trail Pack 01 was explicitly rejected by the user and PR #17 closed without merge.** A fresh Phase 4 Pack 01 Pokémon-style battle prototype is on a **separate branch based directly on accepted Phase 3** and awaits user's hands-on playtest. No persistent battle rewards, inventory or save changes. No hardware changes.
-
-## Phase 4 Pack 01 — REJECTED Forest Trail (historical record)
-
-- **Development branch:** [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype), [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17). Based directly on approved Phase 3 source; not merged.
-- **Implemented:** Optional new Adventure screen reached via home **ADVENTURE** pill or PC **G** key, single Forest Trail with original Pokémon walk animation, three outcome kinds (peaceful, berry discovered, wild Gen 1 original PMD sprite), repeatable **WALK/AGAIN**, always-available **HOME** return. No battle, permanent items, extra currency, Pokémon stat/save mutation.
-- **Test launchers:** `TEST-ADVENTURE-QUIET.bat`, `TEST-ADVENTURE-ITEM.bat`, `TEST-ADVENTURE-WILD.bat`, all in-memory Charmander no-save previews. Existing Phase 3 launchers and standard `PLAY-POKEBYTE.bat` remain.
-- **Successful Windows CI:** [run #40129169216](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216), compiled source commit `aa65bce87d572e3bcfcc80d52e322757e6d54ccb`; all previous gameplay/surprise tests and new state/screenshot tests passed.
-- **User-facing ZIP filename:** `PokeByte-Phase4-Pack01-Forest-Trail-Approved-Art-Windows.zip`, SHA-256 `d914e79c7942305fe274e7144bdf21887c4b751f9c01ab6bde63f816d8bfb434`. Verified that 12 BMP and 303 PMD BIN source bytes are **exactly the approved Phase 3 ZIP's**; ZIP CRC integrity pass. Do not substitute synthetic scene fixtures from the raw GitHub CI artifact.
-- **Acceptance:** **IN TEST / awaiting user hands-on feedback.** Not yet approved. Phase 3 ZIP remains the last **user-approved** Windows baseline. Do not advance to battle development or hardware deployment without this pack's review.
-- **New chat instructions:** Forest Trail was definitively **rejected**, PR #17 closed unmerged. **Do not restore Adventure Quiet, Item or Wild.** Use the **current Phase 4 battle PR #18** and this continuity file instead; check whether the replacement battle ZIP was tested before continuing.
-
-## Phase 4 Pack 01 — replacement classic Pokémon battles (24 October 2026)
-
-- **Latest explicit user instruction:** The Forest Trail screenshot was unsatisfactory. **Remove Adventure Quiet / Adventure Item / Adventure Wild. Instead build a battle system that feels like a classic main-series Pokémon game.** This is the controlling instruction; any earlier Adventure-first plan is historical.
-- **Rejected PR:** [#17](https://github.com/TMA-X-Official/PokeByte/pull/17), **closed without merge**. The Windows adventure ZIP must not be promoted or used as the source for further development.
-- **Replacement branch:** [pokebyte-phase4-pack01-classic-battles](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles); [draft PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18), based **directly** on approved Phase 3 source. No Adventure mode or Adventure launchers.
-- **Prototype mechanics:** new BATTLE home-screen entry / PC K shortcut, 1v1 menu **FIGHT/BAG/POKEMON/RUN**, four moves and PP, separate temporary battle HP bars, classic-inspired elemental effectiveness, turn order based on existing ATK/DEF/SPEED + move priority, optional one-use **practice-only** potion and safe HOME exit, original PMD Attack/Hurt sprites with available-action fallbacks. A win/faint/escape has **no persistent impact** on the player's saved Pokémon.
-- **Demo opponents:** Bulbasaur, Squirtle, Pikachu; safe standalone TEST-BATTLE launchers use an in-memory Charmander and `--no-save`. The user still needs to visually test and approve the replacement.
-- **Windows CI successful:** [run #40131289786](https://github.com/TMA-X-Official/PokeByte/actions/runs/40131289786), source commit `fddf23c208357e5c1ec4134c2479caa1c37bd090`; battle state tests, three distinct no-save original-sprite screenshots, and all previous gameplay/personality regressions passed.
-- **Current Windows test ZIP:** `PokeByte-Phase4-Pack01-Classic-Battles-Windows-TEST.zip` (SHA-256 `65bb9f55e6fcd55e89d812972974c3ad45ad8f1040df10d2ec3103a7a1f7032e`), 7,989,250 bytes. All **12 approved 466×466 BMPs** and **303 original PMD BINs** exactly match approved Phase 3 ZIP; ZIP CRC pass; the rejected Adventure launchers are absent, along with all CI synthetic fixture BMPs. Do not treat this unapproved battle prototype as the new accepted baseline until user playtests it.
-- **Pending:** User's evaluation of classic 1v1 battle mechanics and UI. Do not merge or flash Waveshare; Phase 3 remains accepted backup.
-- **Future:** richer battle type chart, learned moves, party/items, Gym progress only if user approves this visual battle direction first.
+- After viewing the Forest Trail screen, the user explicitly rejected **Adventure Quiet, Adventure Item, Adventure Wild**. The Adventure PR [#17](https://github.com/TMA-X-Official/PokeByte/pull/17) was closed **without merge**.
+- After personally viewing the classic battle screen, the user explicitly rejected the **battle system** as well. The battle PR [#18](https://github.com/TMA-X-Official/PokeByte/pull/18) was closed **without merge**.
+- User says: **skip Phase 4**, **remove the Phase 4 step from GitHub**, and **proceed directly to Phase 5 — Waveshare release**. This supersedes every older proposed Phase 4 pack, Adventure-first plan and battle-first plan.
+- The active [ROADMAP.md](ROADMAP.md) has **no Phase 4 row**. The abandoned proposal is kept **only** in [archive/REJECTED-PHASE4-HISTORY.md](archive/REJECTED-PHASE4-HISTORY.md) and closed PR history. **Neither rejected feature is allowed in a release or rebuilt test baseline.**
+- **Approved source remains Phase 3:** [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), approved ZIP SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`.
+- **Active Phase 5 engineering source branch:** [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep) branched **directly from approved Phase 3**, not from Phase 4. Its first code safety fix disables `SD_MMC` auto-format on failed mount. Its [`tools/phase5_prepare_sd.py`](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase5-waveshare-release-prep/tools/phase5_prepare_sd.py) validates/stages the exact approved BMP/PMD SD data without touching hardware. [PHASE5-WAVESHARE-RELEASE.md](PHASE5-WAVESHARE-RELEASE.md) has release gates.
+- **Critical engineering gap:** existing approved Phase 1/2/3 scenery/ambient/personality code still contains desktop-only `#ifdef POKEBYTE_PC` paths and host SDL/file APIs. **A firmware compile of the current Phase 5 branch will still run much of the original game, not all PokéByte-approved Windows features.** It is a preparation branch, not a release candidate.
+- **Protect physical Pokémon:** Don't flash a firmware, repartition, wipe Preferences/NVS or format any SD card until complete user flash/NVS/microSD backups and physical board model/port verification. **No hardware flash done.** A no-save Windows test is not hardware validation.
+- **Next work:** real embedded feature port, compile/test ESP32-S3 firmware, stage exact approved background BMPs and 303 original SD `.bin` assets, verify performance/RTC/PMU/touch/audio/SD, then safe backup/flash with explicit user approval. No new gameplay features.
 
 ## Practical recovery in a new ChatGPT conversation
 
-1. Start with: **"Continue PokéByte from the accepted Phase 3 baseline. The user rejected Forest Trail/Adventure Quiet/Item/Wild, PR #17 is closed. Phase 4 Pack 01 now means classic-style Pokémon battles on draft PR #18. Read the GitHub PROJECT-CONTINUITY.md, PHASE4-GAMEPLAY-PLAN.md, and APPROVED-ASSETS.md and preserve the approved artwork/sprite binaries. Do not flash firmware or merge automatically."**
+1. Start with: **"Continue PokéByte at Phase 5 Waveshare release. Phases 1–3 are the user-approved Windows baseline, and Phase 4 (Adventure and Battles) was explicitly cancelled and removed from the active roadmap. Read https://github.com/TMA-X-Official/PokeByte/blob/main/PROJECT-CONTINUITY.md and https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE5-WAVESHARE-RELEASE.md; continue the phase5 release-prep branch, and do not erase/flash until backup and user consent. Preserve exact approved art and original saves."**
 2. Upload the privately retained **PokéByte Continuity Archive ZIP**, or at minimum the approved Phase 3 Windows ZIP, the backup ZIP, and the previous-chat export.
 3. Verify the ZIP and [asset hashes](APPROVED-ASSETS.md) before providing a new Windows build. Source-only CI art is **not** enough. Never invent a local download link.
 4. Check the GitHub roadmap and most recent PR; don't assume a new conversation has access to the prior session or uploaded binary files.
-5. Develop on a separate Phase 4 branch, verify core gameplay and original PMD fidelity, provide a Windows preview and await the user's explicit playtest approval.
+5. Continue Phase 5 on its isolated Waveshare prep branch. Port the PC-only approved features to embedded hardware before claiming any upgrade; build and test, make verified backups, and only then plan a physical flash with explicit user approval.
 
 ## History coverage and privacy
 
