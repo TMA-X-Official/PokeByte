@@ -10,12 +10,13 @@
 namespace {
 constexpr int W=466,H=466;
 std::vector<uint16_t> forest;
+std::vector<uint16_t> minigameForest;
 bool forestEnabled=true;
 bool initialized=false;
 uint16_t rgb565(uint8_t r,uint8_t g,uint8_t b){return uint16_t(((r>>3)<<11)|((g>>2)<<5)|(b>>3));}
 uint16_t le16(const uint8_t *p){return uint16_t(p[0]|(p[1]<<8));}
 uint32_t le32(const uint8_t *p){return uint32_t(p[0])|(uint32_t(p[1])<<8)|(uint32_t(p[2])<<16)|(uint32_t(p[3])<<24);}
-bool loadBMP(const char *path){
+bool loadBMP(const char *path,std::vector<uint16_t>& target){
  std::ifstream f(path,std::ios::binary);
  if(!f)return false;
  uint8_t hdr[54]{};
@@ -32,7 +33,7 @@ bool loadBMP(const char *path){
   if(!f)return false;
   for(int x=0;x<W;x++){const auto b=&row[3*x];decoded[size_t(y)*W+x]=rgb565(b[2],b[1],b[0]);}
  }
- forest=std::move(decoded);return true;
+ target=std::move(decoded);return true;
 }
 void init(){
  if(initialized)return;
@@ -40,10 +41,15 @@ void init(){
  std::ifstream cfg("pokebyte-background.cfg");
  std::string selection;
  if(cfg&&std::getline(cfg,selection)&&selection=="original")forestEnabled=false;
- if(loadBMP("assets/sunset-forest.bmp")||loadBMP("pokebyte/assets/sunset-forest.bmp")){
+ if(loadBMP("assets/sunset-forest.bmp",forest)||loadBMP("pokebyte/assets/sunset-forest.bmp",forest)){
   std::cout<<"PokeByte: sunset meadow loaded. Press B to change backgrounds.\n";
  }else{
   std::cerr<<"PokeByte: Meadow art missing; original background available.\n";
+ }
+ if(loadBMP("assets/minigame.bmp",minigameForest)){
+  std::cout<<"PokeByte: matching minigame artwork loaded.\n";
+ }else{
+  std::cerr<<"PokeByte: minigame art missing; original minigame background remains available.\n";
  }
 }
 }
@@ -60,4 +66,14 @@ void pokebyteToggleBackground(){
  std::ofstream cfg("pokebyte-background.cfg",std::ios::trunc);
  if(cfg)cfg<<(forestEnabled?"forest":"original")<<"\n";
  std::cout<<"PokeByte scenery: "<<(forestEnabled?"sunset meadow":"original TamaPoke")<<"\n";
+}
+
+// Apply the same optional scene to the ball and training-bag mini-games.
+// Both retain their original playfield coordinates, physics and HUD.
+bool pokebyteDrawMinigameSceneOverride(Arduino_Canvas *canvas){
+ init();
+ if(!forestEnabled||minigameForest.size()!=size_t(W)*H)return false;
+ if(canvas->frame.size()!=size_t(W)*H)return false;
+ std::copy(minigameForest.begin(),minigameForest.end(),canvas->frame.begin());
+ return true;
 }

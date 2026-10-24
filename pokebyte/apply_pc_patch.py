@@ -12,5 +12,19 @@ s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
       if(key=='b'||key=='B')pokebyteToggleBackground(); }
 ''',1)
 s=s.replace('TamaPoke - Original PC Emulator','PokeByte - Sunset Meadow | B: Toggle Background',1)
+
+# Test flags exercise the REAL original minigames, preserving their logic.
+s=s.replace('int scale=2;bool dump=false,testHome=false;',
+            'int scale=2;bool dump=false,testHome=false,testMinigame=false,testSack=false;')
+s=s.replace('else if(!strcmp(argv[i],"--test-home"))testHome=true;',
+            'else if(!strcmp(argv[i],"--test-home"))testHome=true;else if(!strcmp(argv[i],"--test-minigame"))testMinigame=true;else if(!strcmp(argv[i],"--test-sack"))testSack=true;')
+s=s.replace(' if(testHome){pet.chooseStarter(1);pet.eggTap();pet.eggTap();pet.eggTap();}',
+''' if(testHome||testMinigame||testSack){pet.chooseStarter(1);pet.eggTap();pet.eggTap();pet.eggTap();}
+ if(testMinigame||testSack){
+  extern void startGame();extern void startSack();
+  if(testMinigame)startGame();else startSack();
+ }''')
+assert "testMinigame" in s and "startGame();" in s, "Test flags failed to patch desktop main"
+
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
