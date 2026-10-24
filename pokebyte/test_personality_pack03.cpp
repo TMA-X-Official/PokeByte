@@ -12,17 +12,32 @@ int main(){
  assert(pokebyteSurpriseChoose(1000,PB_CALM,15,all,999,&p));
  assert(p.event==PB_SURPRISE_WAKE && p.mode==2 && p.action==10);
  assert(!pokebyteSurpriseChoose(1001,PB_CALM,15,all,999,&p));
- assert(pokebyteSurpriseChoose(11020,PB_CALM,15,all,999,&p));
+ // Regression for reported bug: do NOT restart at 10 s or even 10 minutes.
+ assert(!pokebyteSurpriseChoose(11020,PB_CALM,15,all,999,&p));
+ assert(!pokebyteSurpriseChoose(601000,PB_CALM,15,all,999,&p));
+ assert(!pokebyteSurpriseDemoFinished());
+ pokebyteSurpriseMarkFinished();
+ assert(pokebyteSurpriseDemoFinished());
+ assert(std::strcmp(pokebyteSurpriseDemoLabel(),"Back to normal")==0);
  pokebyteSurpriseSetDemo("victory");
  assert(pokebyteSurpriseChoose(12000,PB_PLAYFUL,85,all,999,&p));
  assert(p.event==PB_SURPRISE_VICTORY&&p.action==7);
+ assert(!pokebyteSurpriseChoose(43000,PB_PLAYFUL,85,all,0,&p));
+ pokebyteSurpriseMarkFinished();
+ assert(pokebyteSurpriseDemoFinished());
  pokebyteSurpriseSetDemo("wander");
  assert(pokebyteSurpriseChoose(13000,PB_CURIOUS,15,all,999,&p));
  assert(p.event==PB_SURPRISE_WANDER&&p.mode==1);
  assert(p.targetX>=150&&p.targetX<=326);
+ assert(!pokebyteSurpriseChoose(34000,PB_CURIOUS,15,all,0,&p));
+ pokebyteSurpriseMarkFinished();
+ assert(pokebyteSurpriseDemoFinished());
  pokebyteSurpriseSetDemo("friendship");
  assert(pokebyteSurpriseChoose(14000,PB_SHY,85,all,999,&p));
  assert(p.event==PB_SURPRISE_FRIENDSHIP&&p.mode==2&&p.action==9);
+ assert(!pokebyteSurpriseChoose(44000,PB_SHY,85,all,0,&p));
+ pokebyteSurpriseMarkFinished();
+ assert(pokebyteSurpriseDemoFinished());
  // Missing all optional gestures: never request imaginary frames.
  const uint16_t basic=(1u<<0)|(1u<<1)|(1u<<2);
  pokebyteSurpriseSetDemo("wake");
@@ -51,5 +66,5 @@ int main(){
  assert(!pokebyteSurpriseChoose(1400000,PB_CURIOUS,85,all,900,&p));
  assert(pokebyteSurpriseChoose(1400020,PB_CURIOUS,85,all,1,&p));
  assert(p.event==PB_SURPRISE_WANDER);
- std::puts("Pack 03: 4 demos, original PMD fallbacks, contextual triggers, cooldowns, and rare idle tests passed");
+ std::puts("Pack 03: all four surprise previews play ONCE, return-to-normal state, original PMD fallbacks, real cooldowns, rare idle tests passed");
 }

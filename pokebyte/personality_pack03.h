@@ -17,3 +17,8 @@ bool pokebyteSurpriseChoose(uint32_t now,uint8_t temperament,uint8_t bond,
                            uint16_t available,uint16_t roll1000,
                            PokeByteSurprisePlan* out);
 void pokebyteSurpriseClear(); // remove pending event on Pokémon change
+
+// A preview is one genuine moment, never a perpetual repeating animation.
+// The home label changes to "Back to normal" once the original gesture ends.
+void pokebyteSurpriseMarkFinished();
+bool pokebyteSurpriseDemoFinished();

@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Personality Pack 03 Windows
+name: PokeByte Phase 3 Pack 03 One-Shot Fix Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-personality-pack-03]
+    branches: [pokebyte-phase3-pack03-one-shot-fix]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -131,6 +131,11 @@ jobs:
           test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-WANDER.bat
           test -s pc/build/windows/PokeByte-Phase1-PC/TEST-SURPRISE-FRIENDSHIP.bat
 
+      - name: Verify every surprise ends in normal idle instead of replaying
+        run: |
+          python -c 'from pathlib import Path; s=Path("TamaPoke.ino").read_text(encoding="utf-8"); assert "void pokebyteFinishOneSurprise(uint32_t now)" in s and "beh.until=now+4500" in s and "pokebyteSurpriseMarkFinished()" in s; assert "if (pbSurpriseRunning) pokebyteFinishOneSurprise(now)" in s; assert "if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);" in s; print("One-shot animation expiration and walk-target return to Idle wired")'
+          python -c 'from pathlib import Path; s=Path("pokebyte/personality_pack03.cpp").read_text(encoding="utf-8"); assert "if(isDemo && demoPlayed)return false" in s and "Back to normal" in s; assert "demoLast" not in s; print("All preview surprise replays disabled")'
+
       - name: Four save-safe one-click Charmander surprise previews
         timeout-minutes: 4
         run: |
@@ -141,9 +146,15 @@ jobs:
             test -s tamapoke-test.ppm
             test ! -e tamapoke_pc_save.dat
             mv tamapoke-test.ppm "surprise-$event.ppm"
+            # Screenshot the running real game at 14s to prove the event ended.
+            SDL_VIDEODRIVER=dummy timeout 35s ./PokeByte-Phase1-PC.exe --screenshot --test-home --no-save --surprise-demo "$event" --time-of-day day --screenshot-after-ms 14000
+            test -s tamapoke-test.ppm
+            test ! -e tamapoke_pc_save.dat
+            mv tamapoke-test.ppm "finished-$event.ppm"
           done
           python -c 'import glob,hashlib; f=glob.glob("surprise-*.ppm"); h=[hashlib.sha256(open(p,"rb").read()).hexdigest() for p in f]; assert len(f)==4 and len(set(h))==4; print("Four surprise demos distinct, original save untouched")'
-          rm -f surprise-*.ppm
+          python ../../../../pokebyte/verify_surprise_return.py
+          rm -f surprise-*.ppm finished-*.ppm
 
       - name: Safe Charmander mood previews without save mutation
         timeout-minutes: 3
@@ -192,7 +203,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Personality-Pack-03-Windows
+          name: PokeByte-Phase3-Pack03-One-Shot-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
