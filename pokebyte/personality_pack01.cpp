@@ -2,9 +2,14 @@
 // PC-only scheduler: never changes Pokémon stats, save fields, game physics or art.
 #include "personality_pack01.h"
 #include "personality_pack02.h"
+#include <cstring>
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+#include <Preferences.h>
+#else
 #include <fstream>
 #include <iostream>
 #include <string>
+#endif
 namespace {
 bool ready=false, enabled=true;
 uint8_t demo=PB_NORMAL;
@@ -13,9 +18,17 @@ constexpr uint8_t PMD_POSE_ID=7,PMD_NOD_ID=9,PMD_BREATH_ID=10;
 bool has(uint16_t mask,uint8_t act){return (mask & uint16_t(1u<<act))!=0;}
 void init(){
  if(ready)return;ready=true;
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+ Preferences cfg;
+ if(cfg.begin("pbvisual",true)){
+   enabled=cfg.getBool("personality",true);
+   cfg.end();
+ }
+#else
  std::ifstream f("pokebyte-personality.cfg");
  std::string value;
  if(f&&std::getline(f,value)&&(value=="classic"||value=="off"))enabled=false;
+#endif
 }
 uint8_t context(uint8_t food,uint8_t joy,uint8_t energy,uint8_t hygiene){
  if(demo!=PB_NORMAL)return demo;  // Safe visual preview; never mutates pet.
@@ -41,13 +54,19 @@ bool gesture(PokeBytePersonalityPlan*p,uint16_t mask,
 }
 void pokebyteTogglePersonality(){
  init();enabled=!enabled;
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+ Preferences cfg;
+ if(cfg.begin("pbvisual",false)){cfg.putBool("personality",enabled);cfg.end();}
+#else
  std::ofstream f("pokebyte-personality.cfg",std::ios::trunc);
  if(f)f<<(enabled?"on":"classic")<<"\n";
  std::cout<<"PokeByte existing-sprite reactions "<<(enabled?"ON":"CLASSIC")<<"\n";
+#endif
 }
 void pokebyteSetPersonalityDemo(const char* value){
- const std::string s=value?value:"";
- demo=s=="happy"?PB_HAPPY:s=="tired"?PB_TIRED:s=="hungry"?PB_HUNGRY:PB_NORMAL;
+ const char* s=value?value:"";
+ demo=!std::strcmp(s,"happy")?PB_HAPPY:!std::strcmp(s,"tired")?PB_TIRED:
+      !std::strcmp(s,"hungry")?PB_HUNGRY:PB_NORMAL;
 }
 bool pokebytePersonalityDemoActive(){return demo!=PB_NORMAL;}
 bool pokebytePersonalityEnabled(){init();return enabled;}
