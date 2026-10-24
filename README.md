@@ -11,7 +11,7 @@
 
 ## Development status
 
-**✅ Phase 0 complete · ✅ Phase 1 complete (Windows playtest approved, 24 October 2026).** The five remastered home scenes and matching ball/training minigame scenes passed user testing. The original hardware firmware remains untouched. See the [full PokéByte roadmap](ROADMAP.md) for phases 2–5 and outstanding packaging/device release requirements.
+**✅ Phase 0 complete · ✅ Phase 1 complete · ✅ Phase 2 complete (Windows PC playtests approved, 24 October 2026).** The five remastered home and mini-game scenes are user-approved, along with Balanced pollen, grass movement, fireflies, optional rain and optional snowfall. Animated cloud overlays were rejected and removed; the original artwork stays intact. **Next: Phase 3 — More Pokémon personality.** The physical Waveshare firmware remains unchanged; hardware release is Phase 5. See the [full PokéByte roadmap](ROADMAP.md) for details.
 
 ## Welcome to PokéByte
 
