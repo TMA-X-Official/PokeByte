@@ -145,6 +145,15 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Automated validation:** [GitHub Windows workflow #40119620419](https://github.com/TMA-X-Official/PokeByte/actions/runs/40119620419) passed rare event/cooldown tests, four save-safe screenshot previews, previous 11 personality previews, five scenery modes, clear/rain/snow, and original home/ball/training render checks. Final downloadable Windows ZIP was repackaged with the approved original art and validated for integrity.
 - **Next:** User should assess the four separate previews and test ordinary gameplay for timing, rarity and unobtrusiveness. Do **not** mark Pack 03 or full Phase 3 complete until the user explicitly accepts. Physical Waveshare firmware remains untouched and is reserved for Phase 5.
 
+## Phase 3 — Pack 03.1 surprise one-shot recovery fix (24 October 2026)
+
+- **Reported issue:** User observed `TEST-SURPRISE-WAKE.bat` repeatedly yawning/stretching/jumping, apparently stuck, and asked that all four surprises be reviewed. Investigation found all four **preview modes automatically replayed their events every 10 seconds**. Actual intended single-gesture behavior was therefore obscured.
+- **Corrected Windows tester:** All four demo surprises — Wake, Victory, Wander, Friendship — now play **once per launcher invocation**, then return to genuine original PMD Idle for about **4.5 seconds**, followed by normal approved Pack 02 behavior. The preview-only caption changes to **Back to normal**. Reopening the launcher repeats the demo. In ordinary gameplay, original rare-event/cooldown logic remains.
+- **Safeguards:** Hunger, tiredness, sleep, and evolution take priority; an existing Pack 02 caress reaction cannot interrupt the surprise. Missing gestures safely fall back to normal sprite behavior. No game stats, saves, care rewards, minigame logic, hardware firmware or original pixel-art assets changed.
+- **Source:** [`pokebyte-phase3-pack03-one-shot-fix`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-one-shot-fix), [draft PR #15](https://github.com/TMA-X-Official/PokeByte/pull/15), left unmerged pending user acceptance.
+- **Proof:** [Windows workflow #40121120854](https://github.com/TMA-X-Official/PokeByte/actions/runs/40121120854) passed four actual screenshot before/after (~14 seconds) tests and no-save checks, surprise cooldown and action fallbacks, all prior personality tests, five time modes, weather modes and both minigames. The downloadable ZIP was verified to contain all **12 approved BMPs** and **303 original Pokémon PMD files** byte-identical to the preceding user-provided test ZIP.
+- **Acceptance:** 🟡 **Awaiting user's new 20-second hands-on checks of all four surprise previews**. Pack 03 and the full Phase 3 are **not yet marked complete**. Phases 0–2 and Personality Packs 01–02 remain user-approved.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
