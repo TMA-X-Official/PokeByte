@@ -7,8 +7,9 @@
 1. **Four stable individual temperaments.** Playful, Calm, Curious, Shy. The temperament is derived deterministically from the Pokémon's **existing stored hatch genes** (geneAtk, geneDef, geneSpe) and does **not** depend on species or evolution form. The existing genes are saved with each Pokémon; no new save-file fields are added.
 2. **Three friendship stages** from the pre-existing **Bond 0–100** statistic. 0–29 New Friend, 30–69 Growing Bond, 70–100 Close Friend.
 3. **Bond affects on-screen behavior.** The temperament and bond together adjust the frequency of genuine existing PMD Pose/Nod/DeepBreath, standing still, or walking. Shy becomes notably more expressive at high Bond; Playful gestures more; Calm relaxes more; Curious explores more. Pokémon missing a PMD gesture use an existing supported animation instead.
-4. **Existing mood takes precedence.** Hungry/Sleepy animation priorities from Pack 01 stay intact. Egg odds, medals, stats, care, evolutions and original mini-games are unchanged.
-5. **Profile-only text.** The existing Pokémon profile displays a small English label (e.g. `Playful - Growing Bond`) beneath the existing stats. No permanent home-screen overlay or new bars.
+4. **Bond changes how your Pokémon greets you.** When you pet your Pokémon, it already displays a heart. With enhanced reactions enabled, an occasional real Pose/Nod/DeepBreath greeting now accompanies this heart. The chance is higher at high Bond and still depends on temperament; in particular, Shy changes considerably between low and high Bond. A short cooldown keeps these reactions rare; the original Bond value/rewards are not altered.
+5. **Existing mood takes precedence.** Hungry/Sleepy animation priorities from Pack 01 stay intact. Egg odds, medals, stats, care, evolutions and original mini-games are unchanged.
+6. **Profile-only text.** The existing Pokémon profile displays a small English label (e.g. `Playful - Growing Bond`) beneath the existing stats. No permanent home-screen overlay or new bars.
 
 ## Safe one-click demonstration launchers
 
@@ -21,7 +22,7 @@ Double-click each batch file after extracting the ZIP. It launches a **temporary
 | Curious | `TEST-CURIOUS-LOW-BOND.bat` | `TEST-CURIOUS-HIGH-BOND.bat` |
 | Shy | `TEST-SHY-LOW-BOND.bat` | `TEST-SHY-HIGH-BOND.bat` |
 
-**Suggested first comparisons:** Playful Low vs Calm Low (active vs relaxed); Curious Low vs Shy Low (exploration vs shy restraint); **Shy Low vs Shy High** (largest Bond-related change). Let each demonstration play long enough to see several gestures. Home-screen preview-only label shows which temperament and Bond stage was selected. For clarity, close each game window before launching the next one.
+**Suggested first comparisons:** Playful Low vs Calm Low (active vs relaxed); Curious Low vs Shy Low (exploration vs shy restraint); **Shy Low vs Shy High** (largest Bond-related change). Let each demonstration play long enough to see several gestures (a repeatable sequence samples different choices). You can also click/tap Charmander to observe the existing heart and occasional new bond-dependent PMD greeting, especially for the High Bond previews. Home-screen preview-only label shows which temperament and Bond stage was selected. For clarity, close each game window before launching the next one.
 
 ## Normal persistent game
 
