@@ -24,6 +24,7 @@
 #include "audio.h"
 #ifdef POKEBYTE_PC
 #include "pokebyte/personality_pack01.h"
+#include "pokebyte/personality_pack02.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -1051,6 +1052,17 @@ void render() {
     const char *base = pet.nick[0] ? pet.nick : dexName(pet.speciesId);
     snprintf(name, sizeof(name), T(S_NAME_FMT), pet.shiny ? "*" : "", base, pet.level());
     drawHeader(name, gNight ? UI_INK_NIGHT : d.accent, statusMsg());
+#ifdef POKEBYTE_PC
+    // Only the isolated no-save demos show a secondary identifying caption.
+    // Normal home remains uncluttered with all approved Phase 2 scenery.
+    const char *socialDemo = pokebyteSocialDemoLabel();
+    if (socialDemo[0] && gLang == LANG_EN) {
+      gfx->setTextColor(inkColor());
+      setSize(2);
+      setCur(centerX(socialDemo,2), 126);
+      printT(socialDemo);
+    }
+#endif
     drawStreakBadge();
     drawPet();
     drawBath();
@@ -1689,7 +1701,28 @@ void renderCardProfile() {
   setCur(sx + 24, sy + 2);
   printT(rl);
 
+#ifdef POKEBYTE_PC
+  pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
+  // In temporary previews, SHOW the preview Bond in the profile too, instead
+  // of misleadingly displaying the real pet's initial 0. No stat is changed.
+  drawCardStat(258, T(S_VIN), pokebyteSocialVisibleBond(), 100, C565(0xd4, 0x52, 0x7e));
+  // Only a quiet secondary profile line; never overlay the normal home UI.
+  // English preview labels are short enough for the round screen.
+#else
   drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
+#endif
+#ifdef POKEBYTE_PC
+  if (gLang == LANG_EN) {
+    char social[58];
+    snprintf(social, sizeof(social), "%s - %s",
+      pokebyteTemperamentName(pokebyteSocialVisibleTemperament()),
+      pokebyteBondStageName(pokebyteBondStage(pokebyteSocialVisibleBond())));
+    gfx->setTextColor(UI_TRACK);
+    setSize(2);
+    setCur(centerX(social,2), 353);
+    printT(social);
+  }
+#endif
 
   const char *berry = !pet.berryKnown ? T(S_BERRY_UNK)
                       : pet.lovesBerry(0) ? T(S_BERRY_RED)
@@ -2426,11 +2459,18 @@ void behNext() {
 #ifdef POKEBYTE_PC
   // Phase 3: optional PC-only context-sensitive use of existing PMD actions.
   // Normal TamaPoke behavior is the immediate fallback when the option is OFF.
+  pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
   uint16_t available = 0;
   for (uint8_t a = 0; a < PMD_NACTS; ++a)
     if (pmd.has(a)) available |= uint16_t(1u << a);
   PokeBytePersonalityPlan plan{};
   uint8_t behaviorRoll = pokebytePersonalityDemoActive() ? 4 : uint8_t(r);
+  if (pokebyteSocialDemoActive()) {
+    // Repeatable range of decisions shows frequency differences in demos.
+    static uint8_t demoStep=0;
+    static const uint8_t rolls[] = {40,70,18,90,55,7,82,33};
+    behaviorRoll = rolls[demoStep++ % 8];
+  }
   if (pokebytePersonalityPlan(pet.fullness, pet.joy, pet.energy,
                              pet.hygiene, available, behaviorRoll, &plan)) {
     beh.mode = plan.mode;
@@ -2483,6 +2523,31 @@ void drawPetPMD() {
   if (evoPmd.loaded) evoPmd.unload();  // termino la evolucion: libera la forma anterior
 
   PetMood m = pet.mood();
+#ifdef POKEBYTE_PC
+  // A genuine, occasional bond-weighted greeting after an existing caress.
+  // Uses only supported Pose/Nod/DeepBreath frames. Never edits pet stats.
+  static bool hadHeart = false;
+  static uint32_t lastGreeting = 0;
+  bool showingHeart = pet.showHeart();
+  if (pokebytePersonalityEnabled() && m == MOOD_HAPPY &&
+      showingHeart && !hadHeart &&
+      (lastGreeting == 0 || now-lastGreeting > 8000)) {
+    pokebyteSetSocialSnapshot(pet.geneAtk,pet.geneDef,pet.geneSpe,pet.bond);
+    uint16_t available=0;
+    for (uint8_t i=0;i<PMD_NACTS;++i)
+      if(pmd.has(i))available |= uint16_t(1u<<i);
+    uint8_t gesture=PMD_IDLE;
+    if (pokebyteSocialGreeting(pokebyteSocialVisibleTemperament(),
+                              pokebyteSocialVisibleBond(),available,
+                              uint8_t(random(100)),&gesture) &&
+        pmd.has(gesture)) {
+      beh.mode=2;beh.act=gesture;beh.t0=now;
+      beh.until=now+pmdActTotalMs(pmd.acts[gesture]);
+      lastGreeting=now;
+    }
+  }
+  hadHeart=showingHeart;
+#endif
   uint8_t act;
   bool loop = true;
   if (m == MOOD_SLEEPING && pmd.has(PMD_SLEEP)) {

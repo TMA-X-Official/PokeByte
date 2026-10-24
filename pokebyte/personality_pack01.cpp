@@ -1,6 +1,7 @@
 // Phase 3 Personality Pack 01 — use ONLY existing PMD sprite animations.
 // PC-only scheduler: never changes Pokémon stats, save fields, game physics or art.
 #include "personality_pack01.h"
+#include "personality_pack02.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -49,6 +50,7 @@ void pokebyteSetPersonalityDemo(const char* value){
  demo=s=="happy"?PB_HAPPY:s=="tired"?PB_TIRED:s=="hungry"?PB_HUNGRY:PB_NORMAL;
 }
 bool pokebytePersonalityDemoActive(){return demo!=PB_NORMAL;}
+bool pokebytePersonalityEnabled(){init();return enabled;}
 uint8_t pokebytePersonalityStatusMood(uint8_t food,uint8_t joy,
                                      uint8_t energy,uint8_t hygiene){
  init();
@@ -81,6 +83,15 @@ bool pokebytePersonalityPlan(uint8_t food,uint8_t joy,uint8_t energy,
   idle(out,4900+((r%4)*350));return true;
  }
  if(c==PB_HAPPY){
+  // Phase 3 Pack 02 uses existing gene-derived temperament + real bond.
+  // No modification to care, egg odds, medals or save structures.
+  PokeByteSocialPlan social{};
+  if(pokebyteSocialHappyPlan(pokebyteSocialVisibleTemperament(),
+                            pokebyteSocialVisibleBond(),available,r,&social)){
+   out->mode=social.mode;out->action=social.action;
+   out->durationMs=social.durationMs;
+   return true;
+  }
   if(r<59&&gesture(out,available,cheerful,3,r))return true;
   if(r<88&&walking){walk(out,6800);return true;}
   idle(out,2200+((r%4)*450));return true;
