@@ -2638,6 +2638,15 @@ const char *statusMsg() {
   if (pet.sleeping) return "Zzz...";
   if (pet.eating()) return T(S_EATING);
   if (pet.showHeart()) return T(S_LIKES);
+#ifdef POKEBYTE_PC
+  // Phase 3: show exactly the same mood that selects the PMD animation.
+  // Demo modes are visual-only; FOOD/ENERGY and all saved stats stay untouched.
+  // Classic (P toggle) keeps the original TamaPoke wording and thresholds.
+  uint8_t pbMood = pokebytePersonalityStatusMood(
+      pet.fullness, pet.joy, pet.energy, pet.hygiene);
+  if (pbMood == PB_HUNGRY) return T(S_HUNGRY);
+  if (pbMood == PB_TIRED) return T(S_EXHAUSTED);
+#endif
   if (pet.fullness < 25) return T(S_HUNGRY);
   if (pet.hygiene < 25) return T(S_NEEDS_BATH);
   if (pet.energy < 25) return T(S_EXHAUSTED);
