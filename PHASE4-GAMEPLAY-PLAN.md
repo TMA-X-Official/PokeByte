@@ -1,6 +1,6 @@
 # PokéByte Phase 4 — Gameplay Expansion (working plan)
 
-**Project status:** The user **rejected** Forest Trail Adventure (Quiet / Item / Wild) after inspecting its screenshot and explicitly requested a **classic-style Pokémon battle system instead**. PR #17 was closed without merging. Current Phase 4 Pack 01 is the turn-based battle Windows prototype on [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18). **Battle user playtest pending.**
+**Project status:** The user **rejected Forest Trail Adventure Quiet/Item/Wild** and explicitly requested classic Pokémon-style battles. PR #17 closed unmerged. Replacement **Pack 01 Battle Windows tester** on [draft PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) passed [CI #40131289786](https://github.com/TMA-X-Official/PokeByte/actions/runs/40131289786). Final user-facing ZIP `PokeByte-Phase4-Pack01-Classic-Battles-Windows-TEST.zip` (SHA-256 `65bb9f55e6fcd55e89d812972974c3ad45ad8f1040df10d2ec3103a7a1f7032e`) includes **all exact approved 12 scene BMPs and 303 original PMD sprite files**. **User's gameplay/visual acceptance still pending.**
 
 **Baseline:** [Phase 3 approved Windows source](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), [known-good artwork and executable manifest](APPROVED-ASSETS.md), and [continuity note](PROJECT-CONTINUITY.md). Preserve the working original hardware firmware on `main`. Windows-first experiments only; Phase 5 is for Waveshare firmware.
 
