@@ -1,4 +1,4 @@
-name: PokéByte installer preview safety
+name: PokéByte one-click installer preview safety
 
 on:
   push:
