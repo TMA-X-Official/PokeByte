@@ -2,7 +2,7 @@
 
 **State: design prototype on Phase 4 development branch. Not hosted, not released, not flashable.**
 
-The user wants a dedicated PokéByte installation website similar to TamaPoke's browser installer. This directory is the separately branded **PokéByte-only** landing page. It is a safe, static preview, **not** a copy of TamaPoke's active firmware installer.
+The user explicitly wants a **genuine zero-manual-download, single-button** PokéByte installer just like TamaPoke's: plug the Waveshare into USB-C, open a hosted page, click Install, and let the browser automatically handle firmware plus approved sprites/backgrounds. No Python/Arduino IDE, firmware ZIP, manual sprite transfer or microSD reader. See [binding one-click installer release requirements](ONE-CLICK-INSTALLER-REQUIREMENTS.md). This directory is the separately branded **PokéByte-only** landing page. It is a safe, static preview, **not** a copy of TamaPoke's active firmware installer.
 
 ### What exists now
 
@@ -38,3 +38,9 @@ The page is also viewable by opening `index.html` directly. Neither route access
 **Web architecture reference:** The existing upstream TamaPoke `web/` uses ESP Web Tools and Web Serial. Current vendor docs: https://esphome.github.io/esp-web-tools/ . The first PokéByte preview intentionally ships *no* executable installer.
 
 **Phase 4 handoff:** See [PHASE4-WAVESHARE-RELEASE.md](https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE4-WAVESHARE-RELEASE.md). This site does not overwrite existing firmware, user saves or device files.
+
+## One-click visitor contract (25 October 2026)
+
+This page is designed for ordinary visitors, not as a developer-only firmware manual. **The visitor does not download a firmware file, use a separate app, install Python or have to buy an SD adapter.** The eventual website should automatically fetch the real PokéByte ESP32 firmware, check/save an existing user's original flash/NVS through an in-browser backup (which may produce a private backup file the visitor should retain), install without erasing saves and sync only the missing original sprites and approved scenery via Web Serial. Existing firmware's `PUT` protocol is one-way and currently cannot sync scene art or back up the card, so an audited firmware protocol extension is required. Device/browser permission and data-loss confirmation prompts cannot be bypassed. Do not unlock the current button until those features are validated.
+
+**User-facing target flow:** open PokéByte HTTPS installer → connect compatible Waveshare by USB-C → press Install PokéByte → grant browser device permission → guided private backup if existing data → firmware and asset transfer by the page → reboot + verification. All without a separate firmware download or card reader.
