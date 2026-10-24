@@ -153,7 +153,7 @@ jobs:
             mv tamapoke-test.ppm "finished-$event.ppm"
           done
           python -c 'import glob,hashlib; f=glob.glob("surprise-*.ppm"); h=[hashlib.sha256(open(p,"rb").read()).hexdigest() for p in f]; assert len(f)==4 and len(set(h))==4; print("Four surprise demos distinct, original save untouched")'
-          python ../../../pokebyte/verify_surprise_return.py
+          python ../../../../pokebyte/verify_surprise_return.py
           rm -f surprise-*.ppm finished-*.ppm
 
       - name: Safe Charmander mood previews without save mutation
