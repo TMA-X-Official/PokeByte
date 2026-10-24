@@ -8,7 +8,7 @@
 | **Phase 0 — Secure working version** | ✅ **Completed** | Original TamaPoke code and original Windows PC emulator baseline preserved; separate development branches |
 | **Phase 1 — Visual upgrade** | ✅ **Completed (Windows PC playtest)** | User approved all five correctly framed remastered environments: morning, day, afternoon, evening and night. Home, ball mini-game and training-bag backgrounds match. Classic scene toggle remains available; original Pokémon/gameplay preserved |
 | **Phase 2 — A living environment** | ✅ **Completed (Windows PC playtest)** | User approved Balanced pollen, evening/night fireflies, gentle grass movement, optional rain and snowfall, five approved scenes and original mini-games; no animated cloud overlays |
-| **Phase 3 — More Pokémon personality** | 🟡 **In progress — Pack 01 completed** | ✅ Pack 01 approved after Windows playtest: original-sprite mood-aware reactions, matching status messages and short Sleepy label. Next: Pack 02 — individual temperament and meaningful bonding; Pack 03 — rare surprises |
+| **Phase 3 — More Pokémon personality** | 🟡 **In progress — Packs 01 & 02 completed** | ✅ Pack 01 original-sprite mood-aware reactions; ✅ Pack 02 user-approved four temperaments, three Bond stages and bond-related reactions. Next: Pack 03 — rare contextual surprises |
 | **Phase 4 — Gameplay expansion** | ⬜ Not started | New gameplay systems developed alongside existing minigames |
 | **Phase 5 — Waveshare release** | ⬜ Not started | Hardware optimization, flashable builds, backup/recovery and device validation |
 
@@ -117,7 +117,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 
 ## Phase 3 — Personality Pack 02: Bonding & Temperament Windows test (24 October 2026)
 
-- **Status:** 🟡 **In development / user test pending**. Phase 3 remains in progress; do not mark Pack 02 complete before hands-on approval.
+- **Status:** ✅ **Completed and user-approved on 24 October 2026 (Windows PC)**. The user confirmed Test A (Shy low/high Bond), Test B (Playful/Calm), Test C (Curious/Shy) and Test D (petting reactions) are working well. Phase 3 itself remains in progress until Pack 03 is accepted.
 - **Source:** [`pokebyte-phase3-personality-pack-02`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-02); [draft PR #13](https://github.com/TMA-X-Official/PokeByte/pull/13). Not merged into the approved Pack 01 baseline.
 - **Four individual temperaments:** Playful, Calm, Curious, Shy. A stable deterministic temperament is derived from the original Pokémon's already-saved hatch attack/defense/speed genes, with no new persistent fields; evolution does not alter the genes.
 - **Three friendship stages:** New Friend (Bond 0–29), Growing Bond (30–69), Close Friend (70–100). The original 0–100 Bond value and rewards remain intact.
@@ -125,7 +125,15 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Visibility:** The existing PC Pokémon profile adds a discreet English temperament/stage label; no extra home status bars. In temporary demos, a small label and the displayed Bond bar reflect the simulated preview values without modifying care stats.
 - **Eight explicit demos:** `TEST-PLAYFUL/CALM/CURIOUS/SHY-LOW/HIGH-BOND.bat`. Each is a temporary, non-saving Charmander. The original Happy, Tired and Hungry demo launchers remain.
 - **Safety:** Preserve all 12 approved Phase 2 scenery BMPs and 303 original Pokémon binary art files in the final packaged Windows ZIP. No new animations, altered sprites, mini-game changes, firmware flashing or save-field additions.
-- **Validation:** Windows CI checks save-safe preview screenshots, pure policy and fallback tests, original mood demonstrations, five time-of-day modes, clear/rain/snow, and home/ball/training screen rendering. User's visual and interactive playtest is required to accept the milestone.
+- **Validation:** [Windows CI #40118448261](https://github.com/TMA-X-Official/PokeByte/actions/runs/40118448261) passed save-safe previews, pure policy and fallback tests, original mood demonstrations, five time-of-day modes, clear/rain/snow, and home/ball/training screen rendering. **User additionally confirmed successful hands-on Tests A, B, C and D.**
+
+## Phase 3 — Pack 02 acceptance and Pack 03 design direction
+
+- **Acceptance:** 24 October 2026 — user confirmed that all four manual test groups work correctly: **A** Shy low vs high Bond, **B** Playful vs Calm, **C** Curious vs Shy, **D** interaction-triggered positive reactions. **Personality Pack 02 is completed** on Windows PC.
+- **Accepted baseline:** The user-playtested [Pack 02 development branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-02), [draft PR #13](https://github.com/TMA-X-Official/PokeByte/pull/13), and [successful Windows regression build](https://github.com/TMA-X-Official/PokeByte/actions/runs/40118448261). Do not merge without explicit merge authorization. Keep working playable Windows ZIP and all 12 approved backgrounds / 303 Pokémon sprites byte-for-byte intact.
+- **Next planned milestone, Pack 03 — Little Surprises:** rare, context-aware flavor moments grounded in existing PMD actions and UI effects. Candidates for Windows testing: a short wake-up stretch (DeepBreath or available fallback), an extra victory flourish after a strong original mini-game performance (Pose/Nod, without changing rewards), and an occasional temperament-sensitive idle moment near the meadow edge. No invented Pokémon frames, bonus currency, random gifts, added needs, background modifications or interruption of original care/menus.
+- **Acceptance criteria for Pack 03:** clearly noticeable but uncommon moments, no overlap with sleep/eat/evolution/minigames, per-species animation availability checks and safe fallbacks, no new save-format fields, preserve original mechanisms and save data, separate Windows ZIP with automated regression and user hands-on approval. Start only after user agrees to the proposal.
+- **Overall:** **Phase 3 remains in progress** until Pack 03 and its PC playtest are approved. Phases 0, 1 and 2 remain completed; Waveshare flashing remains Phase 5.
 
 ## After each phase
 
