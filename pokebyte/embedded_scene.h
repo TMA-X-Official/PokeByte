@@ -16,6 +16,7 @@ constexpr int W=466,H=466;
 static uint16_t* scene=nullptr;  // ONE 434 KiB PSRAM cache, not two scene buffers
 static char loaded[42]={0};
 static uint8_t currentMode=2;
+static int8_t previewMode=-1; // RAM-only test selection; no RTC or save edits
 static bool failed=false, initialized=false, ambientOn=true;
 static uint8_t weather=0; // 0 clear, 1 light rain, 2 gentle snow
 
@@ -33,6 +34,18 @@ inline uint8_t modeFromHour(int hour){
 inline const char* modeName(uint8_t mode){
  static const char* names[]={"morning","day","afternoon","evening","night"};
  return names[mode<5?mode:1];
+}
+inline bool setPreviewMode(const char* name){
+ if(!name)return false;
+ if(strcmp(name,"auto")==0)previewMode=-1;
+ else{
+  bool found=false;
+  for(uint8_t i=0;i<5;++i)
+   if(strcmp(name,modeName(i))==0){previewMode=i;found=true;break;}
+  if(!found)return false;
+ }
+ loaded[0]=0; // reload exact approved bitmap on the next frame
+ return true;
 }
 inline void init(){
  if(initialized)return;
@@ -205,7 +218,7 @@ inline void snow(Arduino_Canvas*c,uint32_t t,bool mini){
 }
 inline bool draw(Arduino_Canvas*c,bool mini,int hour){
  if(!c)return false;
- uint8_t mode=modeFromHour(hour);
+ uint8_t mode=previewMode>=0?uint8_t(previewMode):modeFromHour(hour);
  currentMode=mode;
  if(!ensureScene(mode,mini)||!scene)return false;
  c->draw16bitRGBBitmap(0,0,scene,W,H); // cached approved art, no SD read per frame
