@@ -55,6 +55,16 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Windows build/regressions:** [Automated screenshot tests](https://github.com/TMA-X-Official/PokeByte/actions/runs/40108800518) for five distinct lighting scenes, normal home, ball minigame and training activity; CI was successful. Temporary CI artwork was replaced in the final ZIP with the approved bitmaps.
 - **Status:** Build and packaging validated; awaiting Windows hands-on review of cloud shape, drift, rain and interaction. Phase 2 **still in progress**. Waveshare has not been flashed.
 
+## Phase 2 Milestone 03 — Cloud-free rain and snow playtest
+
+- **User feedback:** Animated cloud sprites in Ambient Pack 02 were rejected. Remove the animated overlays entirely. The user's original painted pixel-art clouds stay static in all approved scenes.
+- **Development branch:** [`pokebyte-phase2-weather-snow-no-clouds`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase2-weather-snow-no-clouds), reviewed separately in [draft PR #9](https://github.com/TMA-X-Official/PokeByte/pull/9). **Do not merge without user acceptance.**
+- **Still preserved:** Balanced pollen, grass animation, evening/night fireflies and light rain with ground splashes.
+- **New:** Optional light snowfall and small ground-level flakes. **S** toggles snow, **W** toggles rain, and they are mutually exclusive. Both are disabled by default on a fresh install. **A** and **B** controls are unchanged. The existing two-number ambient preferences format is backwards compatible.
+- **Windows smoke tests:** [Build #40109452665](https://github.com/TMA-X-Official/PokeByte/actions/runs/40109452665) compiled successfully, rendered five distinct time modes, and verified clear/rain/snow visuals have different image hashes; original home, ball and training minigame render checks passed.
+- **Asset fidelity:** The ZIP distributed to the user contains all 12 approved phase 1 background BMPs **byte-for-byte unchanged**, all 303 Pokémon animation BIN files unchanged, plus a newly compiled Windows executable.
+- **Status:** Ready for the user's hands-on playtest. Phase 2 remains **in progress**; Phase 1 and the Waveshare firmware remain unchanged.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
