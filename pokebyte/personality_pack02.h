@@ -17,3 +17,8 @@ uint8_t pokebyteSocialVisibleTemperament();
 uint8_t pokebyteSocialVisibleBond();
 const char* pokebyteSocialDemoLabel(); // empty outside special 8 demo modes
 bool pokebyteSocialHappyPlan(uint8_t temperament,uint8_t bond,uint16_t actions,uint8_t roll,PokeByteSocialPlan* out);
+
+// One-time care reaction: genuine available gesture, not a new animation.
+// Never changes bond, mood, original heart reward, or care stats.
+bool pokebyteSocialGreeting(uint8_t temperament,uint8_t bond,
+                             uint16_t available,uint8_t roll,uint8_t* action);
