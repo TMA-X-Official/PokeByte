@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 namespace {
 constexpr int W=466, H=466, HORIZON=232, HUD=312;
 bool enabled=true, initialized=false;
@@ -46,7 +47,9 @@ void pokebyteToggleRemaster(){
 }
 void pokebyteEnhanceOriginalScene(Arduino_Canvas*c,uint8_t biome,uint32_t now,bool gameNight,int gameHour){
  initialize();if(!enabled||c->frame.size()!=size_t(W)*H)return;
- int h=hourOverride>=0?hourOverride:gameHour;
+ std::time_t t=std::time(nullptr);
+ std::tm *lt=std::localtime(&t);
+ int h=hourOverride>=0?hourOverride:(lt?lt->tm_hour:gameHour);
  bool night=(gameNight&&hourOverride<0)||h<6||h>=20;
  int mode=night?4:h<10?0:h<14?1:h<18?2:3;
  const Color top[5]={{123,125,187},{78,157,215},{90,160,204},{128,86,142},{16,25,56}};
