@@ -17,3 +17,7 @@ void pokebyteSetPersonalityDemo(const char* name);
 const char* pokebytePersonalityContext(uint8_t food,uint8_t joy,uint8_t energy,uint8_t hygiene);
 
 bool pokebytePersonalityDemoActive();
+// The same context is used by the visual animation planner AND the home status.
+// PB_NORMAL means keep original wording. When P is set to Classic, no override.
+uint8_t pokebytePersonalityStatusMood(uint8_t food,uint8_t joy,
+                                     uint8_t energy,uint8_t hygiene);

@@ -1,8 +1,8 @@
-name: PokeByte Phase 3 Personality Pack 01 Windows
+name: PokeByte Phase 3 Pack 01.1 Status Fix Windows
 
 on:
   push:
-    branches: [pokebyte-phase3-personality-pack-01]
+    branches: [pokebyte-phase3-pack01-status-fix]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -106,6 +106,7 @@ jobs:
             mv tamapoke-test.ppm "charmander-$mood.ppm"
           done
           ls -l charmander-*.ppm
+          python -c 'import hashlib,glob; fs=glob.glob("charmander-*.ppm"); hs=[hashlib.sha256(open(p,"rb").read()).hexdigest() for p in fs]; assert len(fs)==3 and len(set(hs))==3, (fs,hs); print("Three mood preview renders are distinct")'
           rm -f charmander-*.ppm
 
       - name: Windows startup and screenshot verification
@@ -140,7 +141,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase3-Personality-Pack-01-Windows
+          name: PokeByte-Phase3-Status-Fix-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30

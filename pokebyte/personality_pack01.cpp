@@ -49,6 +49,11 @@ void pokebyteSetPersonalityDemo(const char* value){
  demo=s=="happy"?PB_HAPPY:s=="tired"?PB_TIRED:s=="hungry"?PB_HUNGRY:PB_NORMAL;
 }
 bool pokebytePersonalityDemoActive(){return demo!=PB_NORMAL;}
+uint8_t pokebytePersonalityStatusMood(uint8_t food,uint8_t joy,
+                                     uint8_t energy,uint8_t hygiene){
+ init();
+ return enabled?context(food,joy,energy,hygiene):PB_NORMAL;
+}
 const char* pokebytePersonalityContext(uint8_t f,uint8_t j,uint8_t e,uint8_t h){
  const uint8_t c=context(f,j,e,h);
  return c==PB_HAPPY?"Happy":c==PB_TIRED?"Tired":c==PB_HUNGRY?"Hungry":"Normal";
