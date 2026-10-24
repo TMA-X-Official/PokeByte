@@ -1,6 +1,6 @@
 # PokéByte Phase 3 — Personality Pack 03: Little Surprises (Windows test)
 
-**Status: Human playtest required.** No hardware flash; no merge without approval.
+**Status: ✅ User-approved and completed on Windows PC, 24 October 2026.** All four distinct surprise demos were manually tested and accepted. No hardware flash; the original firmware and branch review separation are preserved.
 
 This pack adds four naturally occurring, **infrequent**, non-rewarding personality moments using **only original PMD animation frames**. It builds on the already-approved personality Pack 01 & 02 and the completed five-scene Phase 2 environment.
 
@@ -40,4 +40,10 @@ The CI build uses synthetic background art **only for automated checks**. Final 
 
 ## Distinct surprise refinement (Windows playtest only)
 
-The four surprises intentionally use different original-sprite choreography, not just different labels. Wake = DeepBreath then Nod. Victory = Hop then Pose. Wander = a paced walk out, a short Idle pause, a walk back. Friendship = Nod then Pose with the existing heart graphic. Missing optional actions fall back without displaying invented frames; all four transitions end normally, and user saves are untouched. The five approved home scenes and the five matching minigame scenes **must be copied byte-identically from the user's backed-up approved ZIP** when packaging the Windows executable, never replaced with CI-generated fixtures. Phase 3 remains pending the user's visual approval.
+The four surprises intentionally use different original-sprite choreography, not just different labels. Wake = DeepBreath then Nod. Victory = Hop then Pose. Wander = a paced walk out, a short Idle pause, a walk back. Friendship = Nod then Pose with the existing heart graphic. Missing optional actions fall back without displaying invented frames; all four transitions end normally, and user saves are untouched. The five approved home scenes and the five matching minigame scenes **must be copied byte-identically from the user's backed-up approved ZIP** when packaging the Windows executable, never replaced with CI-generated fixtures. **User approved the finished Pack 03 on Windows, completing Phase 3 on 24 October 2026.**
+
+## Final Windows acceptance and artwork preservation
+
+The user tested the revised four surprises and confirmed they work. The approved package is `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip` (SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`). This package combines the successful [Windows CI build #40123935906](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906) with the user's **12 approved distinct background images** and **303 unchanged original sprite files**, verified against the backed-up approved ZIP. A previous synthetic CI background introduced a rectangular grey placeholder and must never be shipped, nor replaced with a universal sunset background. GitHub CI artifact scenery is **not** a substitute for the accepted backgrounds.
+
+**Integration:** Phase 3 Windows acceptance does not mean the `main` original ESP32 firmware is replaced or the Waveshare is flashed. Source is preserved in [the approved development branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments) / [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16) pending reproducible artwork packaging and any later integration decision. Phase 4 is next, not yet started; Phase 5 hardware remains pending.
