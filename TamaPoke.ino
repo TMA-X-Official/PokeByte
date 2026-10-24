@@ -2632,6 +2632,15 @@ const char *eggMsg() {
   }
 }
 
+// Short PC-only English label to prevent the long "Worn out..." text
+// from appearing clipped. Other languages retain their translations;
+// the original Waveshare firmware keeps its original text.
+static const char *pokebyteTiredStatus() {
+#ifdef POKEBYTE_PC
+  if (gLang == LANG_EN) return "Sleepy";
+#endif
+  return T(S_EXHAUSTED);
+}
 const char *statusMsg() {
   if (pet.evolving()) return T(S_EVOLVING);
   if (bathUntil) return "Splish splash!";  // onomatopeya universal
@@ -2645,11 +2654,11 @@ const char *statusMsg() {
   uint8_t pbMood = pokebytePersonalityStatusMood(
       pet.fullness, pet.joy, pet.energy, pet.hygiene);
   if (pbMood == PB_HUNGRY) return T(S_HUNGRY);
-  if (pbMood == PB_TIRED) return T(S_EXHAUSTED);
+  if (pbMood == PB_TIRED) return pokebyteTiredStatus();
 #endif
   if (pet.fullness < 25) return T(S_HUNGRY);
   if (pet.hygiene < 25) return T(S_NEEDS_BATH);
-  if (pet.energy < 25) return T(S_EXHAUSTED);
+  if (pet.energy < 25) return pokebyteTiredStatus();
   if (pet.joy < 25) return T(S_SAD);
   if (pet.weight > 60) return T(S_CHUBBY);
   if (pet.shiny && pet.ageMinutes < 15) return T(S_IS_SHINY);
