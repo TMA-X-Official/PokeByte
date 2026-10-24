@@ -6,6 +6,10 @@
 
 **Current engineering branch:** [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep), created directly from the user-approved Phase 3 source (not from rejected Phase 4 experiments). Detailed engineering gates and safety notes: [Phase 5 release preparation on that branch](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase5-waveshare-release-prep/pokebyte/PHASE5-WAVESHARE-RELEASE.md).
 
+**Review and first checks:** [Phase 5 draft PR #19](https://github.com/TMA-X-Official/PokeByte/pull/19), and [passed ESP32-S3 compile, host logic, lint, generated-file and translations CI #40132890760](https://github.com/TMA-X-Official/PokeByte/actions/runs/40132890760). This is an original-firmware **preflight compile**, not proof that accepted PC-only features run on Waveshare.
+
+**Verified art-only SD staging (separate private archive):** `PokeByte-Phase5-Verified-MicroSD-Assets-STAGING.zip` (SHA-256 `d70a674139e0e5a7a7acce4a508f7b8b2c1e9a33250c04d19ef3d9078e861442`), sourced directly from the exact approved Phase 3 ZIP. Contains 12 approved BMPs and 303 `.bin` assets, including `thumbs.bin`. **Not firmware, not yet a usable upgrade, and should not be copied onto the current card before backup/embedded path verification.**
+
 **Trusted source/asset reference:** [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), accepted ZIP `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip` (SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`), and [the 12 approved BMP / original PMD checksum manifest](APPROVED-ASSETS.md).
 
 **Immediate tasks:** verify target is specifically Waveshare **ESP32-S3-Touch-AMOLED-1.75** (not 1.75C); compile an ESP32-S3 hardware build without flashing; prepare verified microSD assets; port and test **all** accepted Windows-only scenes, ambience and personality features to embedded hardware; audit flash/NVS/partition safety, physical touch/PMU/RTC/audio/SD, and firmware rollback before any flash instructions.
