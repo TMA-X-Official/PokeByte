@@ -33,7 +33,7 @@
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
 // el instalador web). Se muestra en la pantalla de ajustes y por serie al arrancar.
-#define FW_VERSION "1.17"
+#define FW_VERSION "PB4-dev"  // development hardware port, never publish as a release
 
 Arduino_DataBus *bus = new Arduino_ESP32QSPI(
   LCD_CS, LCD_SCLK, LCD_SDIO0, LCD_SDIO1, LCD_SDIO2, LCD_SDIO3);
@@ -187,7 +187,7 @@ void setup() {
   // monitor serie abierto en el host (el bufer TX del USB CDC se llena
   // y nadie lo vacia) -> con timeout 0 los mensajes se descartan
   Serial.setTxTimeoutMs(0);
-  Serial.printf("TamaPoke fw v%s\n", FW_VERSION);
+  Serial.printf("PokeByte ESP32-S3 firmware port %s (DEVELOPMENT)\n", FW_VERSION);
   loadLang();  // idioma guardado (ES por defecto)
   Wire.begin(IIC_SDA, IIC_SCL);
   // CST9217 (tactil), AXP2101 (PMU) y PCF85063 (RTC) comparten este bus I2C.
@@ -1681,7 +1681,7 @@ void renderClock() {
 
   // version del firmware (discreta, abajo del todo)
   char ver[20];
-  snprintf(ver, sizeof(ver), "TamaPoke v%s", FW_VERSION);
+  snprintf(ver, sizeof(ver), "PokeByte %s", FW_VERSION);
   setSize(1);
   setCur(centerX(ver, 1), 436);
   printT(ver);
