@@ -97,6 +97,15 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Approved baseline unchanged:** The Windows ZIP preserves all **12** approved environment BMPs and all **303** original PMD animation BIN files byte-for-byte from the previous user-tested version; hardware firmware is untouched.
 - **State:** Ready for hands-on review. **Phase 3 is still in progress**, with individual temperament and bond extensions reserved for later packs.
 
+## Phase 3 — Personality Pack 01.2: Short “Sleepy” label
+
+- **User screenshot feedback:** English tired status `Worn out...` appeared clipped in the Windows emulator. User requested the simpler `Sleepy` wording.
+- **Solution:** In the Windows PC build, both the test-mode Tired Charmander status and regular low-energy status now display **Sleepy**. All other languages retain the original localized exhausted translations; Waveshare firmware text is unchanged. No Pokémon stats or save-file formats were changed.
+- **Development:** [`pokebyte-phase3-pack01-sleepy-label`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack01-sleepy-label), [draft PR #12](https://github.com/TMA-X-Official/PokeByte/pull/12) (unmerged).
+- **Build checks:** [Windows workflow #40116963570](https://github.com/TMA-X-Official/PokeByte/actions/runs/40116963570) compiled successfully, verified the Sleepy text and fallback, 16 behavior/status/fallback tests, all three mood preview renders with no save writes, five time modes, rain/snow, home and both original mini-games.
+- **Asset preservation:** Final ZIP contains exactly the 12 approved Phase 2 bitmaps and all 303 original Pokémon PMD animations unchanged, with the new tested executable.
+- **Status:** **Awaiting user playtest**, Phase 3 remains **in progress**.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
