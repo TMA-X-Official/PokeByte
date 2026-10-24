@@ -5,11 +5,12 @@
 
 | Phase | Status | Acceptance |
 | --- | --- | --- |
-| **Phase 0 — Secure working version** | ✅ **Completed** | Original TamaPoke code and original Windows PC emulator baseline preserved; separate development branches |
 | **Phase 1 — Visual upgrade** | ✅ **Completed (Windows PC playtest)** | User approved all five correctly framed remastered environments: morning, day, afternoon, evening and night. Home, ball mini-game and training-bag backgrounds match. Classic scene toggle remains available; original Pokémon/gameplay preserved |
 | **Phase 2 — A living environment** | ✅ **Completed (Windows PC playtest)** | User approved Balanced pollen, evening/night fireflies, gentle grass movement, optional rain and snowfall, five approved scenes and original mini-games; no animated cloud overlays |
 | **Phase 3 — More Pokémon personality** | ✅ **Completed — user-approved Windows PC, 24 October 2026** | ✅ Pack 01 mood reactions/Hungry/Sleepy; ✅ Pack 02 four temperaments and three Bond stages; ✅ Pack 03 distinct Wake, Victory, Wander and Friendship surprises. Approved 12 backgrounds and 303 PMD assets preserved |
-| **Phase 4 — Waveshare release** | 🟡 **In progress — hardware preparation; NOT ready to flash** | Target: deploy **only approved Phases 1–3** to Waveshare 1.75 hardware, verify exact SD artwork/sprites, preserve existing saves, finish embedded port and device testing |
+| **Phase 4 — Waveshare release** | 🟡 **In progress — hardware port and installer preparation; NOT ready to flash** | Bring approved Phases 1–3 to Waveshare ESP32-S3-Touch-AMOLED-1.75; preserve backgrounds, original sprites and saves; complete device backups and real-hardware testing |
+
+**Foundational preparation (historical, not a numbered phase):** Original TamaPoke v1.17 and the first Windows emulator were backed up before development. The protected original baseline remains available.
 
 ## Phase 1 accepted baseline
 
@@ -18,7 +19,7 @@
 - **Draft review:** [Pull request #5](https://github.com/TMA-X-Official/PokeByte/pull/5).
 - **Automated PC checks:** [Windows build and home/ball/training screen tests](https://github.com/TMA-X-Official/PokeByte/actions/runs/40103420707).
 - **Important:** The approved playable Windows test ZIP includes a set of full-resolution background artwork files. Some artwork files are distributed as part of that ZIP and **have not all been committed to the GitHub source branch**. Before a standalone GitHub release, make the asset packaging fully reproducible. Do not represent a source-only GitHub build as visually identical without these assets.
-- **Hardware:** No PokéByte firmware upgrade was flashed to the Waveshare as part of this phase; that is Phase 5. The actual device still runs its existing firmware.
+- **Hardware:** No PokéByte firmware upgrade was flashed to the Waveshare as part of this phase; that is Phase 4. The actual device still runs its existing firmware.
 
 ## Battery indicator polish and Phase 2 development history
 
@@ -73,7 +74,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Source of approved development changes:** [`pokebyte-phase2-weather-snow-no-clouds`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase2-weather-snow-no-clouds), [draft PR #9](https://github.com/TMA-X-Official/PokeByte/pull/9). The draft remains unmerged while the baseline is preserved.
 - **Verified Windows build:** [GitHub Action #40109452665](https://github.com/TMA-X-Official/PokeByte/actions/runs/40109452665), with original home, ball, and training game startup/render tests, five distinct time modes, and clear/rain/snow output tests.
 - **Reproducibility note:** The actual download ZIP also includes user-approved full-resolution artwork files that are not all available in the GitHub source tree. Before a source-only reproducible release, commit or otherwise package those approved assets using appropriate attribution and permissions.
-- **Not yet deployed to hardware:** Waveshare code/firmware has **not** been flashed or device-tested. Physical hardware release still belongs to Phase 5. Completion here does **not** assert hardware readiness.
+- **Not yet deployed to hardware:** Waveshare code/firmware has **not** been flashed or device-tested. Physical hardware release still belongs to Phase 4. Completion here does **not** assert hardware readiness.
 
 ## Phase 3 — Personality Pack 01: accepted Windows milestone (24 October 2026)
 
@@ -112,7 +113,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Preservation:** Completed Phase 2 scenery/weather, the 12 approved art files, 303 original Pokémon animation files, menus, and mini-games remain untouched. The Windows preview launchers do not touch the player's save.
 - **Code review:** [Draft PR #12](https://github.com/TMA-X-Official/PokeByte/pull/12), based on the preceding Phase 3 Pack 01 drafts; experimental branches and draft PRs remain separate and **unmerged** pending explicit merge approval.
 - **Next:** **Personality Pack 02** — stable per-Pokémon temperaments and observable bond-based behaviors, using existing care/bond systems and original PMD frames. **Personality Pack 03** — occasional context-aware surprises. These are not yet implemented and must be tested before Phase 3 can be marked complete.
-- **Hardware:** None of these Phase 3 changes have been deployed to the Waveshare; hardware release remains Phase 5.
+- **Hardware:** None of these Phase 3 changes have been deployed to the Waveshare; hardware release remains Phase 4.
 
 ## Phase 3 — Personality Pack 02: Bonding & Temperament Windows test (24 October 2026)
 
@@ -132,7 +133,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Accepted baseline:** The user-playtested [Pack 02 development branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-02), [draft PR #13](https://github.com/TMA-X-Official/PokeByte/pull/13), and [successful Windows regression build](https://github.com/TMA-X-Official/PokeByte/actions/runs/40118448261). Do not merge without explicit merge authorization. Keep working playable Windows ZIP and all 12 approved backgrounds / 303 Pokémon sprites byte-for-byte intact.
 - **Next planned milestone, Pack 03 — Little Surprises:** rare, context-aware flavor moments grounded in existing PMD actions and UI effects. Candidates for Windows testing: a short wake-up stretch (DeepBreath or available fallback), an extra victory flourish after a strong original mini-game performance (Pose/Nod, without changing rewards), and an occasional temperament-sensitive idle moment near the meadow edge. No invented Pokémon frames, bonus currency, random gifts, added needs, background modifications or interruption of original care/menus.
 - **Acceptance criteria for Pack 03:** clearly noticeable but uncommon moments, no overlap with sleep/eat/evolution/minigames, per-species animation availability checks and safe fallbacks, no new save-format fields, preserve original mechanisms and save data, separate Windows ZIP with automated regression and user hands-on approval. Start only after user agrees to the proposal.
-- **Historical note (after Pack 02):** Phase 3 was still in progress pending Pack 03. **Superseded by the user approval of all three packs on 24 October 2026** recorded below; Waveshare flashing remains Phase 5.
+- **Historical note (after Pack 02):** Phase 3 was still in progress pending Pack 03. **Superseded by the user approval of all three packs on 24 October 2026** recorded below; Waveshare flashing remains Phase 4.
 
 ## Phase 3 — Personality Pack 03: Little Surprises Windows tester (24 October 2026)
 
@@ -142,7 +143,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **How to test:** Four no-save Charmander preview launchers `TEST-SURPRISE-WAKE.bat`, `TEST-SURPRISE-VICTORY.bat`, `TEST-SURPRISE-WANDER.bat`, `TEST-SURPRISE-FRIENDSHIP.bat`; each simulates an event, shows an explanatory label only in the test mode, and leaves the actual save untouched. In normal play, events are rare and have no captions.
 - **Safety:** Normal happy/neutral behavior is resumed afterward; no surprise during sleep, eating, evolution, hunger/tiredness, menu/minigame, or when the relevant original PMD action is missing. No new rewards, stats, save fields or artwork. The accepted Phase 2 12 BMPs and 303 PMD files are **byte-identical** in the packaged Windows playtest ZIP.
 - **Automated validation:** [GitHub Windows workflow #40119620419](https://github.com/TMA-X-Official/PokeByte/actions/runs/40119620419) passed rare event/cooldown tests, four save-safe screenshot previews, previous 11 personality previews, five scenery modes, clear/rain/snow, and original home/ball/training render checks. Final downloadable Windows ZIP was repackaged with the approved original art and validated for integrity.
-- **Historical next step:** User playtest was required for this first Pack 03 iteration. **That acceptance was later obtained for the final distinct-surprises build, 24 October 2026; see final milestone below.** Physical Waveshare firmware remains untouched and is reserved for Phase 5.
+- **Historical next step:** User playtest was required for this first Pack 03 iteration. **That acceptance was later obtained for the final distinct-surprises build, 24 October 2026; see final milestone below.** Physical Waveshare firmware remains untouched and is reserved for Phase 4.
 
 ## Phase 3 — Pack 03.1 surprise one-shot recovery fix (24 October 2026)
 
@@ -155,7 +156,7 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 
 ## Phase 3 — Final accepted milestone: Personality Pack 03.2 (24 October 2026)
 
-- **Status:** ✅ **Phase 3 COMPLETE — user-approved Windows PC playtest, 24 October 2026.** Packs 01 (moods), 02 (temperament and Bond), and 03 (little surprises) are all accepted. Phase 4 was subsequently **skipped by explicit user decision**; hardware release is Phase 5.
+- **Status:** ✅ **Phase 3 COMPLETE — user-approved Windows PC playtest, 24 October 2026.** Packs 01 (moods), 02 (temperament and Bond), and 03 (little surprises) are all accepted. The proposed gameplay-expansion stage was **cancelled by the user**; the Waveshare hardware release has been **renumbered Phase 4**.
 - **Final user feedback:** All four special event launchers were tested hands-on. The user found the first implementations too similar, requested distinct performances, then tested the revised version and explicitly approved marking **Phase 3 done**.
 - **Approved original-animation choreography:**
   - **Wake:** genuine original PMD DeepBreath then Nod, or available original-sprite fallbacks.
@@ -166,15 +167,15 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Approved source branch:** [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments); [review PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), building on earlier Pack 03 [PR #14](https://github.com/TMA-X-Official/PokeByte/pull/14) and one-shot fix [PR #15](https://github.com/TMA-X-Official/PokeByte/pull/15). [Windows build and regressions #40123935906](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906) **passed**. Previous Phase 3 approval history and source branches remain preserved.
 - **Accepted Windows ZIP:** `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip`; **SHA-256: `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`**. Final ZIP was assembled using the tested CI executable and **all 12 original approved 466×466 background BMPs and 303 original Pokémon BINs verified byte-for-byte against the user's backup**. This also fixes a temporary **grey square** caused by faulty synthetic CI background bitmaps; never replace the five distinct approved day-part scenes with a single sunset image.
 - **Packaging caveat:** GitHub Actions produces temporary **synthetic** scene BMPs strictly for CI. The user-approved final ZIP with correct artwork was packaged separately; **do not distribute the raw GitHub Actions artifact as the accepted visual release**. Before a reproducible public GitHub release, package the approved assets with the executable and recheck their hashes. Preserve the source branch and known-good accepted ZIP.
-- **Integration boundary:** The review PR remains isolated, not merged into the original `main` hardware firmware. Completion means **Windows PC user acceptance**, **not** ESP32/Waveshare firmware release. No device flash or changes to saved Pokémon occurred. The user later **cancelled Phase 4** and asked to proceed directly to **Phase 5 Waveshare release**, without either rejected gameplay prototype.
+- **Integration boundary:** The review PR remains isolated, not merged into the original `main` hardware firmware. Completion means **Windows PC user acceptance**, **not** ESP32/Waveshare firmware release. No device flash or changes to saved Pokémon occurred. The user **cancelled the proposed gameplay expansion** and requested the hardware release become **Phase 4**, without either rejected gameplay prototype.
 
-## Phase 5 — Waveshare firmware and approved-asset release (started 24 October 2026)
+## Phase 4 — Waveshare hardware release (current milestone; previously labeled Phase 5)
 
-- **User direction:** Skip Phase 4 entirely. **Neither Adventure Mode nor Pokémon battles should appear on hardware.** Both rejected experiments are recorded in [closed PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) and [closed PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18), **never merged**. Phase 4 is intentionally **removed from this active roadmap** without renumbering Phase 5.
+- **User direction:** Skip the proposed Gameplay Expansion. **Neither Adventure Mode nor Pokémon battles should appear on hardware.** Both rejected experiments are recorded in [closed PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) and [closed PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18), **never merged**. The cancelled gameplay expansion has been archived; **Waveshare hardware release is the current Phase 4**.
 - **Last approved gameplay:** All of Phases **1–3**, including 5 distinct daypart home/minigame backgrounds, balanced ambience (no animated clouds), temperaments/Bond and four distinct one-shot PMD surprises. Exact approved reference is `PokeByte-Phase3-Pack03-Distinct-Surprises-Approved-Art-Windows.zip`, SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`.
-- **Development branch:** [`pokebyte-phase5-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase5-waveshare-release-prep), derived directly from the Phase 3 approved source, **not** from Phase 4. Full release gates and safety policy: [PHASE5-WAVESHARE-RELEASE.md](PHASE5-WAVESHARE-RELEASE.md).
+- **Development branch:** [`pokebyte-phase4-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-waveshare-release-prep), derived directly from the Phase 3 approved source, **not** from Phase 4. Full release gates and safety policy: [PHASE4-WAVESHARE-RELEASE.md](PHASE4-WAVESHARE-RELEASE.md).
 - **Status: Preparation, not yet physical deployment.** The accepted Phase 1–3 BMP loader and personality/ambience logic are partly gated behind `POKEBYTE_PC` and PC shims, and **have not been ported or proven on the actual ESP32 board**. Simply compiling the original firmware does not deliver those accepted features. No hardware ready PokéByte image exists yet; user device unflashed.
-- **Safeguard implemented:** the Phase 5 branch disables `SD_MMC.begin(..., format_if_mount_failed=true)` to avoid automatically formatting the owner's microSD on a failed mount. Original `main` untouched. A standard-library asset staging tool validates exact approved BMP and sprite SHA fingerprints before any user SD-card copy. No USB flashing, NVS reset, card formatting or firmware merge is authorised.
+- **Safeguard implemented:** the Phase 4 branch disables `SD_MMC.begin(..., format_if_mount_failed=true)` to avoid automatically formatting the owner's microSD on a failed mount. Original `main` untouched. A standard-library asset staging tool validates exact approved BMP and sprite SHA fingerprints before any user SD-card copy. No USB flashing, NVS reset, card formatting or firmware merge is authorised.
 - **Next hardware engineering gates:** ESP32-S3 compile/host regression tests; actual SD BMP + ambient + temperament/surprise port on hardware; physical 466×466 display/touch/PMU/RTC/audio/SD/sleep/save testing; verified pre-flash complete flash & NVS backups and SD backup; test release, rollback, then explicit user acceptance.
 - **Device specificity:** Waveshare **ESP32-S3-Touch-AMOLED-1.75**, **not** 1.75C. Original firmware FQBN has 16 MB flash and OPI PSRAM; do not change partition map or erase flash until current installation and save are backed up and restoration tested.
 
