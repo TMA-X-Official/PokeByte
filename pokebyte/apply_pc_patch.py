@@ -11,9 +11,10 @@ s=s.replace('    if(e.type==SDL_QUIT)alive=false;\n',
     if(e.type==0x300){ uint32_t key=0;std::memcpy(&key,e.padding+20,sizeof(key));
       if(key=='b'||key=='B')pokebyteToggleBackground();
       if(key=='a'||key=='A')pokebyteToggleAmbient();
-      if(key=='w'||key=='W')pokebyteToggleWeather(); }
+      if(key=='w'||key=='W')pokebyteToggleWeather();
+      if(key=='s'||key=='S')pokebyteToggleSnow(); }
 ''',1)
-s=s.replace('TamaPoke - Original PC Emulator','PokeByte Phase 2 | B: Scene  A: Ambience  W: Rain',1)
+s=s.replace('TamaPoke - Original PC Emulator','PokeByte Phase 2 | B: Scene  A: Ambience  W: Rain  S: Snow',1)
 
 # Test flags exercise the REAL original minigames, preserving their logic.
 s=s.replace('int scale=2;bool dump=false,testHome=false;',
@@ -36,6 +37,14 @@ s=s.replace(needle, ''' for(int i=1;i<argc;i++)if(!strcmp(argv[i],"--time-of-day
     pokebyteSetPreviewMode(argv[++i]);
 ''' + needle,1)
 assert '--time-of-day' in s
+# Developer screenshot runner only: transient weather, never saved to player prefs.
+needle=' if(SDL_Init(SDL_INIT_VIDEO)!=0)'
+assert s.count(needle)==1
+s=s.replace(needle, ''' for(int i=1;i<argc;i++)if(!strcmp(argv[i],"--weather")&&i+1<argc)
+    pokebyteSetWeatherForTest(argv[++i]);
+''' + needle,1)
+assert 'pokebyteSetWeatherForTest' in s
+
 
 p.write_text(s,encoding="utf-8")
 print("Phase 1 desktop keyboard patch installed")
