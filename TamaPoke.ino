@@ -396,6 +396,31 @@ void handleSerial() {
       pokebyte_embedded::status(),(unsigned)ESP.getFreePsram(),sdReady?1:0);
     Serial.println("DONE");return;
   }
+  // RAM-only scene preview for checking all five day-parts on the round panel.
+  if(line.startsWith("PBMODE ")){
+    String mode=line.substring(7);
+    Serial.println(pokebyte_embedded::setPreviewMode(mode.c_str())?"DONE":"ERR MODE");
+    return;
+  }
+  // Owner-only PMD demonstration. Does not alter Bond, stats, RTC or saves.
+  // Makes it possible to check all rare 4 surprises on the physical device.
+  if(line.startsWith("PBDEMO ")){
+    String demo=line.substring(7);
+    bool valid=demo=="wake"||demo=="victory"||demo=="wander"||
+               demo=="friendship"||demo=="off";
+    if(!valid||pet.isEgg()||pet.sleeping||pet.ceremony||gameOpen||sackOpen){
+      Serial.println("ERR DEMO");return;
+    }
+    pbSurpriseRunning=false;
+    pbSurpriseEvent=PB_SURPRISE_NONE;
+    pbSurpriseStage=0;
+    pbSurpriseFollowup=255;
+    beh.mode=0;
+    beh.act=PMD_IDLE;
+    beh.until=millis()-1;
+    pokebyteSurpriseSetDemo(demo.c_str());
+    Serial.println("DONE");return;
+  }
   if(line == "PBWEATHER clear"||line == "PBWEATHER rain"||line == "PBWEATHER snow"){
     pokebyte_embedded::setWeather(line.endsWith("rain")?1:line.endsWith("snow")?2:0);
     Serial.println("DONE");return;
