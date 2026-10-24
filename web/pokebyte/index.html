@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="PokéByte — a safe, future browser-based installer for the Waveshare ESP32-S3-Touch-AMOLED-1.75. Hardware release preview only.">
+  <title>PokéByte | Waveshare Installer Preview</title>
+  <style>
+    :root{--bg:#091424;--panel:#122238;--panel2:#172c43;--ink:#f7f5e9;--muted:#b3c5d3;--line:#344960;--gold:#ffc66d;--mint:#8fe0bf;--deep:#102c3b;--shadow:0 18px 46px #03101f9c}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{background:radial-gradient(ellipse at 75% 5%,#244e64 0,transparent 45%),linear-gradient(155deg,#081323,#0a1d2c 60%,#08222a);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;min-height:100vh}
+    a{color:var(--mint)}
+    a:hover{color:white}
+    .skip{position:absolute;left:12px;top:-90px;background:white;color:#172c43;padding:8px 16px}
+    .skip:focus{top:12px;z-index:100}
+    .shell{max-width:1070px;margin:0 auto;padding:0 28px}
+    header{border-bottom:1px solid #ffffff1a;background:#091625d1}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:76px}
+    .brand{display:flex;align-items:center;gap:14px;color:white;text-decoration:none}
+    .logo{width:40px;height:40px;display:grid;place-items:center;border:3px solid var(--ink);background:linear-gradient(#f07e65 0 45%,#172c43 46% 54%,#f8f4e8 55%);border-radius:50%;font-size:19px;box-shadow:0 0 0 3px #101e2b}
+    .brandname{font-size:1.4rem;font-weight:850;letter-spacing:-.04em}
+    .brandnote{font:700 .72rem/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    nav a{font-size:.86rem;text-decoration:none;margin-left:22px;font-weight:700}
+    .hero{padding:68px 0 32px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(235px,.8fr);align-items:center;gap:34px}
+    .eyebrow{font:750 .76rem/1.2 ui-monospace,Consolas,monospace;letter-spacing:.16em;color:var(--mint);text-transform:uppercase;margin:0 0 16px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:clamp(2.8rem,7vw,5.2rem);line-height:1.04;letter-spacing:-.065em;margin-bottom:18px}
+    h1 em{font-style:normal;color:var(--gold)}
+    .lede{color:#d1dfe6;font-size:1.1rem;max-width:620px}
+    .status{display:inline-flex;gap:10px;align-items:center;padding:9px 15px;border:1px solid #b5a36b85;border-radius:999px;background:#47382671;color:#ffdc93;font:750 .74rem/1.3 ui-monospace,monospace;letter-spacing:.045em;margin-bottom:21px}
+    .status span{height:8px;width:8px;border-radius:50%;background:#ffd17c;box-shadow:0 0 14px #ffd17c9f}
+    .device{border:1px solid #42677a;background:radial-gradient(circle at center 40%,#16384f,#102439 67%);border-radius:28px;box-shadow:var(--shadow);padding:27px;text-align:center}
+    .screen{width:min(208px,100%);aspect-ratio:1;margin:auto;border:13px solid #0c1422;border-radius:50%;box-shadow:0 0 0 3px #3e586a,0 15px 25px #020712a6;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;background:radial-gradient(ellipse at 70% 20%,#ebb270 0,#e48e73 13%,#aa587d 37%,#315778 63%,#1b514e 100%)}
+    .screen b{font:900 1.37rem ui-monospace,Consolas,monospace;letter-spacing:-.08em;text-shadow:2px 2px #1a2939}
+    .screen span{font:700 .68rem ui-monospace,Consolas,monospace;background:#101e2ba1;border-radius:4px;padding:2px 5px}
+    .device p{font-size:.76rem;color:var(--muted);margin:21px 0 0}
+    .notice{border:1px solid #bc98655a;background:#3c352953;border-radius:16px;padding:17px 22px;color:#f2dec2;margin:13px 0 37px}
+    .notice strong{color:#ffe6a9}
+    h2{font-size:1.8rem;letter-spacing:-.045em;margin-bottom:10px}
+    .section-intro{color:var(--muted);margin-bottom:21px;max-width:700px}
+    .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;margin-bottom:41px}
+    .step{border:1px solid var(--line);background:linear-gradient(170deg,#192e44,#112338);border-radius:19px;padding:23px 25px;min-height:205px}
+    .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .number{font:800 .89rem ui-monospace,Consolas,monospace;background:#2c4d58;color:var(--mint);border:1px solid #56847e;border-radius:10px;padding:6px 9px}
+    .step h3{font-size:1.05rem;letter-spacing:-.015em;margin:0}
+    .step p{color:var(--muted);font-size:.91rem;margin:0}
+    .step strong{color:var(--ink)}
+    .install{display:grid;grid-template-columns:1.5fr 1fr;gap:26px;align-items:center;background:linear-gradient(115deg,#294857,#1e3e43);border:1px solid #53787b;border-radius:20px;padding:29px;margin-bottom:40px}
+    .install h2{margin-bottom:8px}
+    .install p{color:#d0e2e1;font-size:.95rem;margin-bottom:0}
+    .install-action{text-align:center}
+    button{font:800 .95rem system-ui;min-height:55px;border:0;border-radius:12px;padding:13px 24px}
+    button:disabled{width:100%;background:#768b93;color:#142b35;opacity:.82;cursor:not-allowed}
+    .why{display:block;font-size:.79rem;color:#b9cdcc;margin-top:10px}
+    .features{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 34px}
+    .feature{border:1px solid #41616b;border-radius:10px;padding:8px 13px;background:#193646;color:#daeee8;font-size:.85rem}
+    .foot{border-top:1px solid var(--line);padding:24px 0 46px;display:flex;justify-content:space-between;align-items:start;gap:25px;color:var(--muted);font-size:.81rem}
+    .foot p{max-width:690px;margin:0}
+    .links{display:flex;gap:16px;flex-wrap:wrap}
+    :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    @media(max-width:760px){.hero{grid-template-columns:1fr;gap:20px;padding:44px 0 22px}.device{max-width:330px;margin:auto;width:100%}.steps,.install{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column;justify-content:center;padding:14px 0}nav a{margin:0 18px 0 0}.install-action{text-align:left}.foot{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="shell nav">
+  <a class="brand" href="#main" aria-label="PokéByte installer preview home"><span class="logo" aria-hidden="true">●</span><span><span class="brandname">PokéByte</span><br><span class="brandnote">Official project installer preview</span></span></a>
+  <nav aria-label="Page navigation"><a href="#instructions">How it works</a><a href="https://github.com/TMA-X-Official/PokeByte" rel="noopener noreferrer">GitHub</a></nav>
+</div></header>
+<main class="shell" id="main">
+  <section class="hero" aria-labelledby="page-heading">
+    <div>
+      <p class="eyebrow">Phase 5 · Waveshare hardware release</p>
+      <div class="status"><span aria-hidden="true"></span> PREVIEW ONLY — INSTALLATION LOCKED</div>
+      <h1>Your pocket Pokémon.<br><em>On real hardware.</em></h1>
+      <p class="lede" id="page-heading">A dedicated, browser-based home for installing PokéByte on the <strong>Waveshare ESP32-S3-Touch-AMOLED-1.75</strong>. Keep the original Pokémon sprites and the approved experience from Phases 1–3.</p>
+    </div>
+    <aside class="device" aria-label="Illustration of the future round-screen device">
+      <div class="screen" aria-hidden="true"><b>POKÉBYTE</b><span>466 × 466</span><span>PHASES 1—3</span></div>
+      <p>Illustrative preview · Not a live device display</p>
+    </aside>
+  </section>
+  <aside class="notice" role="status">
+    <strong>Firmware is not ready yet.</strong> This page is safe to preview, but cannot connect to, write to, erase, or flash your board. The Waveshare-specific build, backups and hardware testing must be completed first. Do not use TamaPoke's existing installer to install a PokéByte upgrade.
+  </aside>
+  <section id="instructions" aria-labelledby="instructions-heading">
+    <h2 id="instructions-heading">How installation will work</h2>
+    <p class="section-intro">Once the approved firmware is ready, this page will guide you through a safe release process. Nothing below initiates a connection or changes files today.</p>
+    <div class="steps">
+      <article class="step"><div class="head"><span class="number">01</span><h3>Check your Waveshare model</h3></div><p>Use the <strong>ESP32-S3-Touch-AMOLED-1.75</strong>, with the round 466 × 466 display. The <strong>1.75C</strong> is a different board and will not be accepted by this release.</p></article>
+      <article class="step"><div class="head"><span class="number">02</span><h3>Protect your Pokémon</h3></div><p>Back up the complete flash image, saved Pokémon/NVS, and current microSD first. The installer will stay locked until our backup and recovery instructions have been verified.</p></article>
+      <article class="step"><div class="head"><span class="number">03</span><h3>Install verified firmware</h3></div><p>A future <strong>ESP Web Tools</strong> installer will guide a USB connection in a supported desktop browser. There is no firmware manifest or flashable PokéByte image here yet.</p></article>
+      <article class="step"><div class="head"><span class="number">04</span><h3>Load approved game assets</h3></div><p>Install the exact <strong>12 approved backgrounds</strong> and <strong>303 original Pokémon BIN files</strong> using a verified, non-destructive microSD procedure. Your saved Pokémon and existing card contents matter.</p></article>
+    </div>
+  </section>
+  <section class="install" aria-labelledby="install-heading">
+    <div><p class="eyebrow">Release readiness</p><h2 id="install-heading">Install PokéByte</h2><p>Installation will unlock after the hardware version includes all approved Windows features, the ESP32-S3 binary is verified, and backup and restore procedures pass physical testing.</p></div>
+    <div class="install-action"><button type="button" disabled aria-disabled="true" title="PokéByte firmware is not yet verified for hardware">🔒 Install unavailable</button><span class="why">No USB access · No Web Serial · No flashing</span></div>
+  </section>
+  <section aria-labelledby="included-heading">
+    <h2 id="included-heading">What the final release will include</h2>
+    <p class="section-intro">The hardware release targets the features you approved—not the abandoned Phase 4 experiments.</p>
+    <div class="features">
+      <span class="feature">Morning → night environments</span>
+      <span class="feature">Matching minigame backgrounds</span>
+      <span class="feature">Balanced pollen and fireflies</span>
+      <span class="feature">Optional rain and snow</span>
+      <span class="feature">Pokémon temperament and Bond</span>
+      <span class="feature">Four distinct surprise animations</span>
+      <span class="feature">Original sprites and care mechanics</span>
+      <span class="feature">No Adventure or Battle add-ons</span>
+    </div>
+  </section>
+</main>
+<footer><div class="shell foot">
+  <p><strong>Unofficial, non-commercial fan project.</strong> Based on TamaPoke by socquique. Pokémon characters and names belong to their respective owners; original PMD animations come from PMD SpriteCollab. This is a release-preparation preview, not a firmware installer.</p>
+  <div class="links"><a href="https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE5-WAVESHARE-RELEASE.md">Release plan</a><a href="https://github.com/TMA-X-Official/PokeByte/blob/main/APPROVED-ASSETS.md">Asset integrity</a></div>
+</div></footer>
+</body>
+</html>
