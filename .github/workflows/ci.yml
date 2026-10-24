@@ -34,6 +34,9 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/TamaPoke"
           cp ./*.ino ./*.cpp ./*.h "$RUNNER_TEMP/TamaPoke/"
+          # Preserve the Phase 1–3 native embedded scenery/personality code.
+          # The original CI previously omitted the pokebyte/ subdirectory!
+          cp -R pokebyte "$RUNNER_TEMP/TamaPoke/pokebyte"
           arduino-cli compile --warnings=all \
             --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
             "$RUNNER_TEMP/TamaPoke"
