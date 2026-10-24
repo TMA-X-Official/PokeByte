@@ -36,6 +36,15 @@
 5. **First development hardware test:** flash the explicit approved firmware only after backup and user confirmation, verify display orientation, touch, SD and shiny sprites, power rails, RTC, charging indicator, sound, sleep/dim, frame rate and no spontaneous reboot; then check 5 home+minigame scenes, ambient modes, ball/sack games, all personality interactions, wake/victory/wander/friendship and a reboot/save retention test.
 6. **Release acceptance:** gather user approval from physical hardware, tag/build a reproducible firmware release and approved SD bundle, include rollback guidance with checked backup hashes. Keep the older Phase 3 Windows ZIP forever as the trusted visual target. No rejected Phase 4 features.
 
+## Dedicated PokéByte browser installer (design preview — NOT flashable)
+
+- User requested a PokéByte installation website analogous to the original TamaPoke browser installer.
+- Created a separate, responsive, branded static landing page at [`web/pokebyte/index.html`](../web/pokebyte/index.html), documented in [`web/pokebyte/README.md`](../web/pokebyte/README.md).
+- The installer button is deliberately **disabled**. There is **no** ESP Web Tools active element, firmware manifest, `.bin` flashing image, Web Serial or USB transfer. Original `web/index.html` and `web/manifest.json` are **unchanged and still install upstream TamaPoke 1.17**.
+- [Standalone static safety CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40134413049) **passed**, asserting the new page cannot initiate flashing, preserves the original installer and names only the accepted Phases 1–3 without Phase 4 features.
+- **Not publicly hosted or released**: current GitHub branch link is a source preview. Do not expose it as a working installer or configure Pages until user reviews and signs off.
+- After the embedded port, binary validation, physical testing and flash/NVS/microSD backup/rollback are ready, implement genuine [ESP Web Tools](https://esphome.github.io/esp-web-tools/) ESP32-S3 flashing (correct verified manifest offsets) and safe Web Serial approved-asset copying. That must be a separate review; no erase and no user-save loss.
+
 ## Remaining risks
 
 - **Missing verified artwork in GitHub:** SHA fingerprints exist but the actual original distinct BMP files are retained privately in the approved ZIP and not automatically accessible to CI. The release process requires that original ZIP explicitly.
