@@ -54,3 +54,8 @@
 - **Waveshare product variants:** wrong target can lead to a blank screen or wrong touch mapping. Verify model before selecting a build or instructions.
 
 **Next action:** complete real ESP32 hardware port plus non-destructive backup method and reproduce a verified firmware binary. No hardware-ready ZIP is available yet. Do not advertise the staged SD art bundle as a flashable firmware.
+## First connection and backup handoff
+
+For Windows user setup, consult [Phase 4 — First Waveshare USB connection](PHASE4-FIRST-CONNECTION-WINDOWS.md). The included `tools/phase4_waveshare_backup.py` is explicitly opt-in, reads `flash-id` then `read-flash 0 ALL`, validates 16 MB, writes SHA256, and **never flashes or erases**. Before using it, verify the physical board variant and a correctly identified Windows COM port. Back up the entire microSD separately. A successful backup is not the same as tested restoration, and the full dump may contain private Pokémon save information.
+
+The official active review is [Phase 4 PR #20](https://github.com/TMA-X-Official/PokeByte/pull/20). Former Phase 5 draft PR #19 was closed unmerged after user-requested renumbering. A thumbnail derived from the user's actual supplied logo is checked into `branding/` and `web/pokebyte/assets/`. The exact original high-resolution user file is preserved separately from the small optimized website thumbnail.
