@@ -1616,6 +1616,23 @@ void renderClock() {
   setCur(34 + (96 - textW(sl, 2)) / 2, LANG_PILL_Y + 8);
   printT(sl);
 
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+  // Two unobtrusive controls in the ALREADY EXISTING time/settings screen.
+  // No new gestures, no changes to original care or game saves.
+  const char* wx = pokebyte_embedded::weather==1?"RAIN":
+                   pokebyte_embedded::weather==2?"SNOW":"CLEAR";
+  const char* fx = pokebyte_embedded::ambientOn?"FX ON":"FX OFF";
+  gfx->fillRoundRect(137, LANG_PILL_Y, 90, LANG_PILL_H, 8,
+                     pokebyte_embedded::ambientOn?UI_BAR_OK:UI_WHITE);
+  gfx->drawRoundRect(137, LANG_PILL_Y, 90, LANG_PILL_H, 8, UI_INK);
+  gfx->setTextColor(pokebyte_embedded::ambientOn?UI_BG_DAY:UI_INK);
+  setSize(2);setCur(137+(90-textW(fx,2))/2,LANG_PILL_Y+8);printT(fx);
+  gfx->fillRoundRect(234,LANG_PILL_Y,96,LANG_PILL_H,8,UI_WHITE);
+  gfx->drawRoundRect(234,LANG_PILL_Y,96,LANG_PILL_H,8,UI_INK);
+  gfx->setTextColor(UI_INK);
+  setSize(2);setCur(234+(96-textW(wx,2))/2,LANG_PILL_Y+8);printT(wx);
+#endif
+
   // selector de idioma: una pildora que cicla los 6 idiomas al tocar
   gfx->fillRoundRect(LANG_PILL_X, LANG_PILL_Y, LANG_PILL_W, LANG_PILL_H, 8, UI_WHITE);
   gfx->drawRoundRect(LANG_PILL_X, LANG_PILL_Y, LANG_PILL_W, LANG_PILL_H, 8, UI_INK);
@@ -1660,6 +1677,16 @@ void clockTap(int16_t x, int16_t y) {
       if (audioEnabled()) sfxPlay(SFX_TAP);    // confirma al encender
       return;
     }
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+    if (x >= 137 && x < 227) { // FX ON/OFF, kept separate from Pet save
+      pokebyte_embedded::setAmbient(!pokebyte_embedded::ambientOn);
+      return;
+    }
+    if (x >= 234 && x < 330) { // clear -> rain -> snow -> clear
+      pokebyte_embedded::setWeather((pokebyte_embedded::weather+1)%3);
+      return;
+    }
+#endif
     if (x >= LANG_PILL_X && x < LANG_PILL_X + LANG_PILL_W) {  // cicla idioma
       setLang((Lang)((gLang + 1) % LANG_COUNT));
       applyLangFont();  // la fuente cambia con el idioma
