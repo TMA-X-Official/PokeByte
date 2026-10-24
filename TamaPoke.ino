@@ -61,6 +61,10 @@ struct {
   uint32_t until = 0;   // fin del estado actual
   float x = 233, targetX = 233;
 } beh;
+#ifdef POKEBYTE_PC
+// Current surprise is a single PMD action, not a replaying animation loop.
+bool pbSurpriseRunning = false;
+#endif
 #define PET_GROUND 304  // linea de suelo de la mascota
 PmdMon galleryPmd;  // sprite grande de la vista detalle de la galeria (PMD/TPK2, legal)
 
@@ -2472,6 +2476,19 @@ void drawPmdAct(uint8_t actId, int cx, int groundY, uint32_t t, bool loop, bool 
   drawPmdActM(pmd, actId, cx, groundY, t, loop, sil, maxS);
 }
 
+// Surprise recovery must be a genuine normal idle, visibly distinct
+// from the preceding one-shot gesture/wander. It never edits game stats.
+#ifdef POKEBYTE_PC
+void pokebyteFinishOneSurprise(uint32_t now) {
+  pbSurpriseRunning=false;
+  pokebyteSurpriseMarkFinished();
+  beh.mode=0;
+  beh.act=PMD_IDLE;
+  beh.t0=now;
+  beh.until=now+4500; // quiet idle before temperament scheduler resumes
+}
+#endif
+
 // elige el siguiente capricho del bicho cuando esta contento
 void behNext() {
   uint32_t now = millis();
@@ -2495,6 +2512,7 @@ void behNext() {
       && pokebyteSurpriseChoose(now,pokebyteSocialVisibleTemperament(),
                                pokebyteSocialVisibleBond(),available,
                                uint16_t(random(1000)),&surprise)) {
+    pbSurpriseRunning=true;
     beh.mode=surprise.mode;beh.act=surprise.action;
     if(surprise.mode==1){
       beh.targetX=surprise.targetX;
@@ -2559,6 +2577,9 @@ void drawPetPMD() {
   uint32_t now = millis();
 
   if (pet.evolving()) {
+#ifdef POKEBYTE_PC
+    if(pbSurpriseRunning)pokebyteFinishOneSurprise(now);
+#endif
     drawEvolveFX(now);
     return;
   }
@@ -2566,6 +2587,14 @@ void drawPetPMD() {
 
   PetMood m = pet.mood();
 #ifdef POKEBYTE_PC
+  // A new real need takes priority over any running surprise.
+  if (pbSurpriseRunning &&
+      (m != MOOD_HAPPY ||
+       pokebytePersonalityStatusMood(pet.fullness,pet.joy,
+                                     pet.energy,pet.hygiene)==PB_HUNGRY ||
+       pokebytePersonalityStatusMood(pet.fullness,pet.joy,
+                                     pet.energy,pet.hygiene)==PB_TIRED))
+    pokebyteFinishOneSurprise(now);
   // An actual sleep-to-awake transition queues a wake-up stretch only when
   // enhanced behavior is enabled. The PMD gesture runs on the normal ground.
   static bool wasSleepingLastFrame = false;
@@ -2578,7 +2607,7 @@ void drawPetPMD() {
   static uint32_t lastGreeting = 0;
   bool showingHeart = pet.showHeart();
   if (pokebytePersonalityEnabled() && m == MOOD_HAPPY &&
-      showingHeart && !hadHeart &&
+      !pbSurpriseRunning && showingHeart && !hadHeart &&
       (lastGreeting == 0 || now-lastGreeting > 8000)) {
     pokebyteSetSocialSnapshot(pet.geneAtk,pet.geneDef,pet.geneSpe,pet.bond);
     uint16_t available=0;
@@ -2607,12 +2636,23 @@ void drawPetPMD() {
   } else if (m == MOOD_SAD && pmd.has(PMD_HURT)) {
     act = PMD_HURT;
   } else {
-    // contento: el planificador decide (idle / paseo / gesto)
-    if (now > beh.until) behNext();
+    // Expired one-shot surprise must visibly settle into Idle first.
+    // Previous demo replayed every 10 seconds, appearing permanently stuck.
+    if (now > beh.until) {
+#ifdef POKEBYTE_PC
+      if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);
+      else
+#endif
+        behNext();
+    }
     if (beh.mode == 1) {
       float d = beh.targetX - beh.x;
       if (fabsf(d) < 4) {
-        behNext();
+#ifdef POKEBYTE_PC
+        if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);
+        else
+#endif
+          behNext();
         act = PMD_IDLE;
       } else {
         beh.x += (d > 0 ? 3.0f : -3.0f);
