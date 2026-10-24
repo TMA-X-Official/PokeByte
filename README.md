@@ -19,7 +19,7 @@
 
 **If an ongoing chat reaches its length limit, do not restart from scratch.** Read the [PokéByte continuity handoff](PROJECT-CONTINUITY.md), [Phase 4 Gameplay Expansion plan](PHASE4-GAMEPLAY-PLAN.md) and [approved artwork/sprite hash manifest](APPROVED-ASSETS.md). The user also keeps a private archive with the original chat export, known-good Windows ZIP and backed-up approved scenery; that archive should be uploaded again in a new chat when exact binaries are needed.
 
-**Current milestone:** Phase 4 **Pack 01 — Forest Trail Adventure Mode**, developed on [its independent branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype) and [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17). Windows CI [#40129169216](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216) **passed**. Three no-save event previews are available in a separately packaged Windows test ZIP retaining approved art. **User hands-on testing and acceptance are still pending.** The accepted Phase 3 Windows ZIP has SHA-256 `2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0`; never mistake synthetic CI BMP fixtures for approved scene art.
+**Current milestone:** Phase 4 Pack 01 changed direction after the user **rejected Forest Trail / Adventure Quiet, Item, Wild**. That earlier experimental [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) was closed **unmerged**. The replacement is a classic-style **turn-based Pokémon battle prototype** on [its independent Phase 4 battle branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles), [draft PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18), featuring original PMD sprites, HP, four action choices and four moves with PP. **User approval pending, Windows test only; original firmware and accepted Phase 3 untouched.**
 
 ## Welcome to PokéByte
 
@@ -40,7 +40,8 @@ The original TamaPoke v1.17 gameplay is available as a **PokéByte Windows deskt
 | [`pokebyte-deluxe-dev`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-deluxe-dev) | Experimental improvements, separate from the working game |
 | [`original-tamapoke-reference`](https://github.com/TMA-X-Official/PokeByte/tree/original-tamapoke-reference) | Preserved original fork snapshot before PokéByte rebranding |
 | [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments) | **User-approved Phase 3 Windows source**, with final distinct surprises; keeps original `main` firmware untouched |
-| [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype) | Phase 4 Pack 01 **Forest Trail**, new Windows prototype; **not yet user-approved** |
+| [`pokebyte-phase4-pack01-adventure-prototype`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype) | **Rejected** Forest Trail Adventure experiment; closed without merging |
+| [`pokebyte-phase4-pack01-classic-battles`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-classic-battles) | **Current Phase 4** classic-style battle Windows prototype, awaiting user playtest |
 
 **Important:** The [upstream web installer](https://socquique.github.io/TamaPoke/web/) installs **original TamaPoke firmware**, not a PokéByte upgrade. We have **not** released modified PokéByte firmware for the physical board. Do not erase a device or overwrite a Pokémon save to try the PC build.
 
