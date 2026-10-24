@@ -17,6 +17,14 @@
 - Existing 102 Pet/dex/save/mood host game-logic tests and i18n tools tests have passed. `tools/test_waveshare_port.py` and `.github/workflows/pokebyte-native-audit.yml` exercise the native port source assumptions and all three original PMD personality policy suites without hardware.
 - **Compilation is not proof of operation on the physical board.** Required pending checks: actual 466×466 display and touch, PSRAM/caching, weather frame rate, all ten approved scenery images, minigame graphics/physics, 151 species PMD sprites, all four gestures, RTC/dayparts, battery/PMU, audio, sleep, reset/save retention and safe rollback.
 
+## User's first USB hardware-identification check (October 2026)
+
+- Windows reported serial port **COM6** for the connected Waveshare, and the user ran the browser-based official Espressif `esptool-js` connection diagnostic.
+- Browser detected **ESP32-S3 (QFN56), revision 0**, with **8 MB embedded PSRAM**. The stub loaded and ran; SPI flash ID was **`184020`** (raw 24-bit ID; reverse-order JEDEC `20 40 18`, commonly XMC 128 Mbit = **16 MB flash**). The attached log also showed a `921600`-baud change and the generic recommendation to use a lower rate if commands become unreliable.
+- **This was a read-only chip identification, not a complete 16 MB flash/NVS backup**. Do not store the user's hardware MAC address in the public repository.
+- **Next gate:** implement/verify a browser-only, private, read-only full-flash backup with a saved checksum, preferably using **115200 baud** for reliability. Preserve the inserted microSD without writes or formatting. The ESP Tool's public `Program` panel is for flashing, not backup. Never click Program or Erase for this step.
+- Identification of the ESP32-S3 chip and flash does **not independently prove exact Waveshare 1.75 versus 1.75C display/touch hardware variant**. Physical-device release tests are still required. No PokéByte firmware has been installed on this user's board.
+
 ## Remaining blockers before the one-click installer can be enabled
 
 1. **Exact board verification and read-only full-flash/NVS backup**, and a verified restore plan. User has no microSD adapter, so keep the original physical card inserted and untouched; known approved original sprites exist in the verified private Windows ZIP, but unknown unique on-card files might remain.
