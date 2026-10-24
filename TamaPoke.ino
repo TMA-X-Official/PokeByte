@@ -2914,11 +2914,3 @@ void drawMap(const char *const *map, int n, int x, int y, int s, bool silhouette
     }
   }
 }
-
-// Hardware-only personality logic is compiled in the sketch translation unit.
-// PC builds keep their own separately linked source modules and launchers.
-#if defined(ARDUINO) && !defined(POKEBYTE_PC)
-#include "pokebyte/personality_pack01.cpp"
-#include "pokebyte/personality_pack02.cpp"
-#include "pokebyte/personality_pack03.cpp"
-#endif
