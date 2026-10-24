@@ -6,18 +6,22 @@
 
 The intended device is the **round Waveshare ESP32-S3-Touch-AMOLED-1.75 (466 × 466 pixels; 16 MB flash; 8 MB PSRAM)**, not the separately sold 1.75C board. Before connecting, check the printed model/SKU. The existing working TamaPoke installation and its stored Pokémon must be preserved.
 
-## Step 1 — back up your existing microSD (no formatting)
+## Step 1 — protect the existing microSD (adapter optional for now)
 
-1. With the device safely powered down, remove its microSD.
-2. Use a Windows card reader and **copy the whole card** (including the `mons/` folder and any other folders/files) to a newly named backup folder on your PC. Do not modify or delete the originals.
-3. Keep an additional copy in a separate location and check that the 303 original sprite binaries are present. **Do not copy the prepared PokéByte SD staging files over the live card yet:** embedded artwork paths and firmware support are not finalized.
-4. Reinsert the card after confirming the backup. Never accept a Windows “format this card?” prompt.
+**User hardware limitation:** No PC microSD adapter is available; the installed card contains the original Pokémon sprite files. **You do not need to buy an adapter before the read-only USB flash-backup step.**
+
+- **Leave the existing microSD in the device and do not modify it.** Never accept a format prompt or click TamaPoke's original **Load sprites** button during the hardware preflight.
+- The private **approved Phase 3 Windows ZIP** and the verified **PokéByte recovery archive** already include **303 original `.bin` sprite/thumbnail files** and checksums. They can restore the **known approved original sprite set** to a replacement card later, but this **does not prove the user's physical card has no additional/unique files**.
+- The current installed TamaPoke serial protocol exposes `LS` (list names/sizes in `/mons`), `SDINFO` (capacity/usage), and `PUT` (writes files under `/mons`). It has **no `GET` or readback command**. Therefore a USB cable **cannot make a full microSD backup using the current firmware**. Listing does not back up file contents.
+- A **physical full card copy is still recommended before any card write, formatting or SD file replacement**. Alternatives: a borrowed USB microSD reader, another PC/tablet/phone that can read microSD, or an additional blank card staged later when a reader is available. Do not borrow an unverified SD image to replace the known-good card.
+- Until then we can safely **inspect the board model, identify the correct USB COM port and read the 16 MB internal flash into a Windows backup file** using Step 3. The internal ESP32 flash and the external microSD are different storage devices. **Read-only flashing tools do not copy the microSD**, and a full flash dump is **not** an SD backup.
+- Keep both the working card and the user-approved Windows archive preserved. **No firmware flashing or microSD modifications yet.**
 
 ## Step 2 — determine the correct USB port
 
 1. Connect the board to Windows over a **data-capable USB-C cable**, directly rather than through an unreliable hub.
 2. Open **Device Manager → Ports (COM & LPT)**, observe which COM port appears on connection, and note its name. Use that exact port in the next step; do not guess or connect to an unrelated serial device.
-3. Save a photo or description of the board model and what currently appears on its screen. Keep the original PC/SD backups accessible.
+3. Save a photo or description of the board model and what currently appears on its screen. Keep the approved asset archive and the untouched original microSD accessible.
 
 ## Step 3 — make a full 16 MB flash/NVS backup before ANY upload
 
@@ -42,7 +46,7 @@ When the COM port and capacity are confirmed and you are ready to **read only** 
 py tools/phase4_waveshare_backup.py --port COM7 --out .\private-original-flash-backup --execute
 ```
 
-The helper calls only `flash-id` and `read-flash 0 ALL`, checks 16 MB and records SHA-256 in `backup-manifest.json`. This may require using BOOT/RESET to enter the serial bootloader. It never calls write/erase. Reading flash is **not** a substitute for validating a restore path, and card backup remains separate. Keep both backups securely.
+The helper calls only `flash-id` and `read-flash 0 ALL`, checks 16 MB and records SHA-256 in `backup-manifest.json`. This may require using BOOT/RESET to enter the serial bootloader. It never calls write/erase. Reading flash is **not** a substitute for validating a restore path, and the microSD backup remains a separate requirement before any SD modification. Store the private full-flash dump securely.
 
 Official Espressif documentation: https://docs.espressif.com/projects/esptool/en/latest/esp32s3/esptool/basic-commands.html
 
@@ -54,6 +58,6 @@ The next development deliverable is a genuinely ported ESP32-S3 PokéByte binary
 
 ## Share only non-sensitive diagnostics
 
-For the next review, share the **exact board model**, the **COM port**, whether the microSD backup is complete and whether the **read-only backup finished successfully**. Avoid sharing full-flash images, NVS dumps, secret keys or personal serial numbers publicly.
+For the next review, share the **exact board model**, the **COM port**, whether the original microSD remains untouched (no reader available) and whether the **read-only internal-flash backup finished successfully**. Avoid sharing full-flash images, NVS dumps, secret keys or personal serial numbers publicly.
 
 **Phase 4 release status:** in engineering preparation; original hardware remains untouched.
