@@ -2027,8 +2027,20 @@ void galleryTap(int16_t x, int16_t y) {
 
 void drawBattery() {
   int pc = batPercent();
-  if (pc < 0) return;  // sin bateria conectada
   int x = CX - 14, y = 12, w = 24, h = 11;
+  if (pc < 0) {
+#ifdef POKEBYTE_PC
+    // Desktop emulator cannot measure the physical Waveshare battery.
+    // Show an honest PC label instead of a simulated battery percentage.
+    gfx->setTextColor(inkColor());
+    setSize(1);
+    setCur(CX - 6, y + 2);
+    printT("PC");
+#endif
+    return;
+  }
+  // The Waveshare AXP2101 already provides a 0..100% battery measurement.
+  if (pc > 100) pc = 100;
   bool charging = batCharging();
   uint16_t col = charging ? UI_BAR_OK
                  : (pc >= 40) ? inkColor()
@@ -2046,6 +2058,13 @@ void drawBattery() {
     int fw = (w - 4) * pc / 100;
     if (fw > 0) gfx->fillRect(x + 2, y + 2, fw, h - 4, col);
   }
+  // Battery text sits beside the existing icon; the bolt and bar are preserved.
+  char pct[6];
+  snprintf(pct, sizeof(pct), "%d%%", pc);
+  gfx->setTextColor(col);
+  setSize(1);
+  setCur(x + w + 9, y + 2);
+  printT(pct);
 }
 
 void drawHeader(const char *name, uint16_t nameColor, const char *msg) {
