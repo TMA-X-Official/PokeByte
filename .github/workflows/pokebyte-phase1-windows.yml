@@ -1,8 +1,8 @@
-name: PokeByte Phase 1 Windows Test
+name: PokeByte Phase 1 ball + training mini-game test
 
 on:
   push:
-    branches: [pokebyte-deluxe-dev]
+    branches: [pokebyte-phase1-minigames-scene]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -60,6 +60,22 @@ jobs:
           test -s tamapoke-test.ppm
           rm -f tamapoke-test.ppm tamapoke_pc_save.dat
 
+      - name: Test original ball and training minigames with new background
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          test -s assets/minigame.bmp
+          SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-minigame
+          test -s tamapoke-test.ppm
+          mv tamapoke-test.ppm ball-minigame.ppm
+          rm -f tamapoke_pc_save.dat
+          SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-sack
+          test -s tamapoke-test.ppm
+          mv tamapoke-test.ppm training-minigame.ppm
+          rm -f tamapoke_pc_save.dat
+          python -c 'import hashlib; a=hashlib.sha256(open("ball-minigame.ppm","rb").read()).digest(); b=hashlib.sha256(open("training-minigame.ppm","rb").read()).digest(); assert a!=b;print("Both minigame render tests passed")'
+          rm -f ball-minigame.ppm training-minigame.ppm
+
       # The existing mouse gesture smoke test is exercised against SDL on Linux.
       # GitHub's headless Windows environment cannot reliably emulate a mouse swipe.
       # The Windows check above verifies the actual executable starts and renders.
@@ -68,7 +84,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Phase1-Windows-Test
+          name: PokeByte-Minigame-Scenery-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
