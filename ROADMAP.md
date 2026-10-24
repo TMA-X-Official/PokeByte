@@ -115,6 +115,18 @@ The original firmware already obtains `batPercent()` from the Waveshare AXP2101 
 - **Next:** **Personality Pack 02** — stable per-Pokémon temperaments and observable bond-based behaviors, using existing care/bond systems and original PMD frames. **Personality Pack 03** — occasional context-aware surprises. These are not yet implemented and must be tested before Phase 3 can be marked complete.
 - **Hardware:** None of these Phase 3 changes have been deployed to the Waveshare; hardware release remains Phase 5.
 
+## Phase 3 — Personality Pack 02: Bonding & Temperament Windows test (24 October 2026)
+
+- **Status:** 🟡 **In development / user test pending**. Phase 3 remains in progress; do not mark Pack 02 complete before hands-on approval.
+- **Source:** [`pokebyte-phase3-personality-pack-02`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-personality-pack-02); [draft PR #13](https://github.com/TMA-X-Official/PokeByte/pull/13). Not merged into the approved Pack 01 baseline.
+- **Four individual temperaments:** Playful, Calm, Curious, Shy. A stable deterministic temperament is derived from the original Pokémon's already-saved hatch attack/defense/speed genes, with no new persistent fields; evolution does not alter the genes.
+- **Three friendship stages:** New Friend (Bond 0–29), Growing Bond (30–69), Close Friend (70–100). The original 0–100 Bond value and rewards remain intact.
+- **Behavioral significance:** Temperament and Bond influence the rate of existing genuine PMD gestures versus walking/resting. A Shy Pokémon grows markedly more affectionate at high Bond. Petting can occasionally trigger an original real PMD Nod/Pose/DeepBreath greeting, with stage-dependent probabilities and cooldown. Hunger/tiredness priority still wins over happy behavior.
+- **Visibility:** The existing PC Pokémon profile adds a discreet English temperament/stage label; no extra home status bars. In temporary demos, a small label and the displayed Bond bar reflect the simulated preview values without modifying care stats.
+- **Eight explicit demos:** `TEST-PLAYFUL/CALM/CURIOUS/SHY-LOW/HIGH-BOND.bat`. Each is a temporary, non-saving Charmander. The original Happy, Tired and Hungry demo launchers remain.
+- **Safety:** Preserve all 12 approved Phase 2 scenery BMPs and 303 original Pokémon binary art files in the final packaged Windows ZIP. No new animations, altered sprites, mini-game changes, firmware flashing or save-field additions.
+- **Validation:** Windows CI checks save-safe preview screenshots, pure policy and fallback tests, original mood demonstrations, five time-of-day modes, clear/rain/snow, and home/ball/training screen rendering. User's visual and interactive playtest is required to accept the milestone.
+
 ## After each phase
 
 Review the completed features and Windows playtest, update this roadmap, and start the next phase only after the user approves it. Preserve known-good downloads and branches.
