@@ -1,8 +1,8 @@
-name: PokeByte Phase 2 Ambient Pack 02 Windows
+name: PokeByte Phase 2 Cloud-Free Snow Windows
 
 on:
   push:
-    branches: [pokebyte-phase2-ambient-pack-02]
+    branches: [pokebyte-phase2-weather-snow-no-clouds]
     paths:
       - 'TamaPoke.ino'
       - 'pokebyte/**'
@@ -45,6 +45,7 @@ jobs:
           grep -q 'pokebyteToggleBackground' pc/desktop_main.cpp
           grep -q 'pokebyteToggleAmbient' pc/desktop_main.cpp
           grep -q 'pokebyteToggleWeather' pc/desktop_main.cpp
+          grep -q 'pokebyteToggleSnow' pc/desktop_main.cpp
 
       - name: Compile original game with optional PokéByte scenery
         run: bash pokebyte/build-windows.sh
@@ -72,6 +73,19 @@ jobs:
           done
           python -c 'import hashlib,glob; fs=glob.glob("mode-*.ppm"); hs=[hashlib.sha256(open(f,"rb").read()).digest() for f in fs]; assert len(fs)==5 and len(set(hs))==5,(fs,hs);print("Five scene modes render uniquely")'
           rm -f mode-*.ppm
+
+      - name: Verify clear rain snow and exclusivity with real renderer
+        timeout-minutes: 3
+        run: |
+          cd pc/build/windows/PokeByte-Phase1-PC
+          for weather in clear rain snow; do
+            SDL_VIDEODRIVER=dummy timeout 40s ./PokeByte-Phase1-PC.exe --screenshot --test-home --time-of-day night --weather "$weather"
+            test -s tamapoke-test.ppm
+            mv tamapoke-test.ppm "weather-$weather.ppm"
+            rm -f tamapoke_pc_save.dat
+          done
+          python -c 'import hashlib; w=["clear","rain","snow"]; hs=[hashlib.sha256(open("weather-"+x+".ppm","rb").read()).digest() for x in w]; assert len(set(hs))==3; print("Cloud-free weather rendering tested: clear, rain, snow")'
+          rm -f weather-*.ppm
 
       - name: Windows startup and screenshot verification
         timeout-minutes: 2
@@ -105,7 +119,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PokeByte-Ambient-Pack-02-Windows
+          name: PokeByte-Cloud-Free-Snow-Windows
           path: pc/build/windows/PokeByte-Phase1-PC/
           if-no-files-found: error
           retention-days: 30
