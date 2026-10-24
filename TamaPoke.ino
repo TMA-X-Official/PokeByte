@@ -62,8 +62,12 @@ struct {
   float x = 233, targetX = 233;
 } beh;
 #ifdef POKEBYTE_PC
-// Current surprise is a single PMD action, not a replaying animation loop.
+// Each rare surprise is a bounded sequence of genuine original PMD frames.
 bool pbSurpriseRunning = false;
+uint8_t pbSurpriseEvent = PB_SURPRISE_NONE;
+uint8_t pbSurpriseStage = 0;
+uint8_t pbSurpriseFollowup = 255;
+uint32_t pbSurpriseWalkTick = 0;
 #endif
 #define PET_GROUND 304  // linea de suelo de la mascota
 PmdMon galleryPmd;  // sprite grande de la vista detalle de la galeria (PMD/TPK2, legal)
@@ -261,6 +265,13 @@ void ensureMon() {
   beh.x = beh.targetX = 233;
   beh.mode = 0;
   beh.until = 0;
+#ifdef POKEBYTE_PC
+  pbSurpriseRunning = false;
+  pbSurpriseEvent = PB_SURPRISE_NONE;
+  pbSurpriseStage = 0;
+  pbSurpriseFollowup = 255;
+  pokebyteSurpriseClear();
+#endif
   if (pet.speciesId >= 1 && pet.speciesId <= DEX_COUNT) {
     pmd.load(pet.speciesId, pet.shiny);          // principal: PMD
     if (!pmd.loaded) mon.load(pet.speciesId, pet.shiny);  // respaldo: B/N
@@ -2481,11 +2492,40 @@ void drawPmdAct(uint8_t actId, int cx, int groundY, uint32_t t, bool loop, bool 
 #ifdef POKEBYTE_PC
 void pokebyteFinishOneSurprise(uint32_t now) {
   pbSurpriseRunning=false;
+  pbSurpriseEvent=PB_SURPRISE_NONE;
+  pbSurpriseStage=0;
+  pbSurpriseFollowup=255;
   pokebyteSurpriseMarkFinished();
   beh.mode=0;
   beh.act=PMD_IDLE;
   beh.t0=now;
   beh.until=now+4500; // quiet idle before temperament scheduler resumes
+}
+
+// Advance only after the current original PMD clip or walking leg completes.
+// Previews play once per launch; the ordinary planner resumes after recovery.
+void pokebyteAdvanceSurprise(uint32_t now) {
+  if(!pbSurpriseRunning)return;
+  if(pbSurpriseEvent==PB_SURPRISE_WANDER){
+    if(pbSurpriseStage==0){
+      pbSurpriseStage=1;
+      beh.mode=0;beh.act=PMD_IDLE;beh.t0=now;beh.until=now+950;
+      return;
+    }
+    if(pbSurpriseStage==1){
+      pbSurpriseStage=2;
+      pbSurpriseWalkTick=now;
+      beh.mode=1;beh.targetX=233;beh.t0=now;beh.until=now+12000;
+      return;
+    }
+  }else if(pbSurpriseStage==0 && pbSurpriseFollowup!=255
+           && pmd.has(pbSurpriseFollowup)){
+    pbSurpriseStage=1;
+    beh.mode=2;beh.act=pbSurpriseFollowup;
+    beh.t0=now;beh.until=now+pmdActTotalMs(pmd.acts[beh.act]);
+    return;
+  }
+  pokebyteFinishOneSurprise(now);
 }
 #endif
 
@@ -2513,6 +2553,10 @@ void behNext() {
                                pokebyteSocialVisibleBond(),available,
                                uint16_t(random(1000)),&surprise)) {
     pbSurpriseRunning=true;
+    pbSurpriseEvent=surprise.event;
+    pbSurpriseStage=0;
+    pbSurpriseFollowup=surprise.followupAction;
+    pbSurpriseWalkTick=now;
     beh.mode=surprise.mode;beh.act=surprise.action;
     if(surprise.mode==1){
       beh.targetX=surprise.targetX;
@@ -2640,7 +2684,7 @@ void drawPetPMD() {
     // Previous demo replayed every 10 seconds, appearing permanently stuck.
     if (now > beh.until) {
 #ifdef POKEBYTE_PC
-      if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);
+      if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
       else
 #endif
         behNext();
@@ -2649,13 +2693,22 @@ void drawPetPMD() {
       float d = beh.targetX - beh.x;
       if (fabsf(d) < 4) {
 #ifdef POKEBYTE_PC
-        if (pbSurpriseRunning) pokebyteFinishOneSurprise(now);
+        if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
         else
 #endif
           behNext();
         act = PMD_IDLE;
       } else {
+#ifdef POKEBYTE_PC
+        if(!pbSurpriseRunning || pbSurpriseEvent!=PB_SURPRISE_WANDER
+           || uint32_t(now-pbSurpriseWalkTick)>=85u){
+          beh.x += (d > 0 ? 3.0f : -3.0f);
+          if(pbSurpriseRunning && pbSurpriseEvent==PB_SURPRISE_WANDER)
+            pbSurpriseWalkTick=now;
+        }
+#else
         beh.x += (d > 0 ? 3.0f : -3.0f);
+#endif
         act = (d > 0) ? PMD_WALKR : PMD_WALKL;
       }
     } else {
@@ -2667,7 +2720,13 @@ void drawPetPMD() {
 
   drawPmdAct(act, (int)beh.x, PET_GROUND, now - beh.t0, loop || act == PMD_IDLE, false, 5);
 
-  if (pet.showHeart()) drawMap(SPR_HEART, 32, (int)beh.x + 50, PET_GROUND - 190, 2, false);
+  // The special greeting shows the already-existing heart while it plays.
+#ifdef POKEBYTE_PC
+  if (pet.showHeart() || (pbSurpriseRunning && pbSurpriseEvent==PB_SURPRISE_FRIENDSHIP))
+#else
+  if (pet.showHeart())
+#endif
+    drawMap(SPR_HEART, 32, (int)beh.x + 50, PET_GROUND - 190, 2, false);
 }
 
 // sprite animado desde la SD: zoom entero por pixel, frames a su ritmo
