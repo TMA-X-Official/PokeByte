@@ -45,6 +45,12 @@
 - **Not publicly hosted or released**: current GitHub branch link is a source preview. Do not expose it as a working installer or configure Pages until user reviews and signs off.
 - After the embedded port, binary validation, physical testing and flash/NVS/microSD backup/rollback are ready, implement genuine [ESP Web Tools](https://esphome.github.io/esp-web-tools/) ESP32-S3 flashing (correct verified manifest offsets) and safe Web Serial approved-asset copying. That must be a separate review; no erase and no user-save loss.
 
+## User has no microSD reader — safe next step
+
+User reports that the original microSD currently contains Pokémon sprites and they have no reader/adapter for their Windows PC. We have the **303 known original `.bin` assets** in the verified private Phase 3 Windows ZIP, but cannot prove the card is identical or has no unique additions. **Do not erase, format or replace files on the current card.**
+
+Original serial API in `sdmon.cpp`: `LS` lists filenames/sizes in `/mons`, `SDINFO` reports usage and `PUT` writes replacement sprites. It has **no SD file readback/download**. The original TamaPoke browser's sprite transfer is one-way **PC→board**, not a backup. Backing up **internal flash** with the read-only `esptool read-flash` command needs only USB-C data and a Windows COM port; it does not touch the external card and can be the next step. A full microSD backup before any subsequent card write still requires access to a card reader or a separately audited new transfer protocol. See [first-connection guide](PHASE4-FIRST-CONNECTION-WINDOWS.md).
+
 ## Remaining risks
 
 - **Missing verified artwork in GitHub:** SHA fingerprints exist but the actual original distinct BMP files are retained privately in the approved ZIP and not automatically accessible to CI. The release process requires that original ZIP explicitly.
