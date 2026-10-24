@@ -2027,6 +2027,7 @@ void galleryTap(int16_t x, int16_t y) {
 
 void drawBattery() {
   int x = CX - 14, y = 12, w = 24, h = 11;
+  const int hardwarePct = batPercent();  // Real on Waveshare, ignored in PC mode.
 #ifdef POKEBYTE_PC
   // The SDL emulator's stub returns a synthetic 100% charge.
   // Never display that as a real battery measurement.
@@ -2036,9 +2037,9 @@ void drawBattery() {
   printT("PC");
   return;
 #else
-  int pc = batPercent();
-  if (pc < 0) return;  // No actual battery present on the hardware.
+  if (hardwarePct < 0) return;  // No actual battery present on the hardware.
 #endif
+  int pc = hardwarePct;
   // The Waveshare AXP2101 already provides a 0..100% battery measurement.
   if (pc > 100) pc = 100;
   bool charging = batCharging();
