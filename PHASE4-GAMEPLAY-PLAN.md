@@ -1,6 +1,6 @@
 # PokéByte Phase 4 — Gameplay Expansion (working plan)
 
-**Project status:** The user likes the proposed direction and confirms **Pack 01 — Adventure Mode first**. The *feature plan* is agreed as a direction; no Phase 4 code or finished screens are approved yet. Date: 24 October 2026.
+**Project status:** Pack 01 Forest Trail **implemented as a Windows prototype and automatically tested**, following the user's approval to start Phase 4 Adventure Mode. **User visual/playtest acceptance is still pending.** Date: 24 October 2026.
 
 **Baseline:** [Phase 3 approved Windows source](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), [known-good artwork and executable manifest](APPROVED-ASSETS.md), and [continuity note](PROJECT-CONTINUITY.md). Preserve the working original hardware firmware on `main`. Windows-first experiments only; Phase 5 is for Waveshare firmware.
 
@@ -69,4 +69,4 @@ Suggested first milestone:
 
 ## Development checkpoint
 
-**Next action:** implement the smallest possible *Pack 01 forest-route Windows prototype* on a **new Phase 4 development branch** using the Phase 3 approved source as base. Show the user the preview, gather feedback and iterate. **Do not mark Phase 4 complete** until all user-approved packs are delivered and accepted.
+**Implemented in review:** [Forest Trail branch](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-pack01-adventure-prototype), [draft PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17), [passing Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40129169216). Final tester packaged with all 12 original approved scenes and 303 original sprites, SHA-256 `d914e79c7942305fe274e7144bdf21887c4b751f9c01ab6bde63f816d8bfb434`. **Next action:** user playtest, collect feedback, revise if needed. **Do not mark Pack 01 or Phase 4 complete** without explicit user approval.
