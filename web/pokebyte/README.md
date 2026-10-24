@@ -1,6 +1,6 @@
 # PokéByte browser installer — SAFE PREVIEW
 
-**State: design prototype on Phase 5 development branch. Not hosted, not released, not flashable.**
+**State: design prototype on Phase 4 development branch. Not hosted, not released, not flashable.**
 
 The user wants a dedicated PokéByte installation website similar to TamaPoke's browser installer. This directory is the separately branded **PokéByte-only** landing page. It is a safe, static preview, **not** a copy of TamaPoke's active firmware installer.
 
@@ -24,7 +24,7 @@ The page is also viewable by opening `index.html` directly. Neither route access
 
 1. Finish the embedded hardware port of **all** accepted Phase 1 (five distinct backgrounds), Phase 2 (ambience and optional weather, no animated cloud overlays) and Phase 3 (temperaments, Bond and distinct surprises). The current approved Windows feature source has `POKEBYTE_PC`-only code, and compiling the old firmware is insufficient.
 2. Confirm the device model **ESP32-S3-Touch-AMOLED-1.75**, not the **1.75C** variant. Use matching flash size, PSRAM and partition layout. Review actual device hardware.
-3. Build a *genuine* Waveshare ESP32-S3 firmware from this approved, non-Phase-4 source and test on device: display/touch, power, audio, RTC, SD, scenes, 303 original PMD assets, all mini-games, saves and every personality behavior. Do not call the existing original v1.17 `web/firmware/tamapoke.bin` a PokéByte upgrade.
+3. Build a *genuine* Waveshare ESP32-S3 firmware from this approved source without the rejected Adventure/Battle changes and test on device: display/touch, power, audio, RTC, SD, scenes, 303 original PMD assets, all mini-games, saves and every personality behavior. Do not call the existing original v1.17 `web/firmware/tamapoke.bin` a PokéByte upgrade.
 4. Produce and verify full flash + NVS + partition table backup AND microSD backup, with a tested restore/rollback path. **No user SD formatting, no automatic erase, no partition layout changes that endanger saved Pokémon.**
 5. Stage and verify exact 12 approved BMPs and the 303 .bin sprite/thumbnail assets against the user-approved Phase 3 ZIP and [APPROVED-ASSETS.md](https://github.com/TMA-X-Official/PokeByte/blob/main/APPROVED-ASSETS.md). The current `/pokebyte` art path is staging only until firmware reads it.
 6. Then add an **ESP Web Tools** element wired to an actual manifest and explicitly verified firmware files, with correct ESP32-S3 chip family, offsets, and checksum/release provenance. Require Chrome/Edge desktop over HTTPS or localhost. Reject unsupported hardware; do not automatically choose an erase-all option.
@@ -33,4 +33,4 @@ The page is also viewable by opening `index.html` directly. Neither route access
 
 **Web architecture reference:** The existing upstream TamaPoke `web/` uses ESP Web Tools and Web Serial. Current vendor docs: https://esphome.github.io/esp-web-tools/ . The first PokéByte preview intentionally ships *no* executable installer.
 
-**Phase 5 handoff:** See [PHASE5-WAVESHARE-RELEASE.md](https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE5-WAVESHARE-RELEASE.md). This site does not overwrite existing firmware, user saves or device files.
+**Phase 4 handoff:** See [PHASE4-WAVESHARE-RELEASE.md](https://github.com/TMA-X-Official/PokeByte/blob/main/PHASE4-WAVESHARE-RELEASE.md). This site does not overwrite existing firmware, user saves or device files.
