@@ -24,6 +24,7 @@
 #include "audio.h"
 #ifdef POKEBYTE_PC
 #include "pokebyte/personality_pack01.h"
+#include "pokebyte/personality_pack02.h"
 #endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
@@ -1051,6 +1052,17 @@ void render() {
     const char *base = pet.nick[0] ? pet.nick : dexName(pet.speciesId);
     snprintf(name, sizeof(name), T(S_NAME_FMT), pet.shiny ? "*" : "", base, pet.level());
     drawHeader(name, gNight ? UI_INK_NIGHT : d.accent, statusMsg());
+#ifdef POKEBYTE_PC
+    // Only the isolated no-save demos show a secondary identifying caption.
+    // Normal home remains uncluttered with all approved Phase 2 scenery.
+    const char *socialDemo = pokebyteSocialDemoLabel();
+    if (socialDemo[0] && gLang == LANG_EN) {
+      gfx->setTextColor(inkColor());
+      setSize(2);
+      setCur(centerX(socialDemo,2), 126);
+      printT(socialDemo);
+    }
+#endif
     drawStreakBadge();
     drawPet();
     drawBath();
@@ -1690,6 +1702,21 @@ void renderCardProfile() {
   printT(rl);
 
   drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
+#ifdef POKEBYTE_PC
+  // Only a quiet secondary profile line; never overlay the normal home UI.
+  // Keep normal profile stats and bars unchanged; English-only preview labels.
+  pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
+  if (gLang == LANG_EN) {
+    char social[58];
+    snprintf(social, sizeof(social), "%s - %s",
+      pokebyteTemperamentName(pokebyteSocialVisibleTemperament()),
+      pokebyteBondStageName(pokebyteBondStage(pokebyteSocialVisibleBond())));
+    gfx->setTextColor(UI_TRACK);
+    setSize(2);
+    setCur(centerX(social,2), 353);
+    printT(social);
+  }
+#endif
 
   const char *berry = !pet.berryKnown ? T(S_BERRY_UNK)
                       : pet.lovesBerry(0) ? T(S_BERRY_RED)
@@ -2426,11 +2453,12 @@ void behNext() {
 #ifdef POKEBYTE_PC
   // Phase 3: optional PC-only context-sensitive use of existing PMD actions.
   // Normal TamaPoke behavior is the immediate fallback when the option is OFF.
+  pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
   uint16_t available = 0;
   for (uint8_t a = 0; a < PMD_NACTS; ++a)
     if (pmd.has(a)) available |= uint16_t(1u << a);
   PokeBytePersonalityPlan plan{};
-  uint8_t behaviorRoll = pokebytePersonalityDemoActive() ? 4 : uint8_t(r);
+  uint8_t behaviorRoll = pokebyteSocialDemoActive() ? 40 : (pokebytePersonalityDemoActive() ? 4 : uint8_t(r));
   if (pokebytePersonalityPlan(pet.fullness, pet.joy, pet.energy,
                              pet.hygiene, available, behaviorRoll, &plan)) {
     beh.mode = plan.mode;
