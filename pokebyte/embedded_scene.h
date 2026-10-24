@@ -56,7 +56,26 @@ inline void setWeather(uint8_t selected){
  Preferences p;
  if(p.begin("pbvisual",false)){p.putUChar("weather",selected);p.end();}
 }
-inline bool loadApprovedBmp(const char* path) {
+// CRC32 fingerprints calculated directly from user's byte-identical Phase 3
+// approved BMPs. These reject CI grey-square fixtures and any replacements.
+// SHA-256 originals are independently pinned in APPROVED-ASSETS.md.
+inline uint32_t approvedCrc(bool mini,uint8_t mode){
+ static const uint32_t home[5]={
+  0x8416f26dU,0x8bd4737fU,0xae3973fbU,0x5e9eec1bU,0xae38373bU
+ };
+ static const uint32_t game[5]={
+  0xc3ef1747U,0x2b4a34a0U,0x1295529fU,0x1817ea5eU,0xd527026bU
+ };
+ return (mini?game:home)[mode<5?mode:1];
+}
+inline uint32_t crcUpdate(uint32_t crc,const uint8_t* p,size_t len){
+ for(size_t k=0;k<len;++k){
+  crc^=p[k];
+  for(int j=0;j<8;++j)crc=(crc>>1)^(0xedb88320U & uint32_t(0U-(crc&1U)));
+ }
+ return crc;
+}
+inline bool loadApprovedBmp(const char* path,uint32_t requiredCrc) {
  if(!sdReady)return false; // never call begin() here; never autoformat card
  File f=SD_MMC.open(path,FILE_READ);
  if(!f)return false;
@@ -68,7 +87,8 @@ inline bool loadApprovedBmp(const char* path) {
  }
  constexpr uint32_t ROW=((W*3+3)/4)*4;
  const uint32_t offset=le32(head+10);
- if(offset<54||offset+ROW*H>f.size()){f.close();return false;}
+ if(offset!=54 || f.size()!=54+ROW*H){f.close();return false;}
+ uint32_t crc=crcUpdate(0xffffffffU,head,sizeof(head));
  if(!scene){
   scene=(uint16_t*)heap_caps_malloc(size_t(W)*H*sizeof(uint16_t),
                                   MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
@@ -78,6 +98,7 @@ inline bool loadApprovedBmp(const char* path) {
  uint8_t row[ROW];
  for(int y=H-1;y>=0;--y){
   if(f.read(row,ROW)!=ROW){f.close();return false;}
+  crc=crcUpdate(crc,row,ROW);
   uint16_t* dest=scene+size_t(y)*W;
   for(int x=0;x<W;++x){
     const uint8_t* b=&row[3*x]; // 24-bit uncompressed BGR
@@ -85,6 +106,10 @@ inline bool loadApprovedBmp(const char* path) {
   }
  }
  f.close();
+ if((~crc)!=requiredCrc){
+  Serial.printf("PokeByte: approved artwork CRC mismatch %s\n",path);
+  return false; // never draw synthetic scene fixtures or malformed assets
+ }
  return true;
 }
 inline bool ensureScene(uint8_t timeMode,bool mini){
@@ -96,7 +121,7 @@ inline bool ensureScene(uint8_t timeMode,bool mini){
  if(strcmp(name,loaded)==0)return !failed;
  // Fail closed to original renderer; don't display half-loaded image.
  // Retry only on scene change / new SD mount to avoid hammering broken SD.
- failed=!loadApprovedBmp(name);
+ failed=!loadApprovedBmp(name,approvedCrc(mini,timeMode));
  strncpy(loaded,name,sizeof(loaded)-1);
  loaded[sizeof(loaded)-1]=0;
  if(failed)Serial.printf("PokéByte: missing/invalid approved SD scene %s; classic fallback\n",name);
