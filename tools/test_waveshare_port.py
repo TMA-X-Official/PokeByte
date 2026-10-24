@@ -44,6 +44,16 @@ assert "CRC mismatch" in render and "requiredCrc" in render
 assert "0xae38373bU" in render and "0xd527026bU" in render
 assert len(re.findall(r"0x[0-9a-f]{8}U", render)) >= 11
 assert "303" in original_art and "meadow_morning.bmp" in original_art
+# PBPUT is a NEW, CRC-gated protocol that must never replace an original file.
+# Legacy TamaPoke's PUT is left intact only for backward compatibility.
+assert 'line.startsWith("PBCRC ")' in sd
+assert 'line.startsWith("PBPUT ")' in sd
+new_protocol = sd.split('if(line.startsWith("PBPUT "))',1)[1].split('if (line.startsWith("PUT "))',1)[0]
+assert "if(SD_MMC.exists(path))" in new_protocol, "Skip existing SD content"
+assert "SD_MMC.rename(temp,path)" in new_protocol, "Atomic new-file commit"
+assert "SD_MMC.remove(path)" not in new_protocol, "Never erase owner's original"
+assert "size!=652454 || claimed!=approved" in new_protocol, "Reject fake BMPs"
+
 assert "test-adventure" not in sketch.lower()
 assert "battle_pack01" not in sketch.lower()
 print("PASS: native Waveshare source routes to approved art, SD safeguard, and all three personality packs")
