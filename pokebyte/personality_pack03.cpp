@@ -5,7 +5,7 @@
 namespace {
 uint8_t pending=PB_SURPRISE_NONE, demo=PB_SURPRISE_NONE;
 uint32_t lastEvent=0, lastWake=0, lastVictory=0, lastFriendship=0;
-uint32_t demoLast=0;
+bool demoPlayed=false, demoFinished=false;
 bool has(uint16_t mask,uint8_t act){return (mask & (uint16_t(1u)<<act))!=0;}
 bool chooseGesture(uint8_t kind,uint16_t mask,uint8_t* out){
  // A short genuine stretch / flourish / greeting in PMD action table.
@@ -27,10 +27,13 @@ void pokebyteSurpriseSetDemo(const char* name){
       !std::strcmp(s,"victory")?PB_SURPRISE_VICTORY:
       !std::strcmp(s,"wander")?PB_SURPRISE_WANDER:
       !std::strcmp(s,"friendship")?PB_SURPRISE_FRIENDSHIP:PB_SURPRISE_NONE;
- demoLast=0;pending=PB_SURPRISE_NONE;
+ demoPlayed=false;demoFinished=false;pending=PB_SURPRISE_NONE;
 }
 bool pokebyteSurpriseDemoActive(){return demo!=PB_SURPRISE_NONE;}
+bool pokebyteSurpriseDemoFinished(){return demo!=PB_SURPRISE_NONE && demoFinished;}
+void pokebyteSurpriseMarkFinished(){if(demo!=PB_SURPRISE_NONE && demoPlayed)demoFinished=true;}
 const char* pokebyteSurpriseDemoLabel(){
+ if(demo!=PB_SURPRISE_NONE && demoFinished)return "Back to normal";
  if(demo==PB_SURPRISE_WAKE)return "Wake-up Stretch";
  if(demo==PB_SURPRISE_VICTORY)return "Victory Flourish";
  if(demo==PB_SURPRISE_WANDER)return "Curious Explorer";
@@ -59,7 +62,8 @@ bool pokebyteSurpriseChoose(uint32_t now,uint8_t temperament,uint8_t bond,
                            PokeByteSurprisePlan*out){
  if(!out)return false;
  const bool isDemo=demo!=PB_SURPRISE_NONE;
- if(isDemo&&demoLast&&uint32_t(now-demoLast)<10000u)return false;
+ // Every preview fires exactly once. A user relaunches the .bat to replay.
+ if(isDemo && demoPlayed)return false;
  if(!isDemo&&lastEvent&&uint32_t(now-lastEvent)<180000u)return false;
  uint8_t type=isDemo?demo:pending;
  if(!type){
@@ -88,7 +92,7 @@ bool pokebyteSurpriseChoose(uint32_t now,uint8_t temperament,uint8_t bond,
   out->durationMs=0; // caller uses genuine original animation's full frame timing
  }
  out->event=type;
- if(isDemo)demoLast=now?now:1;
+ if(isDemo)demoPlayed=true;
  else {lastEvent=now?now:1;pending=PB_SURPRISE_NONE;}
  return true;
 }
