@@ -1701,11 +1701,17 @@ void renderCardProfile() {
   setCur(sx + 24, sy + 2);
   printT(rl);
 
-  drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
 #ifdef POKEBYTE_PC
-  // Only a quiet secondary profile line; never overlay the normal home UI.
-  // Keep normal profile stats and bars unchanged; English-only preview labels.
   pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
+  // In temporary previews, SHOW the preview Bond in the profile too, instead
+  // of misleadingly displaying the real pet's initial 0. No stat is changed.
+  drawCardStat(258, T(S_VIN), pokebyteSocialVisibleBond(), 100, C565(0xd4, 0x52, 0x7e));
+  // Only a quiet secondary profile line; never overlay the normal home UI.
+  // English preview labels are short enough for the round screen.
+#else
+  drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
+#endif
+#ifdef POKEBYTE_PC
   if (gLang == LANG_EN) {
     char social[58];
     snprintf(social, sizeof(social), "%s - %s",
