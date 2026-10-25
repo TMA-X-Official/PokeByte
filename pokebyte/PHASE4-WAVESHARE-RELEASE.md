@@ -5,7 +5,7 @@
 ## Final user acceptance (25 October 2026)
 
 - **Phase 4 is DONE** by explicit owner decision after testing actual PokéByte on hardware; update default-branch [ROADMAP.md](https://github.com/TMA-X-Official/PokeByte/blob/main/ROADMAP.md) and [README](https://github.com/TMA-X-Official/PokeByte/blob/main/README.md) accordingly.
-- Implementation includes original approved 12 backgrounds, genuine 303 PMD assets (unmodified source files), ambient effects and four one-shot personalities, and one guided web installation of firmware and scenery; compact high-contrast 112px battery indicator, halved SFX amplitude and disabled inactivity dimming.
+- Implementation includes original approved 12 backgrounds, genuine 303 PMD assets (unmodified source files), ambient effects and four one-shot personalities, and one guided web installation of firmware and scenery; compact high-contrast 112px battery indicator and disabled inactivity dimming. **Audio update (owner request after milestone acceptance):** the initial 50%-of-original SFX signal was still too loud, so the development firmware now reduces synthesized sounds to **20% of the original PCM amplitude** (5000 → 1000). **This new volume level is not yet hardware-tested; install the rebuilt firmware before evaluating it.**
 - Further installer code for missing-only delivery of all 303 original sprites to *blank* microSD remains release-candidate work requiring CI and hardware QA; **do not infer the owner tested a blank card**. Public stable versioning, save-preserving upgrades and recovery remain separate release gates. Preserve the original upstream firmware and user files; keep PR #20 draft/unmerged until explicit code merge approval.
 
 ## Controlling user decisions (24 October 2026)
