@@ -909,16 +909,16 @@ void loop() {
                   ESP.getFreeHeap(), ESP.getMinFreeHeap());
   }
 
-  // 85 ms in game/bag: safe margin so the redraw does not step on the DMA
-  // send of the previous frame (at 40-65 ms it overlapped and caused black flashes; with
-  // large sprites drawing takes longer, so a cushion is left)
-  if (now - lastRender >= (uint32_t)((gameOpen || sackOpen || spdOpen) ? 85 : 100)) {
+  // Conservative PokeByte mitigation: 110/120 ms between starts of redraws.
+  // v3.14 documents black flashes when a new flush overlaps the preceding DMA.
+  // This timing patch needs on-device validation; a DMA-completion fence is preferable.
+  if (now - lastRender >= (uint32_t)((gameOpen || sackOpen || spdOpen) ? 110 : 120)) {
     lastRender = now;
     render();
   }
 }
 
-// brightness according to sleep + inactivity (AMOLED protection)
+// brightness according to user setting, intentional sleep, and power button
 void updateBrightness(uint32_t now) {
   // visible events wake the screen by themselves
   if (pet.evolving() || pet.ceremony || pet.eating() || pet.showHeart()) {
@@ -926,12 +926,11 @@ void updateBrightness(uint32_t now) {
   }
   uint32_t idle = now - lastInteract;
   dimStage = (idle > 300000) ? 2 : (idle > 90000) ? 1 : 0;
-  // the player's level (1..10) sets the awake brightness; the sleep and idle
-  // dim levels below it only ever go DOWN from it, never above
+  // User brightness is stable while awake; intentional pet sleep may still dim.
   uint8_t base = (uint8_t)(gBright * 255 / 10);
   uint8_t target = pet.sleeping ? 25 : base;
-  if (dimStage == 1) target = pet.sleeping ? 10 : (base < 60 ? base : 60);
-  else if (dimStage == 2) target = 8;
+  // PokeByte: do not automatically dim an active screen after inactivity.
+  // Keep dimStage for deferred save flushing; preserve sleep and PWR behavior.
   if (screenOff) target = 0;
   static uint8_t current = 255;
   if (target != current) {
@@ -1289,7 +1288,7 @@ void handleTouch() {
     tY0 = tYl = y;
     tStart = millis();
     holdFired = false;
-    swallowGesture = (dimStage > 0) || screenOff;  // si estaba a oscuras, solo despierta
+    swallowGesture = screenOff;  // only the deliberately powered-off screen consumes a wake tap
     sliderDrag = !swallowGesture && clockSliderHit(x, y);
     if (sliderDrag) { swallowGesture = true; clockSliderSet(x); }
     if (screenOff) pet.setScreenOff(false);        // waking the screen wakes it
