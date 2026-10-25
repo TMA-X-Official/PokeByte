@@ -1,0 +1,88 @@
+name: PokéByte Advanced v3.14 replacement candidate
+
+on:
+  push:
+    branches: [pokebyte-crenberries-v3.14-import]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    name: Compile native firmware and package renamed installer (NO PUBLIC DEPLOY)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install pinned board core and library dependencies
+        run: |
+          arduino-cli config init --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.10
+          arduino-cli lib install "GFX Library for Arduino" SensorLib XPowersLib U8g2
+      - name: Rebrand and save-safety static checks
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path("web/manifest.json").read_text())
+          assert m["name"]=="PokéByte Advanced"
+          assert m["new_install_prompt_erase"] is True, "Never silently erase user's existing NVS save"
+          parts=m["builds"][0]["parts"]
+          assert [x["offset"] for x in parts]==[0,32768,57344,65536]
+          assert all(x["path"]!="firmware/tamapoke.bin" for x in parts)
+          assert "PokeByte" in Path("TamaPoke.ino").read_text()
+          assert "PokeByte" in Path("web/index.html").read_text()
+          assert "Quique Tortosa" in Path("LICENSE").read_text()
+          assert "Cheng Ren" in Path("LICENSE").read_text()
+          assert 'begin("tamapoke"' in Path("save.cpp").read_text()
+          for name in ("kanto","johto","hoenn","sinnoh","unova","kalos","alola"):
+              p=Path("web")/f"sprites-{name}.pak"
+              assert p.stat().st_size>10000000,name
+          print("PASS: branding, upstream attribution, save-safe flash layout, and all seven regional sprite archives")
+          PY
+      - name: Compile rebranded firmware for actual round ESP32-S3 board
+        run: |
+          mkdir -p "$RUNNER_TEMP/TamaPoke" "$RUNNER_TEMP/PokeByte-fw"
+          cp ./*.ino ./*.cpp ./*.h "$RUNNER_TEMP/TamaPoke/"
+          arduino-cli compile --warnings=all \
+            --fqbn "esp32:esp32:esp32s3:CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
+            --output-dir "$RUNNER_TEMP/PokeByte-fw" \
+            "$RUNNER_TEMP/TamaPoke"
+      - name: Assemble candidate website from this newly compiled firmware
+        run: |
+          mkdir -p "$RUNNER_TEMP/PokeByte-website/advanced"
+          cp -R web/. "$RUNNER_TEMP/PokeByte-website/advanced/"
+          B="$RUNNER_TEMP/PokeByte-fw"
+          S="$RUNNER_TEMP/PokeByte-website/advanced"
+          cp "$B/TamaPoke.ino.bootloader.bin" "$S/firmware/bootloader.bin"
+          cp "$B/TamaPoke.ino.partitions.bin" "$S/firmware/partitions.bin"
+          cp "$B/TamaPoke.ino.bin" "$S/firmware/app.bin"
+          # The manifest deliberately does not point to the legacy merged image.
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"PokeByte-website/advanced"
+          m=json.loads((p/"manifest.json").read_text())
+          nvs_start,nvs_end=0x9000,0xe000
+          sizes=[]
+          for part in m["builds"][0]["parts"]:
+              item=p/part["path"]
+              assert item.is_file(),item
+              a,b=part["offset"],part["offset"]+item.stat().st_size
+              assert b<=0x1000000 and (b<=nvs_start or a>=nvs_end),(item,a,b)
+              sizes.append((str(part["path"]),item.stat().st_size))
+          assert (p/"index.html").read_text().count("PokéByte")>=2
+          print("PASS: branded, newly compiled, NVS-safe installer parts",sizes)
+          PY
+          (cd "$RUNNER_TEMP/PokeByte-website/advanced" && sha256sum firmware/bootloader.bin firmware/partitions.bin firmware/boot_app0.bin firmware/app.bin > POKEBYTE-SHA256SUMS.txt)
+          echo "EXPERIMENTAL CANDIDATE: verify on the actual Waveshare before publishing as stable." > "$RUNNER_TEMP/PokeByte-website/advanced/CANDIDATE-NOT-STABLE.txt"
+      - name: Upload freshly built website and firmware (not live)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PokeByte-Advanced-v3.14-REPLACEMENT-CANDIDATE
+          path: ${{ runner.temp }}/PokeByte-website/
+          compression-level: 5
+          retention-days: 14
+          if-no-files-found: error
