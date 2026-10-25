@@ -47,6 +47,17 @@ for marker in ("approvedBundleZipSHA256","pbSha256(bytes)","pbCrc32(bytes)",
                "requestPort","pbAutomaticFinish","pokebyte-scenes-ready"):
     assert marker in sync,marker
 assert "f.write(chunk,got)" in sd and "got!=want" in sd, "USB frame ack must be exact"
+assert 'original-sprites.json' in builder
+assert '"count":303' in builder
+assert 'approved_fingerprint="45624145dab29c46c045c44fea7625884e25507af9d6cac352c317345286294c"' in builder
+assert 'if group.hexdigest()!=approved_fingerprint:' in builder
+assert 'original-sprites.json' in sync
+assert 'spritesInstalled' in sync and 'spritesSkipped' in sync
+assert 'await pbReadCrc(dev,art.path)' in sync
+assert 'Different existing Pokémon sprite ' in sync
+assert '"./mons/"+art.name' in sync
+assert 'await pbSha256(bytes)!==art.sha256' in sync
+assert '303 original' in installer
 assert "shutil.copyfile(\"web/pokebyte/beta/background-sync.js\"" in builder
 assert "approved-backgrounds.zip" in builder and "zipfile.ZipFile" in builder
 assert "sha(raw)" in builder and "zlib.crc32(raw)" in builder
