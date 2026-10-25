@@ -50,7 +50,10 @@ jobs:
           assert len(m["files"])==12 and len({f["name"] for f in m["files"]})==12
           assert m["approvedBundleZipSHA256"]=="5f72992ca1c93cbc7e16e42624ba9fdd449e0173ddd369fd7a4904e68db12c81"
           site=Path("web/pokebyte/beta/index.html").read_text()
-          assert 'id="installScenes"' in site and "./background-sync.js" in site
+          assert 'id="install"' in site and 'id="resumeSetup"' in site and './background-sync.js' in site
+          assert 'id="installScenes"' not in site
+          assert 'id="approvedZip"' not in site
+          assert 'approvedArtworkReady&&consent.checked' in site
           print("PASS: official scene package checksum and integrated USB installer")
           PY
       - name: Build SAME Waveshare target as firmware CI
