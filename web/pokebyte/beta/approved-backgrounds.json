@@ -87,5 +87,6 @@
       "sha256": "6ca3bed83cae6e0e70f6c3a3a1c19adf856072bf81e44c6b7152aa4dcad8af38",
       "crc32": "5e9eec1b"
     }
-  ]
+  ],
+  "approvedBundleZipSHA256": "5f72992ca1c93cbc7e16e42624ba9fdd449e0173ddd369fd7a4904e68db12c81"
 }
