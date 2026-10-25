@@ -84,6 +84,11 @@ jobs:
           assert (d/"background-sync.js").is_file()
           assert (d/"approved-backgrounds.json").is_file()
           assert len(json.loads((d/"approved-backgrounds.json").read_text())["files"])==12
+          sprites=json.loads((d/"original-sprites.json").read_text())
+          assert sprites["count"]==303 and len(sprites["files"])==303
+          assert sprites["combinedSha256"]=="45624145dab29c46c045c44fea7625884e25507af9d6cac352c317345286294c"
+          assert len(set(x["name"] for x in sprites["files"]))==303
+          assert all((d/"mons"/x["name"]).stat().st_size==x["bytes"] for x in sprites["files"])
           assert all((d/p["path"]).exists() for p in parts)
           assert (d/"index.html").exists()
           assert "disabled" in (d/"../index.html").resolve().read_text()
