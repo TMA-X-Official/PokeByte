@@ -6,7 +6,7 @@
  * No separate background-installer action, ZIP download or SD card reader.
  */
 const pb$=id=>document.getElementById(id);
-const PB={files:null,manifest:null,ready:false,busy:false,flashStarted:false,complete:false,
+const PB={files:null,manifest:null,spriteManifest:null,ready:false,busy:false,flashStarted:false,complete:false,
   error:null,port:null,device:null};
 const pbEncoder=new TextEncoder();
 const pbDecoder=new TextDecoder();
@@ -55,9 +55,29 @@ async function pbLoadArt(){
       throw Error("Wrong background bytes; refused: "+art.name);
     files.set(art.name,bytes);
   }
-  PB.files=files;PB.manifest=m;PB.ready=true;PB.error=null;
-  pbProgress("Approved background bundle verified (12/12). Ready for the full PokéByte installation.");
-  pbLog("Official hosted BMPs verified byte-for-byte. Original sprites on microSD will not be touched.");
+  // The first-install sprite manifest is assembled and fingerprinted in CI
+  // from the 303 original .bin files. Only missing approved sprites will
+  // subsequently be downloaded/uploaded, so existing cards stay fast.
+  const spriteRes=await fetch("./original-sprites.json",{cache:"no-store"});
+  if(!spriteRes.ok)throw Error("Original 303 Pokémon sprite manifest has not been published");
+  const spriteManifest=await spriteRes.json();
+  if(spriteManifest.count!==303||
+     spriteManifest.combinedSha256!=="45624145dab29c46c045c44fea7625884e25507af9d6cac352c317345286294c"||
+     spriteManifest.files?.length!==303)
+    throw Error("Original Pokémon sprite manifest does not match the accepted PMD set");
+  const seen=new Set();
+  for(const pm of spriteManifest.files){
+    if(!(/^(p\d{3}|ps\d{3}|thumbs)\.bin$/.test(pm.name))||
+       pm.path!=="/mons/"+pm.name||seen.has(pm.name)||
+       !Number.isInteger(pm.bytes)||pm.bytes<=0||pm.bytes>1024*1024||
+       !/^[0-9a-f]{64}$/.test(pm.sha256)||!/^[0-9a-f]{8}$/.test(pm.crc32))
+      throw Error("Invalid original Pokémon asset manifest: "+pm.name);
+    seen.add(pm.name);
+  }
+  PB.files=files;PB.manifest=m;PB.spriteManifest=spriteManifest;
+  PB.ready=true;PB.error=null;
+  pbProgress("12 original landscapes + 303 authentic Pokémon files verified in the release manifest. Ready to install.");
+  pbLog("Official BMPs verified byte-for-byte; original 303 PMD sprite manifest verified. Existing SD files will be skipped.");
   pbDispatchReady();
 }
 class PBDeviceSerial{
@@ -167,9 +187,33 @@ async function pbSyncWithPort(port){
       await pbInstallOne(dev,art,PB.files.get(art.name));
       copied++;pbLog("Installed and verified: "+art.name);
     }
+    // Same installation progress continues with the authentic PMD sprites.
+    // If the owner's card already has them, no download/write is performed.
+    let spritesInstalled=0,spritesSkipped=0;
+    for(const art of PB.spriteManifest.files){
+      pbProgress("Checking original Pokémon sprite files "+(spritesInstalled+spritesSkipped+1)+"/303");
+      const existing=await pbReadCrc(dev,art.path);
+      if(existing){
+        if(existing.size!==art.bytes||existing.crc32!==art.crc32)
+          throw Error("Different existing Pokémon sprite "+art.name+"; refusing overwrite. Your original file stays intact.");
+        spritesSkipped++;
+        continue;
+      }
+      pbProgress("Downloading approved missing sprite "+art.name+" ("+(spritesInstalled+spritesSkipped+1)+"/303)");
+      const resp=await fetch("./mons/"+art.name,{cache:"no-store"});
+      if(!resp.ok)throw Error("Original sprite is missing from the official website: "+art.name);
+      const bytes=new Uint8Array(await resp.arrayBuffer());
+      if(bytes.length!==art.bytes||pbCrc32(bytes)!==art.crc32||
+         await pbSha256(bytes)!==art.sha256)
+        throw Error("Host-provided Pokémon sprite differs from the approved original: "+art.name);
+      await pbInstallOne(dev,art,bytes);
+      spritesInstalled++;
+      pbLog("Original PMD installed and verified: "+art.name);
+    }
     PB.complete=true;
-    pbProgress("PokéByte setup complete: "+copied+" backgrounds installed, "+skipped+" verified. Restart the Waveshare to show the new scenery.");
-    pbLog("SUCCESS — original microSD sprites preserved. No existing file overwritten.");
+    pbProgress("PokéByte installation complete: "+copied+" backgrounds + "+spritesInstalled+
+      " Pokémon files installed; "+(skipped+spritesSkipped)+" existing files verified. Restart your Waveshare.");
+    pbLog("SUCCESS — all 12 approved scenes and all 303 original Pokémon files verified. No existing file overwritten.");
     pbResume(false);
   }finally{
     try{await dev?.close();}catch{}
@@ -178,7 +222,7 @@ async function pbSyncWithPort(port){
 }
 async function pbAutomaticFinish(){
   if(PB.busy||PB.complete)return;
-  if(!PB.ready){pbProgress("Cannot finish setup: approved scenery not hosted. No SD changes made.");return;}
+  if(!PB.ready){pbProgress("Cannot finish setup: approved scenery/sprites not hosted. No SD changes made.");return;}
   if(!navigator.serial){pbProgress("Use desktop Chrome or Edge with Web Serial support.");return;}
   // Run only after ESP Web Tools has released the port.
   await new Promise(resolve=>setTimeout(resolve,1400));
@@ -209,7 +253,7 @@ function pbInit(){
   pb$("resumeSetup")?.addEventListener("click",pbUserFinish);
   pb$("install")?.addEventListener("click",()=>{
     PB.flashStarted=true;pbResume(false);
-    pbProgress("Firmware installer opened. Complete flashing; approved backgrounds follow automatically.");
+    pbProgress("Firmware installer opened. Approved scenery and original Pokémon sprites are part of this same setup.");
   });
   // ESP Web Tools fires 'closed' on its install dialog, after both success
   // and cancellation. Never infer success from this; PBCAPS verifies that
