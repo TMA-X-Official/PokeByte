@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TamaPoke · Installer</title>
+<title>PokéByte · Installer</title>
 <style>
   :root { --bg:#f2efe1; --ink:#2a2a36; --accent:#4f93c4; --ok:#58b868; --bad:#e8503a; --track:#d8d2bd; }
   * { box-sizing: border-box; }
@@ -35,7 +35,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🐢 TamaPoke</h1>
+  <h1>⚡ PokéByte Advanced</h1>
   <p class="sub">A 386-Pokémon tamagotchi for the Waveshare ESP32-S3-Touch-AMOLED-1.75.
      Install it from your browser — no Arduino, no drivers.</p>
 
@@ -51,7 +51,7 @@
     <p style="font-size:1.05em"><b>hold BOOT&nbsp;→ tap RESET&nbsp;→ let go of BOOT</b></p>
     <p class="note">The two small buttons next to the USB-C socket. Nothing on screen will
        change — that is normal. Now press install and the port will be there.
-       After TamaPoke is on it, this is never needed again.</p>
+       After PokéByte is on it, this is never needed again.</p>
     <p class="note">Still nothing? Use a cable that carries <b>data</b> (a charge-only USB-C
        cable powers the board perfectly and carries nothing), and plug <b>straight into your
        computer</b> rather than through a hub.</p>
@@ -62,7 +62,7 @@
     <p>Plug the board in via USB and press install. Pick the port and wait.
        Takes about a minute. No drivers needed on any OS.</p>
     <esp-web-install-button manifest="manifest.json">
-      <button slot="activate">⚡ Install TamaPoke</button>
+      <button slot="activate">⚡ Install PokéByte</button>
       <span slot="unsupported">Browser not supported (use Chrome/Edge).</span>
       <span slot="not-allowed">Needs HTTPS.</span>
     </esp-web-install-button>
@@ -81,7 +81,7 @@
        <code>IMPORT</code> lines, and pasting that block back restores it.
        Worth doing before any update you care about.<br><br>
        A fresh board with nothing on it can be erased safely, and on a board
-       that has never run TamaPoke it makes no difference either way.</p>
+       that has never run PokéByte it makes no difference either way.</p>
   </div>
 
   <h2><span class="num">2</span>Load the sprites onto the microSD</h2>
@@ -106,7 +106,7 @@
       <button id="autoa" data-region="alola" disabled>⬇️ Alola (~24 MB)</button>
     </div>
     <p class="note">Have your own <code>.bin</code> files? <label style="cursor:pointer;text-decoration:underline">pick them manually<input id="files" type="file" accept=".bin" multiple disabled hidden></label></p>
-    <p class="note">🎨 Want to make your own sprites? See <a href="https://github.com/crenberries428/TamaPoke#generate-and-load-the-sprites-yourself" target="_blank">how to generate &amp; load them</a> in the repo.</p>
+    <p class="note">🎨 Want to make your own sprites? See <a href="https://github.com/TMA-X-Official/PokeByte#original-pok%C3%A9mon-sprite-assets" target="_blank">how to generate &amp; load them</a> in the repo.</p>
     <div class="bar" id="bar"><div></div></div>
     <pre id="log"></pre>
   </div>
@@ -116,8 +116,8 @@
      all. Tap the creature to pet it; swipe to open the Pokédex (sideways), the
      stat card (up) or set the clock (down); the physical PWR button turns the
      screen off (short press) or everything off (long press).
-     More in the <a href="https://github.com/crenberries428/TamaPoke" target="_blank">repository</a>.</p>
-  <p class="note">TamaPoke was created by <b>Quique Tortosa</b> —
+     More in the <a href="https://github.com/TMA-X-Official/PokeByte" target="_blank">PokéByte repository</a>.</p>
+  <p class="note">PokéByte Advanced adapts <a href="https://github.com/crenberries428/TamaPoke" target="_blank">Cheng Ren&#39;s TamaPoke v3.14</a> (MIT). Original game by <b>Quique Tortosa</b> —
      <a href="https://github.com/socquique/TamaPoke" target="_blank">socquique/TamaPoke</a>.
      This is a fork that builds on his work, and on
      <a href="https://github.com/DylanPDao/TamaPoke" target="_blank">DylanPDao/TamaPoke</a>.</p>
@@ -227,7 +227,7 @@ document.getElementById('connect').onclick = async () => {
 //
 // Same origin is tried first anyway, so `python3 -m http.server` in web/ with the
 // paks sitting there works for local testing without touching this.
-const PAK_RELEASE = 'https://github.com/crenberries428/TamaPoke/releases/latest/download';
+const PAK_RELEASE = 'https://github.com/TMA-X-Official/PokeByte/releases/latest/download';
 
 function pakUrls(region) {
   return [`sprites-${region}.pak`, `${PAK_RELEASE}/sprites-${region}.pak`];

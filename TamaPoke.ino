@@ -1,4 +1,4 @@
-// TamaPoke - pixel art tamagotchi inspired by gen 1
+// PokeByte Advanced -- based on Cheng Ren's TamaPoke v3.14 (MIT); see LICENSE and CREDITS.
 // for Waveshare ESP32-S3-Touch-AMOLED-1.75
 //
 // Libraries (Library Manager or the Waveshare repo):
@@ -684,15 +684,10 @@ bool holdFired = false;
 #define SPLASH_MS 2000   // closes itself after this long
 // The wordmark bitmap, pre-rendered by tools/gen_logo.py (2 bpp index image),
 // centred on cy. Shared by the ABOUT page and the boot splash so they match.
+// Render PokéByte's device name directly, replacing the upstream bitmap.
+// Original MIT author credits remain in the splash footer and CREDITS.md.
 void drawLogo(int cy) {
-  const uint16_t pal[4] = {0, 0xFE40, 0x3A79, 0x10A8};   // clear, yellow, blue, navy
-  const int x0 = CX - LOGO_W / 2, y0 = cy - LOGO_H / 2;
-  for (int y = 0; y < LOGO_H; y++)
-    for (int x = 0; x < LOGO_W; x++) {
-      int i = y * LOGO_W + x;
-      uint8_t v = (LOGO_BITS[i >> 2] >> ((i & 3) * 2)) & 3;
-      if (v) gfx->fillRect(x0 + x, y0 + y, 1, 1, pal[v]);
-    }
+  uiText(UIF_BIG, CX, cy + 12, "PokeByte", UI_INK, 1);
 }
 
 void drawSplash() {
@@ -710,7 +705,7 @@ void setup() {
   // monitor is open on the host (the USB CDC TX buffer fills up
   // and nobody drains it) -> with timeout 0 the messages are dropped
   Serial.setTxTimeoutMs(0);
-  Serial.printf("TamaPoke fw v%s\n", FW_VERSION);
+  Serial.printf("PokeByte Advanced fw v%s\n", FW_VERSION);
   bootReport();   // why the last run ended, and what it was doing
   loadLang();  // saved language (ES by default)
   Wire.begin(IIC_SDA, IIC_SCL);
@@ -1142,7 +1137,7 @@ void handleSerial() {
     static uint8_t buf[2048];
     size_t n = saveExport(buf, sizeof(buf));
     if (!n) { Serial.println("EXPORT FAIL"); return; }
-    Serial.printf("# TamaPoke save, %u bytes. Paste this whole block back.\n",
+    Serial.printf("# PokeByte save, %u bytes. Paste this whole block back.\n",
                   (unsigned)n);
     for (size_t i = 0; i < n; i += 48) {
       Serial.print("IMPORT ");

@@ -1,4 +1,4 @@
-# TamaPoke web installer
+# PokéByte Advanced web installer (Cheng Ren's TamaPoke v3.14 fork)
 
 A one-click page that flashes the firmware and loads the sprites from the browser
 (Chrome/Edge), with no Arduino or drivers. It uses
@@ -44,7 +44,7 @@ cd web && python3 -m http.server 8000
 
 ## End-user flow
 
-1. **Install TamaPoke** → flashes the firmware (pick the USB port; tick "Erase
+1. **Install PokéByte** → flashes the firmware (pick the USB port; tick "Erase
    device" for a fresh board).
 2. **Connect board** + a region button → downloads that region's `.pak` and copies it to
    the microSD over USB (progress bar, ~8–10 min). Close the step-1 install tab

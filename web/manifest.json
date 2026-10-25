@@ -1,6 +1,6 @@
 {
-  "name": "TamaPoke",
-  "version": "3.14",
+  "name": "PokéByte Advanced",
+  "version": "3.14-pokebyte",
   "new_install_prompt_erase": true,
   "builds": [
     {

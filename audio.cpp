@@ -301,8 +301,8 @@ void audioBegin() {
   gOn = p.getBool("snd", true);
   // "vol2" is 0..100. Saves from before that only have "vol" (0..10), which
   // scales up rather than being reread as 0..100 percent.
-  if (p.isKey("vol2")) gVol = p.getUChar("vol2", 50);
-  else gVol = p.getUChar("vol", 7) * 10;
+  if (p.isKey("vol2")) gVol = p.getUChar("vol2", 20);
+  else gVol = p.getUChar("vol", 2) * 10;
   if (gVol > 100) gVol = 50;
   p.end();
 
