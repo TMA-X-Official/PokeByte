@@ -8,7 +8,7 @@
 - Phase 2 gentle original-scene ambience (balanced grass/pollen/fireflies); optional rain/snow; **no animated clouds**.
 - Original Pokémon sprites/action frames, temperament/Bond and all four approved one-shot surprises (wake, victory, wander, friendship).
 - Existing original care, food, sleep and two minigames. **Adventure and Battle experiments are intentionally excluded** per owner request.
-- AMOLED no longer automatically dims after inactivity; manual PWR-off remains. Sound effects use 50% original PCM sample amplitude (~−6 dB signal). High-contrast battery UI has a more compact **112px** plaque and clear percentage.
+- AMOLED no longer automatically dims after inactivity; manual PWR-off remains. **Latest owner-requested audio revision:** sound effects now use **20% of the original PCM sample amplitude** (1000 instead of 5000; approximately −14 dB relative to the original), reduced from the previous 50% build. This revision **requires a new firmware installation and has not yet been physically volume-tested by the owner**. High-contrast battery UI has a more compact **112px** plaque and clear percentage.
 - Intended one-click browser installation with no Python, Arduino IDE, manual ZIP download or microSD adapter, using HTTPS ESP Web Tools + Web Serial.
 - Integrated installer verifies and transfers only **missing** files into `/pokebyte` and `/mons`, after checking exact approved **12 BMP scenes and 303 original PMD sprite files**. Existing different files must never be overwritten. The 303-file first-install feature is freshly coded and **not yet physically validated**.
 
