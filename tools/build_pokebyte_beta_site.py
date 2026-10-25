@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 import shutil
 import struct
+import zipfile
+import zlib
 
 EXPECTED = [
     ("nvs", 0x01, 0x02, 0x009000, 0x005000),
@@ -87,6 +89,28 @@ def main() -> None:
     shutil.copytree(logo_dir, out/"assets")
     shutil.copyfile("web/pokebyte/index.html", out/"index.html")
     shutil.copyfile("web/pokebyte/beta/index.html", out/"beta"/"index.html")
+    shutil.copyfile("web/pokebyte/beta/background-sync.js", out/"beta"/"background-sync.js")
+    shutil.copyfile("web/pokebyte/beta/approved-backgrounds.json", out/"beta"/"approved-backgrounds.json")
+    # If the owner has uploaded the approved scene bundle to the repository,
+    # publish it automatically. Never publish CI-generated scenery fixtures.
+    approved_path=Path("web/pokebyte/approved-backgrounds.zip")
+    if approved_path.exists():
+        reference=json.loads(Path("web/pokebyte/beta/approved-backgrounds.json").read_text())
+        with zipfile.ZipFile(approved_path) as approved:
+            names=set(approved.namelist())
+            expected={"assets/"+e["name"] for e in reference["files"]}
+            actual={n for n in names if n.endswith(".bmp")}
+            if actual!=expected:
+                raise ValueError(f"Approved scenes ZIP must contain exactly 12 assets/: {actual ^ expected}")
+            for item in reference["files"]:
+                raw=approved.read("assets/"+item["name"])
+                if (len(raw)!=item["bytes"] or sha(raw)!=item["sha256"] or
+                    f"{zlib.crc32(raw):08x}"!=item["crc32"]):
+                    raise ValueError("Approved artwork mismatch: "+item["name"])
+        shutil.copyfile(approved_path,out/"beta"/"approved-backgrounds.zip")
+        print("PASS: included 12 verified original approved BMPs for automatic HTTPS installer download")
+    else:
+        print("INFO: approved art ZIP not on GitHub yet; site permits owner to select exact approved Phase 3 Windows ZIP")
     sizes={}
     for name, _ in PARTS:
         raw=original[name]
