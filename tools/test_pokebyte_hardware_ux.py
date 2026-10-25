@@ -39,7 +39,7 @@ assert 'SD_MMC.begin("/sdcard", true /* 1-bit SDMMC */, false' in sd
 assert "background-sync.js" in installer and "approvedZip" in installer
 assert "installScenes" in installer and "assetLog" in installer
 for marker in ("approvedSourceZipSHA256", "digest(bytes)", "crc32(bytes)",
-               "getDeviceCrc", "PBCRC ", "PBPUT ", "PBCAPS", "already correct",
+               "getDeviceCrc", "PBCRC ", "PBPUT ", "PBCAPS", "Already correct",
                "requestPort", "never"):
     if marker == "never":continue
     assert marker in sync,marker
