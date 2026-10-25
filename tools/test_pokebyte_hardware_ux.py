@@ -19,7 +19,7 @@ assert "dimStage = 0;" in bright and "screenOff ? 0" in bright
 assert "idle > " not in bright and "pet.sleeping ? 25" not in bright
 assert "lastPendingSaveFlush" in sketch and "pet.flushSave();" in sketch
 assert "const int16_t amp = 2500;" in audio
-assert "const int px = 164, py = 6" in sketch
+assert "const int px = 164, py = 13" in sketch
 assert "gfx->fillRoundRect(px, py, pw, ph" in sketch
 assert 'setSize(2);\n  setCur(px + 63' in sketch
 
