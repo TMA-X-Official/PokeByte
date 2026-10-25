@@ -96,6 +96,9 @@ def main() -> None:
     approved_path=Path("web/pokebyte/approved-backgrounds.zip")
     if approved_path.exists():
         reference=json.loads(Path("web/pokebyte/beta/approved-backgrounds.json").read_text())
+        bundle_digest=sha(approved_path.read_bytes())
+        if bundle_digest!=reference["approvedBundleZipSHA256"]:
+            raise ValueError("The hosted approved-backgrounds.zip is not the exact user-approved bundle. Refusing deployment.")
         with zipfile.ZipFile(approved_path) as approved:
             names=set(approved.namelist())
             expected={"assets/"+e["name"] for e in reference["files"]}
