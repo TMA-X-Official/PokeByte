@@ -168,9 +168,10 @@ static const int16_t STARTER_DEX[3] = { 1, 4, 7 };
 volatile bool gTouchIrq = false;
 void IRAM_ATTR touchIsr() { gTouchIrq = true; }
 uint32_t lastRender = 0;
-// proteccion del AMOLED: atenuado por inactividad
+// User-approved PokéByte display: no automatic inactivity dimming.
+// Manual PWR short press still blanks the screen on request.
 uint32_t lastInteract = 0;
-uint8_t dimStage = 0;        // 0 despierto, 1 atenuado (90s), 2 casi apagado (5min)
+uint8_t dimStage = 0;        // retained for compatibility; always 0 while on
 bool swallowGesture = false; // el toque que despierta no acciona nada
 uint32_t holdStart = 0;     // pulsacion larga sobre el bicho
 uint32_t confirmUntil = 0;  // dialogo "soltar?" activo hasta este millis
@@ -318,13 +319,14 @@ void loop() {
 
   updateBrightness(now);
 
-  // vuelca el autoguardado periodico SOLO con la pantalla atenuada/apagada o
-  // durmiendo: la escritura a NVS congela ~1s ambos cores (caché de flash off),
-  // y aqui no hay animacion que se corte ni dedo esperando respuesta. Con 90s
-  // de inactividad la pantalla ya atenua, asi que se vuelca enseguida; el uso
-  // activo persiste igual por los guardados de cada accion (comer/jugar/...).
-  if (pet.savePending() && (screenOff || dimStage >= 1 || pet.sleeping)) {
+  // Preserve periodic save reliability now that idle dimming is removed.
+  // Regular Pet actions still save as before; flush pending data at most once
+  // per minute while awake, or promptly when the screen is manually off.
+  static uint32_t lastPendingSaveFlush = 0;
+  if (pet.savePending() &&
+      (screenOff || pet.sleeping || now - lastPendingSaveFlush >= 60000u)) {
     pet.flushSave();
+    lastPendingSaveFlush = now;
   }
 
   // anota la hora real cada 30 s (se persiste en cada save del juego)
@@ -360,18 +362,14 @@ void loop() {
   }
 }
 
-// brillo segun sueno + inactividad (proteccion del AMOLED)
+// PokéByte: keep a steady readable brightness; no unattended dim after
+// 30/90/300 seconds, including when the virtual Pokémon is asleep.
+// Owners can still manually turn the AMOLED off with the physical PWR key.
+// Constant AMOLED brightness consumes more battery and can increase burn-in.
 void updateBrightness(uint32_t now) {
-  // los eventos visibles despiertan la pantalla solos
-  if (pet.evolving() || pet.ceremony || pet.eating() || pet.showHeart()) {
-    lastInteract = now;
-  }
-  uint32_t idle = now - lastInteract;
-  dimStage = (idle > 300000) ? 2 : (idle > 90000) ? 1 : 0;
-  uint8_t target = pet.sleeping ? 25 : (usbPresent() ? 180 : 145);
-  if (dimStage == 1) target = pet.sleeping ? 10 : 60;
-  else if (dimStage == 2) target = 8;
-  if (screenOff) target = 0;
+  (void)now;
+  dimStage = 0;
+  const uint8_t target = screenOff ? 0 : (usbPresent() ? 180 : 145);
   static uint8_t current = 255;
   if (target != current) {
     current = target;
@@ -2177,46 +2175,52 @@ void galleryTap(int16_t x, int16_t y) {
 }
 
 void drawBattery() {
-  int x = CX - 14, y = 12, w = 24, h = 11;
-  const int hardwarePct = batPercent();  // Real on Waveshare, ignored in PC mode.
+  const int hardwarePct = batPercent(); // Genuine AXP2101 battery reading.
 #ifdef POKEBYTE_PC
-  // The SDL emulator's stub returns a synthetic 100% charge.
-  // Never display that as a real battery measurement.
-  gfx->setTextColor(inkColor());
-  setSize(1);
-  setCur(CX - 6, y + 2);
+  // The PC stub reports a synthetic percentage, never display as a battery.
+  gfx->fillRoundRect(180, 6, 106, 32, 9, UI_WHITE);
+  gfx->setTextColor(UI_INK);
+  setSize(2);
+  setCur(CX - textW("PC", 2) / 2, 13);
   printT("PC");
   return;
 #else
-  if (hardwarePct < 0) return;  // No actual battery present on the hardware.
+  if (hardwarePct < 0) return; // No physical battery detected.
 #endif
-  int pc = hardwarePct;
-  // The Waveshare AXP2101 already provides a 0..100% battery measurement.
-  if (pc > 100) pc = 100;
+  int pct = hardwarePct;
+  if (pct > 100) pct = 100;
+  if (pct < 0) pct = 0;
   bool charging = batCharging();
-  uint16_t col = charging ? UI_BAR_OK
-                 : (pc >= 40) ? inkColor()
-                 : (pc >= 15) ? UI_BAR_WARN
-                              : UI_BAR_BAD;
-  gfx->drawRoundRect(x, y, w, h, 2, col);
-  gfx->fillRect(x + w, y + 3, 3, 5, col);  // borne
+
+  // OPAQUE cream plaque keeps both battery and numbers readable over every
+  // approved bright/day, night, or weather background.
+  const int px = 164, py = 6, pw = 145, ph = 36;
+  const uint16_t cream = C565(0xff, 0xfa, 0xec);
+  const uint16_t dark = C565(0x16, 0x34, 0x38);
+  const uint16_t fill = charging ? C565(0x22, 0xa8, 0x72) :
+                         pct <= 20 ? C565(0xc5, 0x4c, 0x32) :
+                                     C565(0x18, 0x7b, 0x6b);
+  gfx->fillRoundRect(px, py, pw, ph, 10, cream);
+  gfx->drawRoundRect(px, py, pw, ph, 10, dark);
+
+  const int bx = px + 12, by = py + 11, bw = 36, bh = 15;
+  gfx->drawRoundRect(bx, by, bw, bh, 3, dark);
+  gfx->fillRect(bx + bw, by + 4, 4, 7, dark);
   if (charging) {
-    // rayo de carga (zigzag) en vez de la barra de nivel
-    uint16_t bolt = C565(0xff, 0xd9, 0x4a);
-    int bx = x + w / 2;
-    gfx->fillTriangle(bx + 3, y + 1, bx - 4, y + 6, bx + 1, y + 6, bolt);
-    gfx->fillTriangle(bx - 1, y + 5, bx + 4, y + 5, bx - 3, y + 10, bolt);
+    gfx->fillTriangle(bx + 18, by + 1, bx + 11, by + 9,
+                      bx + 19, by + 9, fill);
+    gfx->fillTriangle(bx + 18, by + 6, bx + 24, by + 6,
+                      bx + 15, by + 14, fill);
   } else {
-    int fw = (w - 4) * pc / 100;
-    if (fw > 0) gfx->fillRect(x + 2, y + 2, fw, h - 4, col);
+    int inner = (bw - 6) * pct / 100;
+    if (inner > 0)gfx->fillRect(bx + 3, by + 3, inner, bh - 6, fill);
   }
-  // Battery text sits beside the existing icon; the bolt and bar are preserved.
-  char pct[6];
-  snprintf(pct, sizeof(pct), "%d%%", pc);
-  gfx->setTextColor(col);
-  setSize(1);
-  setCur(x + w + 9, y + 2);
-  printT(pct);
+  char text[8];
+  snprintf(text, sizeof(text), "%d%%", pct);
+  gfx->setTextColor(dark);
+  setSize(2);
+  setCur(px + 63, py + 11);
+  printT(text);
 }
 
 void drawHeader(const char *name, uint16_t nameColor, const char *msg) {
