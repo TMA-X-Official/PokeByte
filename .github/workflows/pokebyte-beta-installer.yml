@@ -30,6 +30,10 @@ jobs:
           arduino-cli core update-index
           arduino-cli core install esp32:esp32@3.3.10
           arduino-cli lib install "GFX Library for Arduino" SensorLib XPowersLib U8g2
+      - name: Verify screen, sound, battery and protected original-art browser transfer
+        run: |
+          python3 tools/test_pokebyte_hardware_ux.py
+          node --check web/pokebyte/beta/background-sync.js
       - name: Build SAME Waveshare target as firmware CI
         run: |
           mkdir -p "$RUNNER_TEMP/TamaPoke"
@@ -55,6 +59,9 @@ jobs:
           assert m["new_install_prompt_erase"] is True
           assert [p["offset"] for p in parts]==[0,32768,57344,65536]
           assert "TamaPoke.ino.merged.bin" not in str(list(d.rglob("*")))
+          assert (d/"background-sync.js").is_file()
+          assert (d/"approved-backgrounds.json").is_file()
+          assert len(json.loads((d/"approved-backgrounds.json").read_text())["files"])==12
           assert all((d/p["path"]).exists() for p in parts)
           assert (d/"index.html").exists()
           assert "disabled" in (d/"../index.html").resolve().read_text()
