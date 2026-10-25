@@ -2194,7 +2194,9 @@ void drawBattery() {
 
   // OPAQUE cream plaque keeps both battery and numbers readable over every
   // approved bright/day, night, or weather background.
-  const int px = 164, py = 13, pw = 145, ph = 36;
+  // Compact header (112 px vs previous 145 px) centered above the pet.
+  // Keeps opaque contrast backing and large, readable 100% text.
+  const int px = 177, py = 13, pw = 112, ph = 34;
   const uint16_t cream = C565(0xff, 0xfa, 0xec);
   const uint16_t dark = C565(0x16, 0x34, 0x38);
   const uint16_t fill = charging ? C565(0x22, 0xa8, 0x72) :
@@ -2203,14 +2205,14 @@ void drawBattery() {
   gfx->fillRoundRect(px, py, pw, ph, 10, cream);
   gfx->drawRoundRect(px, py, pw, ph, 10, dark);
 
-  const int bx = px + 12, by = py + 11, bw = 36, bh = 15;
+  const int bx = px + 9, by = py + 10, bw = 29, bh = 14;
   gfx->drawRoundRect(bx, by, bw, bh, 3, dark);
   gfx->fillRect(bx + bw, by + 4, 4, 7, dark);
   if (charging) {
-    gfx->fillTriangle(bx + 18, by + 1, bx + 11, by + 9,
-                      bx + 19, by + 9, fill);
-    gfx->fillTriangle(bx + 18, by + 6, bx + 24, by + 6,
-                      bx + 15, by + 14, fill);
+    gfx->fillTriangle(bx + 14, by + 1, bx + 9, by + 8,
+                      bx + 15, by + 8, fill);
+    gfx->fillTriangle(bx + 14, by + 6, bx + 20, by + 6,
+                      bx + 12, by + 13, fill);
   } else {
     int inner = (bw - 6) * pct / 100;
     if (inner > 0)gfx->fillRect(bx + 3, by + 3, inner, bh - 6, fill);
@@ -2219,7 +2221,7 @@ void drawBattery() {
   snprintf(text, sizeof(text), "%d%%", pct);
   gfx->setTextColor(dark);
   setSize(2);
-  setCur(px + 63, py + 11);
+  setCur(px + 46, py + 10);
   printT(text);
 }
 
