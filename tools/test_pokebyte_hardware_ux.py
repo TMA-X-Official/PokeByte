@@ -18,7 +18,7 @@ bright=sketch.split("void updateBrightness(uint32_t now) {",1)[1].split("\n}\n",
 assert "dimStage = 0;" in bright and "screenOff ? 0" in bright
 assert "idle > " not in bright and "pet.sleeping ? 25" not in bright
 assert "lastPendingSaveFlush" in sketch and "pet.flushSave();" in sketch
-assert "const int16_t amp = 2500;" in audio
+assert "const int16_t amp = 1000;" in audio
 assert "const int px = 177, py = 13, pw = 112, ph = 34;" in sketch
 assert "gfx->fillRoundRect(px, py, pw, ph" in sketch
 assert 'setSize(2);\n  setCur(px + 46' in sketch
@@ -61,5 +61,5 @@ assert '303 original' in installer
 assert "shutil.copyfile(\"web/pokebyte/beta/background-sync.js\"" in builder
 assert "approved-backgrounds.zip" in builder and "zipfile.ZipFile" in builder
 assert "sha(raw)" in builder and "zlib.crc32(raw)" in builder
-print("PASS: awake screen never auto-dims, 50%-amplitude SFX, high-contrast 2x battery, periodic saves")
+print("PASS: awake screen never auto-dims, 20%-amplitude SFX, high-contrast 2x battery, periodic saves")
 print("PASS: unified firmware-to-original-scene installation, strict art preflight, no separate background installer")
