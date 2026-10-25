@@ -1,6 +1,6 @@
 # PokéByte — Continuity / New-Conversation Handoff
 
-**Last project checkpoint:** 24 October 2026. **Canonical project:** [TMA-X-Official/PokeByte](https://github.com/TMA-X-Official/PokeByte).
+**Last project checkpoint:** 25 October 2026. **Canonical project:** [TMA-X-Official/PokeByte](https://github.com/TMA-X-Official/PokeByte).
 
 > **READ THIS FIRST IN ANY FUTURE CHAT.** This file documents the user-approved source of truth, known-good Windows deliverable and next milestone. It is a **project-state summary**, not a verbatim transcript. The user retains a separate conversation/archive ZIP; do not assume ChatGPT has access to chats in a different thread.
 
@@ -12,7 +12,15 @@
 | 1 — Remastered environments | **Completed, user-approved on Windows** | Five distinct day-part scenes and their matching minigame scenes |
 | 2 — Living environment | **Completed, user-approved on Windows** | Balanced pollen, grass movement, evening/night fireflies, manual rain/snow; **no animated overlay clouds** |
 | 3 — Personality | **Completed, user-approved on Windows 24 Oct 2026** | Pack 01 moods; Pack 02 temperament/Bond; Pack 03 four distinct one-shot surprises |
-| 4 — Waveshare release | **In progress — backup and embedded port preparation; NOT ready to flash** | Bring accepted Phases 1–3 to ESP32-S3-Touch-AMOLED-1.75 with exact approved art and no Adventure/Battle features |
+| 4 — Waveshare release | ✅ **Completed — user-approved on physical Waveshare, 25 Oct 2026** | Owner successfully installed PokéByte with the integrated HTTPS beta installer; genuine ESP32-S3 firmware, approved original artwork, ambient/personality features and UI refinements run on hardware. Public stable v1.0 testing is separate |
+
+### Phase 4 completion and public-release distinction (25 October 2026)
+
+- **User explicitly approved:** Label **Phase 4 — Waveshare release DONE** on GitHub. Phases 1, 2, 3 and 4 are all complete in the [ROADMAP](ROADMAP.md). The user successfully installed and tested PokéByte on an actual Waveshare ESP32-S3-Touch-AMOLED-1.75 and reported that it appears to work.
+- **Live owner-tested beta:** https://tma-x-official.github.io/PokeByte/beta/ with true native firmware and the exact original 12-background artwork bundle. No separate art ZIP/card reader required; device tested with preexisting authentic original Pokémon sprites on microSD. Owner requested auto-dimming off, 50%-lower audio waveform amplitude and shorter readable 112px battery percentage display.
+- **Release hardening outside numbered Phase 4:** 303 original PMD files are already tracked at `tools/sdcard/mons/`. More recent source changes extend the same browser installation to missing sprites on fresh cards but require their own green deployment and *blank-card* hardware test. Save-preserving upgrades and interrupted-transfer/recovery also remain before any **public stable v1.0** tag.
+- **Branch and preservation:** [Phase 4 draft PR #20](https://github.com/TMA-X-Official/PokeByte/pull/20) remains **unmerged**; `main` source still preserves upstream firmware. Updating roadmap/docs is authorized, but **do not merge, retag stable v1.0, or overwrite the original installer** without separately reviewed user approval. Owner's waiver of backup on their personal device must not become a universal public upgrade policy.
+- **Reference:** [Phase 4 acceptance record](PHASE4-WAVESHARE-RELEASE.md), [Release readiness checklist](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase4-waveshare-release-prep/pokebyte/PHASE4-V1-RELEASE-READINESS.md).
 
 ### Non-negotiable preservation
 
@@ -101,6 +109,8 @@
 - **Tradeoff:** No automatic AMOLED dimming can increase battery consumption and static-image burn-in. Manual PWR off still works; a configurable burn-in safeguard can be considered later with user approval.
 
 ## Practical recovery in a new ChatGPT conversation
+
+**Current status supersedes the historical steps below:** Phase 4 is user-approved **COMPLETE** on the working physical Waveshare. Do not restart the ESP32 port as if nothing had been flashed; preserve the working beta. Public stable v1.0 upgrade/fresh-card QA remains optional follow-up work.
 
 **Numbering update:** This project formerly labeled Waveshare deployment as Phase 5 because a Phase 4 Gameplay Expansion had been proposed. Both experimental gameplay implementations were rejected, and the user explicitly requested continuous public numbering: **Phases 1–3 approved, Phase 4 = Waveshare Release.** Legacy archive filenames with `Phase5` are preserved for checksum provenance only.
 
