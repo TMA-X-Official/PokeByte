@@ -347,8 +347,17 @@ bool sdSerialCommand(const String &line) {
     Serial.setTimeout(5000);
     while(remaining){
       size_t want=remaining>sizeof(chunk)?sizeof(chunk):remaining;
-      size_t got=Serial.readBytes(chunk,want);
-      if(!got||f.write(chunk,got)!=got)break;
+      // Web Serial streams may arrive in several short packets. The host
+      // sends one 2048-byte logical frame and waits for exactly one '#'.
+      // Read that entire frame before acknowledging, or the host/device
+      // can become desynchronized and stall with a half-written BMP.
+      size_t got=0;
+      uint32_t lastData=millis();
+      while(got<want && millis()-lastData<5000u){
+        size_t n=Serial.readBytes(chunk+got,want-got);
+        if(n){got+=n;lastData=millis();}
+      }
+      if(got!=want||f.write(chunk,got)!=got)break;
       crc=pbCrc32(crc,chunk,got);
       remaining-=got;
       Serial.println("#");
