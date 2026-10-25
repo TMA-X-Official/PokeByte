@@ -114,6 +114,41 @@ def main() -> None:
         print("PASS: included 12 verified original approved BMPs for automatic HTTPS installer download")
     else:
         print("INFO: approved art ZIP not on GitHub yet; site permits owner to select exact approved Phase 3 Windows ZIP")
+    # Original PMD sprite files are already tracked in this repository.
+    # Host them as part of the SAME web installer, retaining exact bytes.
+    # Do not replace them with newly generated sprites or CI fixtures.
+    pmddir=Path("tools/sdcard/mons")
+    pmdbins=sorted(pmddir.glob("*.bin"))
+    expected_names=(
+        {f"p{i:03d}.bin" for i in range(1,152)} |
+        {f"ps{i:03d}.bin" for i in range(1,152)} | {"thumbs.bin"}
+    )
+    if {p.name for p in pmdbins}!=expected_names or len(pmdbins)!=303:
+        raise ValueError("Missing or unexpected original Pokémon PMD sprite files")
+    approved_fingerprint="45624145dab29c46c045c44fea7625884e25507af9d6cac352c317345286294c"
+    group=hashlib.sha256()
+    (out/"beta"/"mons").mkdir()
+    sprite_files=[]
+    for pmdbin in pmdbins:
+        raw=pmdbin.read_bytes()
+        name=pmdbin.name
+        if not raw or len(raw)>1024*1024:
+            raise ValueError(f"Sprite too large/empty for non-overwrite PBPUT: {name}")
+        individual_hash=hashlib.sha256(raw).digest()
+        group.update(("tools/sdcard/mons/"+name).encode()+b"\\0"+individual_hash)
+        (out/"beta"/"mons"/name).write_bytes(raw)
+        sprite_files.append({
+          "name":name,"path":"/mons/"+name,"bytes":len(raw),
+          "sha256":individual_hash.hex(),"crc32":f"{zlib.crc32(raw):08x}"
+        })
+    if group.hexdigest()!=approved_fingerprint:
+        raise ValueError("Original PMD sprite set fingerprint mismatch: STOP packaging")
+    (out/"beta"/"original-sprites.json").write_text(json.dumps({
+        "version":1,"count":303,"combinedSha256":approved_fingerprint,
+        "note":"Byte-identical original PMD SpriteCollab files, non-commercial attribution in CREDITS.md",
+        "files":sprite_files
+    },indent=2)+"\\n",encoding="utf-8")
+    print("PASS: 303 exact-original PMD sprite files, SHA-256 verified for fresh SD installation")
     sizes={}
     for name, _ in PARTS:
         raw=original[name]
