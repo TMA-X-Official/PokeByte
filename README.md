@@ -2,7 +2,7 @@
 
 # PokéByte 🎮
 
-**Your pocket Pokémon companion — classic TamaPoke gameplay, with approved enhancements coming to Waveshare hardware.**
+**Your pocket Pokémon companion — classic TamaPoke gameplay, with all four PokéByte project phases approved and hardware-tested.**
 
 [![Windows PC build](https://img.shields.io/badge/Windows-PC%20playable-3578E5?logo=windows&logoColor=white)](https://github.com/TMA-X-Official/PokeByte/actions/runs/40030905560)
 [![Firmware CI](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml/badge.svg)](https://github.com/TMA-X-Official/PokeByte/actions/workflows/ci.yml)
@@ -13,7 +13,7 @@
 
 ## Development status
 
-**✅ Phases 1, 2 and 3 completed and user-approved on Windows PC (24 October 2026).** Five original approved morning/day/afternoon/evening/night home scenes and matching minigame backgrounds remain intact. Balanced pollen, gently moving grass, fireflies, optional rain and snow, and the approved cloud-free presentation are preserved. The physical Waveshare firmware remains unchanged; hardware deployment belongs to Phase 4. See the [full PokéByte roadmap](ROADMAP.md).
+**✅ Phases 1, 2, 3 and 4 completed by user approval (25 October 2026).** Phases 1–3 established the accepted Windows graphics, ambience and personality systems. **Phase 4 — Waveshare release** brought them to the real Waveshare ESP32-S3-Touch-AMOLED-1.75 using an HTTPS PokéByte beta installer; the owner installed and tested the device successfully and explicitly marked Phase 4 **DONE**. The exact approved daypart/minigame artwork and original PMD sprites are preserved. See the [project roadmap](ROADMAP.md) and [owner acceptance milestone](PHASE4-WAVESHARE-RELEASE.md). **A separately tracked public v1.0 stable release is not yet published**; broader fresh-device, save-preserving upgrade and recovery tests continue.
 
 **✅ Phase 3 complete — all three Personality Packs approved (Windows, 24 October 2026).** Pack 01 improves mood reactions and Hungry/Sleepy status; Pack 02 adds stable Playful/Calm/Curious/Shy temperaments and Bond-dependent behavior; Pack 03 adds four rare, genuinely distinct one-shot surprises (wake-up stretch, ball-game victory, out-and-back wander, high-Bond greeting). The final user-tested Windows ZIP retains all 12 approved background BMP files and 303 original Pokémon sprite BIN files *byte-for-byte*; the GitHub Actions compile/test artifact uses **synthetic background fixtures** and must not be distributed as the approved visual release. The approved source is on [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments), tracked in [draft PR #16](https://github.com/TMA-X-Official/PokeByte/pull/16), with [successful Windows CI](https://github.com/TMA-X-Official/PokeByte/actions/runs/40123935906). **Gameplay Expansion was cancelled; the Waveshare release is now Phase 4.**
 
@@ -21,7 +21,7 @@
 
 **For conversation continuity:** Use [PROJECT-CONTINUITY.md](PROJECT-CONTINUITY.md), [ROADMAP.md](ROADMAP.md), [Phase 4 Waveshare Release](PHASE4-WAVESHARE-RELEASE.md) and [APPROVED-ASSETS.md](APPROVED-ASSETS.md). The user retains private copies of the exact approved Phase 3 ZIP and original background backup; source-code-only CI images are not acceptable replacements for the 12 approved scenes.
 
-**Current milestone: Phase 4 — Waveshare Hardware Release (in preparation, not ready to flash).** Gameplay Expansion was cancelled: **no Forest Trail/Adventure and no Pokémon battle system**. Rejected [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) and [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) are closed without merging. The active hardware development branch is [`pokebyte-phase4-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-waveshare-release-prep), derived from the user-approved Phase 3 source. The prior Phase 5-named branch/PR are historical. **Approved Windows-only graphics, ambience and personality still need ESP32 porting**; the original firmware and saves are untouched. See [Phase 4 Waveshare Release](PHASE4-WAVESHARE-RELEASE.md) and the [PokéByte installer preview](https://github.com/TMA-X-Official/PokeByte/blob/pokebyte-phase4-waveshare-release-prep/web/pokebyte/index.html).
+**Phase 4 — Waveshare Release: ✅ COMPLETED (owner acceptance, 25 October 2026).** The native PokéByte ESP32-S3 firmware, approved backgrounds, original Pokémon animations, ambience, personality packs, dimming/audio/battery refinements and integrated HTTPS installer are delivered and working in the owner's hardware test. Gameplay Expansion was cancelled; **no Forest Trail/Adventure or Battle**. Rejected [PR #17](https://github.com/TMA-X-Official/PokeByte/pull/17) and [PR #18](https://github.com/TMA-X-Official/PokeByte/pull/18) remain closed without merge. Source development/release-hardening is tracked separately in [Phase 4 draft PR #20](https://github.com/TMA-X-Official/PokeByte/pull/20), with the [actual PokéByte beta installer](https://tma-x-official.github.io/PokeByte/beta/). **Phase completion does not authorize an unreviewed merge, stable v1.0 tag, or unsafe public upgrade.**
 
 ## Welcome to PokéByte
 
@@ -42,9 +42,9 @@ The original TamaPoke v1.17 gameplay is available as a **PokéByte Windows deskt
 | [`pokebyte-deluxe-dev`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-deluxe-dev) | Experimental improvements, separate from the working game |
 | [`original-tamapoke-reference`](https://github.com/TMA-X-Official/PokeByte/tree/original-tamapoke-reference) | Preserved original fork snapshot before PokéByte rebranding |
 | [`pokebyte-phase3-pack03-distinct-moments`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase3-pack03-distinct-moments) | **User-approved Phase 3 Windows source**, with final distinct surprises; keeps original `main` firmware untouched |
-| [`pokebyte-phase4-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-waveshare-release-prep) | **Active Phase 4 — Waveshare** firmware preparation and installer preview; excludes cancelled gameplay, original `main` firmware untouched |
+| [`pokebyte-phase4-waveshare-release-prep`](https://github.com/TMA-X-Official/PokeByte/tree/pokebyte-phase4-waveshare-release-prep) | **✅ Phase 4 delivered and owner-approved on Waveshare**; working native firmware, verified backgrounds, HTTPS installer; public stable v1.0 hardening remains on the unmerged draft branch |
 
-**Important:** The [upstream web installer](https://socquique.github.io/TamaPoke/web/) installs **original TamaPoke firmware**, not a PokéByte upgrade. We have **not** released modified PokéByte firmware for the physical board. Do not erase a device or overwrite a Pokémon save to try the PC build.
+**Important:** The [upstream TamaPoke installer](https://socquique.github.io/TamaPoke/web/) still installs **original TamaPoke**, not PokéByte. The separately hosted [PokéByte beta installer](https://tma-x-official.github.io/PokeByte/beta/) installs the owner's physically tested PokéByte firmware and approved backgrounds; it remains **experimental** while public stable installation, recovery and save-preserving upgrades undergo final QA. Do not flash a device with data you cannot afford to lose without validating the backup/upgrade path.
 
 ### The classic game
 
