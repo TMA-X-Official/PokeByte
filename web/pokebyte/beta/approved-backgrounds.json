@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "approvedSourceZipSHA256": "2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0",
+  "note": "Only user-approved Phase 3 exact BMP files. Never use synthetic CI-generated backgrounds.",
+  "files": [
+    {
+      "name": "meadow_morning.bmp",
+      "path": "/pokebyte/meadow_morning.bmp",
+      "bytes": 652454,
+      "sha256": "bc25a03460134402323a0f5c6c7a192e7b2e3877a41a21acad4b5595345e0284",
+      "crc32": "8416f26d"
+    },
+    {
+      "name": "meadow_day.bmp",
+      "path": "/pokebyte/meadow_day.bmp",
+      "bytes": 652454,
+      "sha256": "bb1572806daae0aa81bf1740fd02757e93c69ae5ebbe4907c7f8081a2e286a86",
+      "crc32": "8bd4737f"
+    },
+    {
+      "name": "meadow_afternoon.bmp",
+      "path": "/pokebyte/meadow_afternoon.bmp",
+      "bytes": 652454,
+      "sha256": "48099a165d99ac8ba8c438ea8a91f67d35cab433a664d1c4b22dd6ec0cad2cbe",
+      "crc32": "ae3973fb"
+    },
+    {
+      "name": "meadow_evening.bmp",
+      "path": "/pokebyte/meadow_evening.bmp",
+      "bytes": 652454,
+      "sha256": "6ca3bed83cae6e0e70f6c3a3a1c19adf856072bf81e44c6b7152aa4dcad8af38",
+      "crc32": "5e9eec1b"
+    },
+    {
+      "name": "meadow_night.bmp",
+      "path": "/pokebyte/meadow_night.bmp",
+      "bytes": 652454,
+      "sha256": "68b1252dc00385ab1b73d1d8f0561b68b7124fbd09ee622477815c010452bf87",
+      "crc32": "ae38373b"
+    },
+    {
+      "name": "minigame_morning.bmp",
+      "path": "/pokebyte/minigame_morning.bmp",
+      "bytes": 652454,
+      "sha256": "e88f74a4b0cddb9b4cda9485ae052b8a725c66caf42febb203c56fcbef230e59",
+      "crc32": "c3ef1747"
+    },
+    {
+      "name": "minigame_day.bmp",
+      "path": "/pokebyte/minigame_day.bmp",
+      "bytes": 652454,
+      "sha256": "2e56113de8c75606328a0e55c72015e0a71d057464092f6ad3bb6314489810cd",
+      "crc32": "2b4a34a0"
+    },
+    {
+      "name": "minigame_afternoon.bmp",
+      "path": "/pokebyte/minigame_afternoon.bmp",
+      "bytes": 652454,
+      "sha256": "3a0abf7e23c6e3352c7e920b7cf0ba5debeef85e6b693680fde1aa5cd026ed01",
+      "crc32": "1295529f"
+    },
+    {
+      "name": "minigame_evening.bmp",
+      "path": "/pokebyte/minigame_evening.bmp",
+      "bytes": 652454,
+      "sha256": "5da099398e59896354d32b08cade4933d4fdee2e4d2cc63535fc736e30c95225",
+      "crc32": "1817ea5e"
+    },
+    {
+      "name": "minigame_night.bmp",
+      "path": "/pokebyte/minigame_night.bmp",
+      "bytes": 652454,
+      "sha256": "6e9c8bb6769363f07b62fb7c2d706d63ac9f75cb39f0e9a13808f2252301020d",
+      "crc32": "d527026b"
+    },
+    {
+      "name": "minigame.bmp",
+      "path": "/pokebyte/minigame.bmp",
+      "bytes": 652454,
+      "sha256": "5da099398e59896354d32b08cade4933d4fdee2e4d2cc63535fc736e30c95225",
+      "crc32": "1817ea5e"
+    },
+    {
+      "name": "sunset-forest.bmp",
+      "path": "/pokebyte/sunset-forest.bmp",
+      "bytes": 652454,
+      "sha256": "6ca3bed83cae6e0e70f6c3a3a1c19adf856072bf81e44c6b7152aa4dcad8af38",
+      "crc32": "5e9eec1b"
+    }
+  ]
+}
