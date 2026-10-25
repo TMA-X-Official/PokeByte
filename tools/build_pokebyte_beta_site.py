@@ -135,7 +135,7 @@ def main() -> None:
         if not raw or len(raw)>1024*1024:
             raise ValueError(f"Sprite too large/empty for non-overwrite PBPUT: {name}")
         individual_hash=hashlib.sha256(raw).digest()
-        group.update(("tools/sdcard/mons/"+name).encode()+b"\\0"+individual_hash)
+        group.update(("tools/sdcard/mons/"+name).encode()+b"\0"+individual_hash)
         (out/"beta"/"mons"/name).write_bytes(raw)
         sprite_files.append({
           "name":name,"path":"/mons/"+name,"bytes":len(raw),
@@ -147,7 +147,7 @@ def main() -> None:
         "version":1,"count":303,"combinedSha256":approved_fingerprint,
         "note":"Byte-identical original PMD SpriteCollab files, non-commercial attribution in CREDITS.md",
         "files":sprite_files
-    },indent=2)+"\\n",encoding="utf-8")
+    },indent=2)+"\n",encoding="utf-8")
     print("PASS: 303 exact-original PMD sprite files, SHA-256 verified for fresh SD installation")
     sizes={}
     for name, _ in PARTS:
