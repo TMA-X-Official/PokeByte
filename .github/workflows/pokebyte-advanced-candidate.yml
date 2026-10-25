@@ -2,7 +2,7 @@ name: PokéByte Advanced v3.14 replacement candidate
 
 on:
   push:
-    branches: [pokebyte-crenberries-v3.14-import, pokebyte-advanced-main-replacement]
+    branches: [pokebyte-crenberries-v3.14-import, pokebyte-advanced-main-replacement, main]
   workflow_dispatch:
 
 permissions:
@@ -52,7 +52,7 @@ jobs:
             "$RUNNER_TEMP/TamaPoke"
       - name: Assemble candidate website from this newly compiled firmware
         run: |
-          mkdir -p "$RUNNER_TEMP/PokeByte-website/advanced"
+          mkdir -p "$RUNNER_TEMP/PokeByte-website/advanced" "$RUNNER_TEMP/PokeByte-website/beta"
           cp -R web/. "$RUNNER_TEMP/PokeByte-website/advanced/"
           B="$RUNNER_TEMP/PokeByte-fw"
           S="$RUNNER_TEMP/PokeByte-website/advanced"
@@ -78,6 +78,15 @@ jobs:
           PY
           (cd "$RUNNER_TEMP/PokeByte-website/advanced" && sha256sum firmware/bootloader.bin firmware/partitions.bin firmware/boot_app0.bin firmware/app.bin > POKEBYTE-SHA256SUMS.txt)
           echo "EXPERIMENTAL CANDIDATE: verify on the actual Waveshare before publishing as stable." > "$RUNNER_TEMP/PokeByte-website/advanced/CANDIDATE-NOT-STABLE.txt"
+          # Old installer links remain functional: they now lead to the
+          # user-requested PokéByte Advanced replacement, without auto-flashing.
+          cat > "$RUNNER_TEMP/PokeByte-website/index.html" <<'HTML'
+          <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PokéByte Advanced</title><meta http-equiv="refresh" content="0;url=./advanced/"><body><p>PokéByte Advanced · <a href="./advanced/">Open the USB installer</a></p></body></html>
+          HTML
+          cat > "$RUNNER_TEMP/PokeByte-website/beta/index.html" <<'HTML'
+          <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PokéByte Advanced</title><meta http-equiv="refresh" content="0;url=../advanced/"><body><p>The experimental installer has moved to <a href="../advanced/">PokéByte Advanced</a>.</p></body></html>
+          HTML
+          touch "$RUNNER_TEMP/PokeByte-website/.nojekyll"
       - name: Upload freshly built website and firmware (not live)
         uses: actions/upload-artifact@v4
         with:
@@ -86,3 +95,27 @@ jobs:
           compression-level: 5
           retention-days: 14
           if-no-files-found: error
+
+  deploy-on-main:
+    name: Publish newly compiled PokéByte installer after reviewed main replacement
+    needs: candidate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: PokeByte-Advanced-v3.14-REPLACEMENT-CANDIDATE
+          path: ./site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+      - id: deployment
+        uses: actions/deploy-pages@v4
