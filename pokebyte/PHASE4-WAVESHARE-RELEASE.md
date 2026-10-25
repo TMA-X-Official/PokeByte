@@ -1,6 +1,12 @@
 # PokéByte Phase 4 — Waveshare ESP32-S3-Touch-AMOLED-1.75 Release
 
-**Status: Native ESP32-S3 Phase 1–3 source port implemented and compiled; physical hardware untested, NOT READY TO FLASH.** See the up-to-date [native port implementation and outstanding gates](PHASE4-NATIVE-PORT-STATUS.md). Previous unported-source descriptions below are historical pre-port notes.
+**✅ Phase 4 — WAVESHARE RELEASE COMPLETED, user-approved 25 October 2026.** Owner installed PokéByte successfully on the physical round Waveshare ESP32-S3 1.75 device and explicitly approved closing the numbered hardware milestone. The current [PokéByte beta installer](https://tma-x-official.github.io/PokeByte/beta/) runs the genuine embedded port with the approved artwork. **This status does not designate general public stable v1.0 or authorize merging PR #20.** Additional upgrade/blank-SD/recovery QA remains in [separate v1.0 release readiness](PHASE4-V1-RELEASE-READINESS.md). Previous notes below describe historical pre-install requirements, not the current completion status.
+
+## Final user acceptance (25 October 2026)
+
+- **Phase 4 is DONE** by explicit owner decision after testing actual PokéByte on hardware; update default-branch [ROADMAP.md](https://github.com/TMA-X-Official/PokeByte/blob/main/ROADMAP.md) and [README](https://github.com/TMA-X-Official/PokeByte/blob/main/README.md) accordingly.
+- Implementation includes original approved 12 backgrounds, genuine 303 PMD assets (unmodified source files), ambient effects and four one-shot personalities, and one guided web installation of firmware and scenery; compact high-contrast 112px battery indicator, halved SFX amplitude and disabled inactivity dimming.
+- Further installer code for missing-only delivery of all 303 original sprites to *blank* microSD remains release-candidate work requiring CI and hardware QA; **do not infer the owner tested a blank card**. Public stable versioning, save-preserving upgrades and recovery remain separate release gates. Preserve the original upstream firmware and user files; keep PR #20 draft/unmerged until explicit code merge approval.
 
 ## Controlling user decisions (24 October 2026)
 
