@@ -175,8 +175,11 @@ async function sync(){
     $("installScenes").disabled=!(state.files&&state.files.size===12);
   }
 }
-window.addEventListener("DOMContentLoaded",()=>{
+function initBackgroundInstaller(){
+  // Work whether script loaded before or after DOMContentLoaded.
   const file=$("approvedZip");
+  if(!file || !$("assetStatus"))return;
+  $("assetStatus").textContent="Preparing approved PokéByte backgrounds…";
   file.addEventListener("change",async()=>{
     try{
       if(!file.files?.length)return;
@@ -188,14 +191,28 @@ window.addEventListener("DOMContentLoaded",()=>{
     try{await sync();}catch(e){log("Stopped safely: "+e.message);$("assetStatus").textContent="Stopped: "+e.message;}
   });
   $("detectHostedScenes").addEventListener("click",async()=>{
-    $("assetStatus").textContent="Checking for hosted approved-background bundle…";
-    try{await tryHosted();}catch(err){
-      $("assetStatus").textContent="Hosted pack not available. Use the approved ZIP you already have on your PC.";
-      log(err.message);
+    $("assetStatus").textContent="Checking the official hosted artwork…";
+    try{
+      await tryHosted();
+      const picker=$("approvedZipWrapper");
+      if(picker)picker.hidden=true;
+      const note=$("assetSourceNote");
+      if(note)note.textContent="Approved scenery package loaded automatically—no ZIP selection required.";
+    }catch(err){
+      $("assetStatus").textContent="Approved scenes have not been uploaded to the website yet. Once the repository owner adds them, this button will work automatically.";
+      log("No hosted pack: "+err.message);
     }
   });
-  tryHosted().catch(()=>{
+  tryHosted().then(()=>{
+    const picker=$("approvedZipWrapper");
+    if(picker)picker.hidden=true;
+    const note=$("assetSourceNote");
+    if(note)note.textContent="All 12 original backgrounds downloaded and verified automatically. Connect the Waveshare and click Install backgrounds via USB.";
+  }).catch(err=>{
+    log("Official scenery package not published yet: "+err.message);
     $("assetStatus").textContent=
-      "Choose your approved Phase 3 Windows ZIP below. The website will check it and copy the backgrounds through USB—no card reader.";
+      "Approved backgrounds are not hosted yet. The repository owner must upload approved-backgrounds.zip once. In the meantime, the approved ZIP on your PC can be used.";
   });
-});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initBackgroundInstaller,{once:true});
+else initBackgroundInstaller();
