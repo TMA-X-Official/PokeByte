@@ -2194,7 +2194,7 @@ void drawBattery() {
 
   // OPAQUE cream plaque keeps both battery and numbers readable over every
   // approved bright/day, night, or weather background.
-  const int px = 164, py = 6, pw = 145, ph = 36;
+  const int px = 164, py = 13, pw = 145, ph = 36;
   const uint16_t cream = C565(0xff, 0xfa, 0xec);
   const uint16_t dark = C565(0x16, 0x34, 0x38);
   const uint16_t fill = charging ? C565(0x22, 0xa8, 0x72) :
