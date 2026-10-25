@@ -13,6 +13,12 @@ on:
       - '.github/workflows/pokebyte-beta-installer.yml'
   workflow_dispatch:
 
+# Prevent an older in-flight build from publishing stale firmware after a
+# newer revision. Only the newest beta build may deploy to GitHub Pages.
+concurrency:
+  group: pokebyte-beta-pages-release
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
