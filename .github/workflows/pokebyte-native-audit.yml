@@ -25,6 +25,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate user-approved hardware UX and integrated background uploader
+        run: |
+          python3 tools/test_pokebyte_hardware_ux.py
+          node --check web/pokebyte/beta/background-sync.js
       - name: Audit embedded scene paths, verified art, no SD autoformat
         run: python3 tools/test_waveshare_port.py
       - name: Pack 01 approved mood and gesture planner
