@@ -26,47 +26,46 @@ a{color:#8dece6}small{font-size:.83rem}
 <script defer src="./background-sync.js"></script>
 </head>
 <body><main>
-<header><img src="../assets/pokebyte-logo.webp" alt="PokéByte" /><h1>Early hardware test</h1><p>Experimental USB installation for the Waveshare ESP32-S3-Touch-AMOLED-1.75</p></header>
+<header><img src="../assets/pokebyte-logo.webp" alt="PokéByte" /><h1>Install PokéByte</h1><p>Experimental USB installation for the Waveshare ESP32-S3-Touch-AMOLED-1.75</p></header>
 <section class="panel warning"><h2>Experimental — not the finished PokéByte release</h2>
 <p><strong>You may lose the TamaPoke firmware and Pokémon save on internal flash.</strong> You have chosen to skip the backup. Do not use this on a device whose existing data you want to keep.</p>
-<p><strong>The firmware-flashing step will not format, erase or upload to your microSD; the separate background-installation section below can write new, checksum-verified scene files only after you select that operation.</strong> Your existing Pokémon sprites remain on the card. Firmware will fall back to original scenery if the 12 approved backgrounds are not yet on microSD. No separate desktop software or SD reader is required for the firmware test or for using the website to transfer approved backgrounds.</p>
+<p><strong>One installation includes firmware and all 12 approved PokéByte backgrounds.</strong> After flashing, this same page reconnects over USB and transfers only missing, checksum-verified original scenes to the microSD. Existing Pokémon sprites are never replaced or formatted. Browser security may require another USB permission prompt. No separate ZIP download or card reader is required for players.</p>
 <p><strong>Wrong board = risk.</strong> Only the round Waveshare ESP32-S3-Touch-AMOLED-1.75 (466×466, 16 MB flash, 8 MB PSRAM). The browser detects the ESP32-S3 chip, not the exact screen/controller model.</p></section>
 <section class="panel"><h2>Before testing</h2>
-<ol><li class="step">Leave your microSD with original Pokémon sprite files inserted.</li><li class="step">Connect the Waveshare to the PC with a USB-C data cable.</li><li class="step">Open this HTTPS page in desktop Chrome or Edge.</li><li class="step">Check the option below and click <b>Test-install PokéByte</b>; approve your browser's USB port prompt.</li><li class="step">If ESP Web Tools asks about erasing memory, <b>choose not to erase all flash</b>. The manifest writes only bootloader, partition metadata, OTA boot selection, and firmware; it does not target the internal NVS save sector or the SD card.</li></ol>
-<p><strong>Limitations:</strong> background BMPs are not installed by the firmware-flashing step; use the new optional background transfer section below. The first test is to check the boot, display, touch, care, existing sprite loading, and native temperament/ambience. If the device doesn't start correctly, disconnect it and report what you see; the program stays in source control for debugging.</p>
-<label><input id="consent" type="checkbox"> <span>I understand this is untested beta firmware, I am willing to lose my existing internal TamaPoke data, and my board is exactly the Waveshare ESP32-S3-Touch-AMOLED-1.75.</span></label>
+<ol><li class="step">Leave your microSD with original Pokémon sprite files inserted.</li><li class="step">Connect the Waveshare to the PC with a USB-C data cable.</li><li class="step">Open this HTTPS page in desktop Chrome or Edge.</li><li class="step">Check the option below and click <b>Install PokéByte</b>. The website verifies and prepares all 12 original backgrounds, then installs firmware and completes SD artwork setup as one guided installation.</li><li class="step">If ESP Web Tools asks about erasing memory, <b>choose not to erase all flash</b>. The manifest writes only bootloader, partition metadata, OTA boot selection, and firmware; it does not target the internal NVS save sector or the SD card.</li></ol>
+<p><strong>Experimental release limitations:</strong> the device could fail to boot and may lose its old internal TamaPoke save. This is one guided setup, but the browser may require another USB-port permission after flashing. If a file transfer fails, it stops instead of overwriting microSD data.</p>
+<label><input id="consent" type="checkbox"> <span>I understand this is untested beta firmware, I may lose my original internal TamaPoke data, I approve installing only missing original PokéByte backgrounds on my microSD, and my board is exactly the Waveshare ESP32-S3-Touch-AMOLED-1.75.</span></label>
 <esp-web-install-button manifest="manifest.json">
-<button class="btn" id="install" type="button" slot="activate" disabled>Test-install PokéByte (experimental)</button>
+<button class="btn" id="install" type="button" slot="activate" disabled>Install PokéByte (firmware + backgrounds)</button>
 <span slot="unsupported">This browser does not support Web Serial. Use desktop Chrome or Edge.</span>
 <span slot="not-allowed">Open this page over HTTPS in Chrome or Edge.</span>
 </esp-web-install-button>
-<aside id="status">Checking the experimental firmware package…</aside></section>
-<section class="panel" aria-labelledby="scenes-heading">
-<h2 id="scenes-heading">Install your approved PokéByte backgrounds</h2>
-<p>Install <strong>12 original approved BMP backgrounds</strong> directly to the microSD through this website, without a card reader. The installer checks each checksum and <strong>never overwrites a different existing file</strong>.</p>
-<p><strong>Step 1:</strong> This website automatically retrieves the official <strong>12 original approved scenery backgrounds</strong> from its own hosted files and verifies all checksums. <strong>No firmware ZIP, background download, extraction, or microSD reader is needed for players.</strong></p>
-<p id="assetSourceNote">The approved artwork archive must be published to GitHub once by the project owner before fully automatic transfer can work.</p>
-<p><button type="button" id="detectHostedScenes" class="btn" style="background:#204e5a;color:#fff;border:1px solid #8ce1db">Check hosted backgrounds</button></p>
-<div id="approvedZipWrapper">
-<p><small>Owner-only fallback until the official art bundle is uploaded: select the approved Phase 3 ZIP or approved-backgrounds.zip already on your PC.</small></p>
-<label for="approvedZip" style="display:block;font-weight:650">Choose original approved ZIP (temporary fallback)</label>
-<input type="file" id="approvedZip" accept=".zip,application/zip" style="width:100%;padding:12px;border:1px solid var(--edge);border-radius:9px;background:#0a1c2c;color:#fff">
-</div>
-<p style="margin-top:16px"><strong>Step 2:</strong> After flashing PokéByte, leave it connected by USB-C and click <strong>Finish installing backgrounds</strong>. Select the Waveshare COM port in the browser's permission prompt. The page transfers only missing approved scenes; original Pokémon sprites remain untouched.</p>
-<button id="installScenes" type="button" class="btn" disabled>Finish setup: Install backgrounds via USB</button>
-<p id="assetStatus" role="status" aria-live="polite" style="margin-top:12px">Checking for the hosted approved-background pack…</p>
-<pre id="assetLog" aria-label="Background upload progress" style="max-height:180px;overflow:auto;white-space:pre-wrap;color:#b9eff3;background:#091c2c;padding:13px;border-radius:9px;font-size:.76rem"></pre>
-<small>Keep the USB cable connected while sending files. This does not format the card, erase the saved Pokémon, or overwrite existing files. If an existing scene differs, the installer stops safely.</small>
-</section>
+<aside id="status">Checking the experimental firmware and original scenery package…</aside>
+<div class="panel" id="setupProgress" aria-label="PokéByte unified installation progress" style="margin:18px 0 0;padding:17px;background:#0d2433">
+<h2 style="font-size:1.08rem">Your installation progress</h2>
+<p>1. Verify PokéByte firmware and 12 approved original scenes.<br>
+2. Install firmware through your USB connection.<br>
+3. Reconnect and automatically verify/install missing backgrounds.<br>
+4. Finish setup and restart PokéByte.</p>
+<p id="setupStatus" role="status" aria-live="polite">Verifying the original 12-scene package…</p>
+<button class="btn" type="button" id="resumeSetup" hidden style="background:#204e5a;color:white">Continue PokéByte installation</button>
+<pre id="setupLog" aria-label="Combined firmware and scene installation log" style="max-height:160px;overflow:auto;white-space:pre-wrap;color:#b8eff3;background:#091c2c;padding:11px;border-radius:8px;font-size:.78rem"></pre>
+<small>This is one setup process, not a second installer. Browsers may require you to select COM6 again after firmware flashing; that permission prompt cannot be bypassed.</small>
+</div></section>
+
 <p><small>PokéByte source: <a href="https://github.com/TMA-X-Official/PokeByte/pull/20">development PR #20</a>. This page is provided for hands-on prototyping only and will not be used as the general-purpose stable installer.</small></p>
 </main>
 <script>
 const consent=document.getElementById("consent");
 const install=document.getElementById("install");
 const status=document.getElementById("status");
-let available=false;
-const sync=()=>{install.disabled=!(available&&consent.checked)};
+let available=false,approvedArtworkReady=false;
+const sync=()=>{install.disabled=!(available&&approvedArtworkReady&&consent.checked)};
 consent.addEventListener("change",sync);
+window.addEventListener("pokebyte-scenes-ready",event=>{
+ approvedArtworkReady=!!event.detail.ready;sync();
+ if(!approvedArtworkReady)status.textContent="Installation locked: approved scenery package is not hosted or cannot be verified.";
+});
 fetch("manifest.json",{cache:"no-store"}).then(async r=>{
  if(!r.ok)throw Error("Missing firmware manifest");
  const data=await r.json();
@@ -75,6 +74,6 @@ fetch("manifest.json",{cache:"no-store"}).then(async r=>{
     !Array.isArray(data.builds[0].parts)||data.builds[0].parts.length!==4)
     throw Error("Unexpected firmware package");
  available=true;sync();
- status.textContent="Experimental firmware package found. To proceed, acknowledge the test risk above.";
+ status.textContent="Firmware verified. Checking the original hosted scenery and owner confirmation.";
 }).catch(e=>{available=false;sync();status.textContent="Not ready: "+e.message});
 </script></body></html>
