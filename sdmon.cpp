@@ -142,12 +142,12 @@ const uint8_t *SdThumbs::get(int16_t dex) const {
 
 bool sdBegin() {
   SD_MMC.setPins(SDMMC_CLK, SDMMC_CMD, SDMMC_DATA);
-  sdReady = SD_MMC.begin("/sdcard", true /* modo 1-bit */, true /* formatea si no monta */);
+  sdReady = SD_MMC.begin("/sdcard", true /* 1-bit SDMMC */, false /* NEVER auto-format user SD */);
   if (sdReady) {
     Serial.printf("SD montada: %llu MB\n", SD_MMC.cardSize() / (1024ULL * 1024ULL));
     SD_MMC.mkdir("/mons");
   } else {
-    Serial.println("SD no detectada (el juego usa los sprites de flash)");
+    Serial.println("SD no disponible; NO se formatea. Revisar FAT/archivos y preservar backup.");
   }
   return sdReady;
 }
@@ -231,7 +231,151 @@ void SdMon::unload() {
 // Usar con tools/send_sd.py
 // ---------------------------------------------------------------------------
 
+// PokéByte browser-asset protocol v1 (future Web Serial transport).
+// PBCRC is READ-ONLY; PBPUT never replaces a pre-existing original file.
+// This intentionally does NOT reuse the legacy destructive PUT command.
+static uint32_t pbCrc32(uint32_t crc,const uint8_t* b,size_t n){
+ for(size_t i=0;i<n;++i){
+  crc^=b[i];
+  for(uint8_t j=0;j<8;++j)
+   crc=(crc>>1)^(0xedb88320U & (uint32_t(0U)-(crc&1U)));
+ }
+ return crc;
+}
+static uint32_t pbArtCrc(const String& name){
+ const char* files[]={
+  "/pokebyte/meadow_morning.bmp","/pokebyte/meadow_day.bmp",
+  "/pokebyte/meadow_afternoon.bmp","/pokebyte/meadow_evening.bmp",
+  "/pokebyte/meadow_night.bmp","/pokebyte/minigame_morning.bmp",
+  "/pokebyte/minigame_day.bmp","/pokebyte/minigame_afternoon.bmp",
+  "/pokebyte/minigame_evening.bmp","/pokebyte/minigame_night.bmp",
+  "/pokebyte/minigame.bmp","/pokebyte/sunset-forest.bmp"
+ };
+ static const uint32_t digests[]={
+  0x8416f26dU,0x8bd4737fU,0xae3973fbU,0x5e9eec1bU,
+  0xae38373bU,0xc3ef1747U,0x2b4a34a0U,0x1295529fU,
+  0x1817ea5eU,0xd527026bU,0x1817ea5eU,0x5e9eec1bU
+ };
+ for(int i=0;i<12;++i)if(name==files[i])return digests[i];
+ return 0;
+}
+static bool pbPermittedPath(const String& path){
+ if(path.indexOf("..")>=0 || path.indexOf('\\')>=0 ||
+    path.indexOf("//")>=0)return false;
+ if(path.startsWith("/pokebyte/"))return pbArtCrc(path)!=0;
+ if(!path.startsWith("/mons/")||!path.endsWith(".bin"))return false;
+ String name=path.substring(6);
+ if(name=="thumbs.bin")return true;
+ // p001.bin ... p151.bin; ps001.bin ... ps151.bin.
+ int prefix=name.startsWith("ps")?2:1;
+ if(name[0]!='p'||name.length()!=(prefix==2?9:8))return false;
+ for(int i=prefix;i<prefix+3;++i)
+  if(name[i]<'0'||name[i]>'9')return false;
+ int n=name.substring(prefix,prefix+3).toInt();
+ return n>=1 && n<=151;
+}
+static uint32_t pbFileCRC(const String& path,uint32_t* size){
+ if(size)*size=0;
+ File f=SD_MMC.open(path,FILE_READ);
+ if(!f)return 0;
+ uint32_t len=f.size(),crc=0xffffffffU;
+ uint8_t buf[2048];
+ while(f.available()){
+  int n=f.read(buf,sizeof(buf));
+  if(n<=0){f.close();return 0;}
+  crc=pbCrc32(crc,buf,size_t(n));
+ }
+ f.close();
+ if(size)*size=len;
+ return ~crc;
+}
 bool sdSerialCommand(const String &line) {
+  if(line == "PBCAPS"){
+    Serial.println("POKEBYTE-ASSETS/1 CRC32 READ-ONLY-NONDESTRUCTIVE");
+    Serial.println("PATHS /mons/*.bin /pokebyte/*.bmp");
+    Serial.println("COMMANDS PBCRC PBPUT PBCAPS");
+    Serial.println("DONE");return true;
+  }
+  if(line.startsWith("PBCRC ")){
+    String path=line.substring(6);
+    if(!sdReady||!pbPermittedPath(path)){
+      Serial.println("ERR PATH");return true;
+    }
+    if(!SD_MMC.exists(path)){Serial.println("MISSING");return true;}
+    uint32_t size=0,digest=pbFileCRC(path,&size);
+    if(size==0){Serial.println("ERR READ");return true;}
+    Serial.printf("CRC %u %08lX\n",(unsigned)size,(unsigned long)digest);
+    Serial.println("DONE");
+    return true;
+  }
+  if(line.startsWith("PBPUT ")){
+    // Non-destructive new-file transfer. Verify before rename; NEVER replace
+    // existing files; the client must first use PBCRC and compare its manifest.
+    int first=line.indexOf(' ',6);
+    int last=line.lastIndexOf(' ');
+    if(first<7||last<=first||!sdReady){
+      Serial.println("ERR ARGS");return true;
+    }
+    String path=line.substring(6,first);
+    uint32_t size=(uint32_t)line.substring(first+1,last).toInt();
+    String crcText=line.substring(last+1);
+    if(!pbPermittedPath(path)||size==0||size>1024*1024||
+       crcText.length()!=8){
+      Serial.println("ERR PATH");return true;
+    }
+    for(size_t k=0;k<8;++k)
+      if(!isxdigit((unsigned char)crcText[k])){
+        Serial.println("ERR CRC");return true;
+      }
+    uint32_t claimed=strtoul(crcText.c_str(),nullptr,16);
+    uint32_t approved=pbArtCrc(path);
+    if(approved && (size!=652454 || claimed!=approved)){
+      Serial.println("ERR ART");return true; // no synthetic CI scenes allowed
+    }
+    if(SD_MMC.exists(path)){Serial.println("EXISTS");return true;}
+    if(path.startsWith("/pokebyte/")&&!SD_MMC.exists("/pokebyte"))
+      if(!SD_MMC.mkdir("/pokebyte")){
+        Serial.println("ERR SD");return true;
+      }
+    String temp=path+".pbpart";
+    if(SD_MMC.exists(temp))SD_MMC.remove(temp); // only our scratch file
+    File f=SD_MMC.open(temp,FILE_WRITE);
+    if(!f){Serial.println("ERR SD");return true;}
+    Serial.println("OK");
+    static uint8_t chunk[2048];
+    uint32_t remaining=size,crc=0xffffffffU;
+    Serial.setTimeout(5000);
+    while(remaining){
+      size_t want=remaining>sizeof(chunk)?sizeof(chunk):remaining;
+      // Web Serial streams may arrive in several short packets. The host
+      // sends one 2048-byte logical frame and waits for exactly one '#'.
+      // Read that entire frame before acknowledging, or the host/device
+      // can become desynchronized and stall with a half-written BMP.
+      size_t got=0;
+      uint32_t lastData=millis();
+      while(got<want && millis()-lastData<5000u){
+        size_t n=Serial.readBytes(chunk+got,want-got);
+        if(n){got+=n;lastData=millis();}
+      }
+      if(got!=want||f.write(chunk,got)!=got)break;
+      crc=pbCrc32(crc,chunk,got);
+      remaining-=got;
+      Serial.println("#");
+    }
+    f.close();
+    Serial.setTimeout(1000);
+    if(remaining||(~crc)!=claimed){
+      SD_MMC.remove(temp);
+      Serial.println("ERR INCOMPLETE");return true;
+    }
+    if(!SD_MMC.rename(temp,path)){
+      SD_MMC.remove(temp);
+      Serial.println("ERR COMMIT");return true;
+    }
+    if(path.startsWith("/mons/"))sdDirty=true;
+    Serial.println("DONE");return true;
+  }
+
   if (line.startsWith("PUT ")) {
     int sp = line.lastIndexOf(' ');
     String path = line.substring(4, sp);

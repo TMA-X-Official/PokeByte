@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1723">
+<title>PokéByte • Private development hardware test</title>
+<style>
+:root{color-scheme:dark;--bg:#081521;--surface:#112b38;--edge:#3a7182;--text:#f7f4e9;--muted:#c0d3d7;--accent:#61d6d4;--warn:#ffcb78}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#17475b,#081521 75%);font-family:system-ui,"Segoe UI",Arial,sans-serif;color:var(--text);line-height:1.55}
+main{max-width:790px;margin:auto;padding:32px 18px 70px}header{text-align:center;margin:0 auto 28px}header img{max-width:min(540px,100%);height:auto;margin:0 auto}h1{font-size:clamp(1.9rem,5vw,3rem);letter-spacing:-.04em;margin:0 0 8px}h2{font-size:1.2rem;margin:0 0 12px}p{margin:0 0 14px;color:var(--muted)}
+.panel{border:1px solid var(--edge);background:#132b3c;border-radius:17px;margin:18px 0;padding:23px;box-shadow:0 8px 28px #0003}
+.warning{border:2px solid #e6ae59;background:#3c3025}.warning strong{color:#ffdd98}
+code{background:#091521;padding:2px 6px;border-radius:4px;color:#b4f9ea}
+ul{color:var(--muted);padding-left:22px}.step{margin:6px 0}
+input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#53dfc7}
+label{display:flex;align-items:start;gap:13px;padding:14px 0;font-weight:600}
+.btn{display:inline-block;border:1px solid #4da8ac;border-radius:12px;padding:15px 29px;min-width:260px;text-align:center;font:700 1.04rem system-ui;background:#54cbb7;color:#092332;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+esp-web-install-button{display:block;padding:9px 0 0}
+aside{font-size:.84rem;color:var(--muted)}
+a{color:#8dece6}small{font-size:.83rem}
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+<script defer src="./background-sync.js"></script>
+</head>
+<body><main>
+<header><img src="../assets/pokebyte-logo.webp" alt="PokéByte" /><h1>Install PokéByte</h1><p>Experimental USB installation for the Waveshare ESP32-S3-Touch-AMOLED-1.75</p></header>
+<section class="panel warning"><h2>Experimental — not the finished PokéByte release</h2>
+<p><strong>You may lose the TamaPoke firmware and Pokémon save on internal flash.</strong> You have chosen to skip the backup. Do not use this on a device whose existing data you want to keep.</p>
+<p><strong>One installation includes firmware, all 12 approved backgrounds, and all 303 original Pokémon sprite/thumbnail files.</strong> After flashing, this same page reconnects over USB, checks the microSD and sends only missing, checksum-verified original files. Your existing Pokémon sprites are <strong>never overwritten or formatted</strong>. Browser security may require another USB permission prompt. No ZIP download or SD adapter is required.</p>
+<p><strong>Wrong board = risk.</strong> Only the round Waveshare ESP32-S3-Touch-AMOLED-1.75 (466×466, 16 MB flash, 8 MB PSRAM). The browser detects the ESP32-S3 chip, not the exact screen/controller model.</p></section>
+<section class="panel"><h2>Before testing</h2>
+<ol><li class="step">Leave your microSD with original Pokémon sprite files inserted.</li><li class="step">Connect the Waveshare to the PC with a USB-C data cable.</li><li class="step">Open this HTTPS page in desktop Chrome or Edge.</li><li class="step">Check the option below and click <b>Install PokéByte</b>. The website verifies the 12 approved scenes plus the manifest of 303 original Pokémon files, flashes firmware, then completes SD artwork and sprite setup in the same guided installation.</li><li class="step">If ESP Web Tools asks about erasing memory, <b>choose not to erase all flash</b>. The manifest writes only bootloader, partition metadata, OTA boot selection, and firmware; it does not target the internal NVS save sector or the SD card.</li></ol>
+<p><strong>Experimental release limitations:</strong> the device could fail to boot and may lose its old internal TamaPoke save. This is one guided setup, but the browser may require another USB-port permission after flashing. If a file transfer fails, it stops instead of overwriting microSD data.</p>
+<label><input id="consent" type="checkbox"> <span>I understand this is untested beta firmware, I may lose old internal TamaPoke data, I approve installing only missing approved PokéByte backgrounds and original Pokémon files to microSD, and my board is exactly the Waveshare ESP32-S3-Touch-AMOLED-1.75.</span></label>
+<esp-web-install-button manifest="manifest.json">
+<button class="btn" id="install" type="button" slot="activate" disabled>Install PokéByte (firmware + all assets)</button>
+<span slot="unsupported">This browser does not support Web Serial. Use desktop Chrome or Edge.</span>
+<span slot="not-allowed">Open this page over HTTPS in Chrome or Edge.</span>
+</esp-web-install-button>
+<aside id="status">Checking the experimental firmware and original scenery package…</aside>
+<div class="panel" id="setupProgress" aria-label="PokéByte unified installation progress" style="margin:18px 0 0;padding:17px;background:#0d2433">
+<h2 style="font-size:1.08rem">Your installation progress</h2>
+<p>1. Verify firmware, 12 approved scenes and the 303 original Pokémon-file manifest.<br>
+2. Flash PokéByte through USB.<br>
+3. Reconnect and transfer only missing scenery and original sprites.<br>
+4. Verify everything and restart PokéByte.</p>
+<p><small>Fresh/empty microSD cards may take considerably longer to set up because the original Pokémon files total approximately 42 MB. Existing approved files are skipped and not re-uploaded.</small></p>
+<p id="setupStatus" role="status" aria-live="polite">Verifying original scenes and Pokémon asset metadata…</p>
+<button class="btn" type="button" id="resumeSetup" hidden style="background:#204e5a;color:white">Continue PokéByte installation</button>
+<pre id="setupLog" aria-label="Combined firmware and scene installation log" style="max-height:160px;overflow:auto;white-space:pre-wrap;color:#b8eff3;background:#091c2c;padding:11px;border-radius:8px;font-size:.78rem"></pre>
+<small>This is one setup process, not a second installer. Browsers may require you to select COM6 again after firmware flashing; that permission prompt cannot be bypassed.</small>
+</div></section>
+
+<p><small>Unofficial, non-commercial Pokémon fan project. Original sprite animation art: PMD SpriteCollab (CC BY-NC 4.0); characters and names belong to their respective rights holders. <a href="https://github.com/TMA-X-Official/PokeByte/blob/main/CREDITS.md">Credits</a>. PokéByte source: <a href="https://github.com/TMA-X-Official/PokeByte/pull/20">development PR #20</a>. Experimental beta, not a supported stable release.</small></p>
+</main>
+<script>
+const consent=document.getElementById("consent");
+const install=document.getElementById("install");
+const status=document.getElementById("status");
+let available=false,approvedArtworkReady=false;
+const sync=()=>{install.disabled=!(available&&approvedArtworkReady&&consent.checked)};
+consent.addEventListener("change",sync);
+window.addEventListener("pokebyte-scenes-ready",event=>{
+ approvedArtworkReady=!!event.detail.ready;sync();
+ if(!approvedArtworkReady)status.textContent="Installation locked: approved scenery package is not hosted or cannot be verified.";
+});
+fetch("manifest.json",{cache:"no-store"}).then(async r=>{
+ if(!r.ok)throw Error("Missing firmware manifest");
+ const data=await r.json();
+ if(data.name!=="PokéByte experimental hardware test" ||
+    data.builds?.[0]?.chipFamily!=="ESP32-S3"||
+    !Array.isArray(data.builds[0].parts)||data.builds[0].parts.length!==4)
+    throw Error("Unexpected firmware package");
+ available=true;sync();
+ status.textContent="Firmware verified. Checking the original hosted scenery and owner confirmation.";
+}).catch(e=>{available=false;sync();status.textContent="Not ready: "+e.message});
+</script></body></html>

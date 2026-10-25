@@ -22,15 +22,18 @@
 #include "rtcbat.h"
 #include "i18n.h"
 #include "audio.h"
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 #include "pokebyte/personality_pack01.h"
 #include "pokebyte/personality_pack02.h"
 #include "pokebyte/personality_pack03.h"
 #endif
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+#include "pokebyte/embedded_scene.h"
+#endif
 
 // Version del firmware. Subir este numero en cada release (y manifest.json para
 // el instalador web). Se muestra en la pantalla de ajustes y por serie al arrancar.
-#define FW_VERSION "1.17"
+#define FW_VERSION "PB4-dev"  // development hardware port, never publish as a release
 
 Arduino_DataBus *bus = new Arduino_ESP32QSPI(
   LCD_CS, LCD_SCLK, LCD_SDIO0, LCD_SDIO1, LCD_SDIO2, LCD_SDIO3);
@@ -61,7 +64,7 @@ struct {
   uint32_t until = 0;   // fin del estado actual
   float x = 233, targetX = 233;
 } beh;
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 // Each rare surprise is a bounded sequence of genuine original PMD frames.
 bool pbSurpriseRunning = false;
 uint8_t pbSurpriseEvent = PB_SURPRISE_NONE;
@@ -165,9 +168,10 @@ static const int16_t STARTER_DEX[3] = { 1, 4, 7 };
 volatile bool gTouchIrq = false;
 void IRAM_ATTR touchIsr() { gTouchIrq = true; }
 uint32_t lastRender = 0;
-// proteccion del AMOLED: atenuado por inactividad
+// User-approved PokéByte display: no automatic inactivity dimming.
+// Manual PWR short press still blanks the screen on request.
 uint32_t lastInteract = 0;
-uint8_t dimStage = 0;        // 0 despierto, 1 atenuado (90s), 2 casi apagado (5min)
+uint8_t dimStage = 0;        // retained for compatibility; always 0 while on
 bool swallowGesture = false; // el toque que despierta no acciona nada
 uint32_t holdStart = 0;     // pulsacion larga sobre el bicho
 uint32_t confirmUntil = 0;  // dialogo "soltar?" activo hasta este millis
@@ -184,7 +188,7 @@ void setup() {
   // monitor serie abierto en el host (el bufer TX del USB CDC se llena
   // y nadie lo vacia) -> con timeout 0 los mensajes se descartan
   Serial.setTxTimeoutMs(0);
-  Serial.printf("TamaPoke fw v%s\n", FW_VERSION);
+  Serial.printf("PokeByte ESP32-S3 firmware port %s (DEVELOPMENT)\n", FW_VERSION);
   loadLang();  // idioma guardado (ES por defecto)
   Wire.begin(IIC_SDA, IIC_SCL);
   // CST9217 (tactil), AXP2101 (PMU) y PCF85063 (RTC) comparten este bus I2C.
@@ -265,7 +269,7 @@ void ensureMon() {
   beh.x = beh.targetX = 233;
   beh.mode = 0;
   beh.until = 0;
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   pbSurpriseRunning = false;
   pbSurpriseEvent = PB_SURPRISE_NONE;
   pbSurpriseStage = 0;
@@ -315,13 +319,14 @@ void loop() {
 
   updateBrightness(now);
 
-  // vuelca el autoguardado periodico SOLO con la pantalla atenuada/apagada o
-  // durmiendo: la escritura a NVS congela ~1s ambos cores (caché de flash off),
-  // y aqui no hay animacion que se corte ni dedo esperando respuesta. Con 90s
-  // de inactividad la pantalla ya atenua, asi que se vuelca enseguida; el uso
-  // activo persiste igual por los guardados de cada accion (comer/jugar/...).
-  if (pet.savePending() && (screenOff || dimStage >= 1 || pet.sleeping)) {
+  // Preserve periodic save reliability now that idle dimming is removed.
+  // Regular Pet actions still save as before; flush pending data at most once
+  // per minute while awake, or promptly when the screen is manually off.
+  static uint32_t lastPendingSaveFlush = 0;
+  if (pet.savePending() &&
+      (screenOff || pet.sleeping || now - lastPendingSaveFlush >= 60000u)) {
     pet.flushSave();
+    lastPendingSaveFlush = now;
   }
 
   // anota la hora real cada 30 s (se persiste en cada save del juego)
@@ -357,18 +362,14 @@ void loop() {
   }
 }
 
-// brillo segun sueno + inactividad (proteccion del AMOLED)
+// PokéByte: keep a steady readable brightness; no unattended dim after
+// 30/90/300 seconds, including when the virtual Pokémon is asleep.
+// Owners can still manually turn the AMOLED off with the physical PWR key.
+// Constant AMOLED brightness consumes more battery and can increase burn-in.
 void updateBrightness(uint32_t now) {
-  // los eventos visibles despiertan la pantalla solos
-  if (pet.evolving() || pet.ceremony || pet.eating() || pet.showHeart()) {
-    lastInteract = now;
-  }
-  uint32_t idle = now - lastInteract;
-  dimStage = (idle > 300000) ? 2 : (idle > 90000) ? 1 : 0;
-  uint8_t target = pet.sleeping ? 25 : (usbPresent() ? 180 : 145);
-  if (dimStage == 1) target = pet.sleeping ? 10 : 60;
-  else if (dimStage == 2) target = 8;
-  if (screenOff) target = 0;
+  (void)now;
+  dimStage = 0;
+  const uint8_t target = screenOff ? 0 : (usbPresent() ? 180 : 145);
   static uint8_t current = 255;
   if (target != current) {
     current = target;
@@ -384,6 +385,49 @@ void handleSerial() {
   line.trim();
   if (line.length() == 0) return;
   if (sdSerialCommand(line)) return;
+
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+  // Read-only status and deliberate owner-selected presentation options.
+  // Never change the original pet save or SD file contents.
+  if(line == "PBSTATUS"){
+    Serial.printf("PokeByte embedded port | scene=%s | PSRAM free=%u | SD=%d\n",
+      pokebyte_embedded::status(),(unsigned)ESP.getFreePsram(),sdReady?1:0);
+    Serial.println("DONE");return;
+  }
+  // RAM-only scene preview for checking all five day-parts on the round panel.
+  if(line.startsWith("PBMODE ")){
+    String mode=line.substring(7);
+    Serial.println(pokebyte_embedded::setPreviewMode(mode.c_str())?"DONE":"ERR MODE");
+    return;
+  }
+  // Owner-only PMD demonstration. Does not alter Bond, stats, RTC or saves.
+  // Makes it possible to check all rare 4 surprises on the physical device.
+  if(line.startsWith("PBDEMO ")){
+    String demo=line.substring(7);
+    bool valid=demo=="wake"||demo=="victory"||demo=="wander"||
+               demo=="friendship"||demo=="off";
+    if(!valid||pet.isEgg()||pet.sleeping||pet.ceremony||gameOpen||sackOpen){
+      Serial.println("ERR DEMO");return;
+    }
+    pbSurpriseRunning=false;
+    pbSurpriseEvent=PB_SURPRISE_NONE;
+    pbSurpriseStage=0;
+    pbSurpriseFollowup=255;
+    beh.mode=0;
+    beh.act=PMD_IDLE;
+    beh.until=millis()-1;
+    pokebyteSurpriseSetDemo(demo.c_str());
+    Serial.println("DONE");return;
+  }
+  if(line == "PBWEATHER clear"||line == "PBWEATHER rain"||line == "PBWEATHER snow"){
+    pokebyte_embedded::setWeather(line.endsWith("rain")?1:line.endsWith("snow")?2:0);
+    Serial.println("DONE");return;
+  }
+  if(line == "PBAMBIENT on"||line == "PBAMBIENT off"){
+    pokebyte_embedded::setAmbient(line.endsWith("on"));
+    Serial.println("DONE");return;
+  }
+#endif
 
   if (line == "HATCH") {
     pet.eggTap(); pet.eggTap(); pet.eggTap();
@@ -722,7 +766,7 @@ void onTap(int16_t x, int16_t y) {
   if (inPetZone(x, y)) {
     Serial.println("PET");
     pet.caress();
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
     // Extremely occasional high-Bond surprise; the real heart/reward is intact.
     if (pokebytePersonalityEnabled() && !pet.sleeping && pet.bond >= 70
         && random(100) < 12)
@@ -781,6 +825,10 @@ void drawScene(uint8_t biome, uint32_t now, bool night) {
   // Desktop-only optional scenery. The Waveshare firmware keeps its original renderer.
   extern bool pokebyteDrawSceneOverride(Arduino_Canvas *canvas);
   if (pokebyteDrawSceneOverride(gfx)) return;
+#elif defined(ARDUINO)
+  // The approved SD BMP background is cached in PSRAM; all UI is original.
+  // If SD/art is missing, retain original TamaPoke background safely.
+  if(pokebyte_embedded::draw(gfx,false,sceneHour()))return;
 #endif
   int h = sceneHour();
   uint16_t top, bot;
@@ -1243,7 +1291,7 @@ void stepGame() {
     if (++gameMisses >= 3) {
       gameNewHi = (gameScore > pet.gameHi);
       pet.playResult(gameScore);  // actualiza el record y da felicidad
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
       // Queue a flourish AFTER returning to home; do not touch ball physics,
       // score, reward, sound or save. No reward if the user simply abandons.
       if(pokebytePersonalityEnabled())
@@ -1369,6 +1417,8 @@ void drawGameScene() {
   // This hook affects background drawing only, never ball physics or scoring.
   extern bool pokebyteDrawMinigameSceneOverride(Arduino_Canvas *canvas);
   if (pokebyteDrawMinigameSceneOverride(gfx)) return;
+#elif defined(ARDUINO)
+  if(pokebyte_embedded::draw(gfx,true,sceneHour()))return;
 #endif
   int hh = sceneHour();
   bool night = hh < 6 || hh >= 20;
@@ -1589,6 +1639,23 @@ void renderClock() {
   setCur(34 + (96 - textW(sl, 2)) / 2, LANG_PILL_Y + 8);
   printT(sl);
 
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+  // Two unobtrusive controls in the ALREADY EXISTING time/settings screen.
+  // No new gestures, no changes to original care or game saves.
+  const char* wx = pokebyte_embedded::weather==1?"RAIN":
+                   pokebyte_embedded::weather==2?"SNOW":"CLEAR";
+  const char* fx = pokebyte_embedded::ambientOn?"FX ON":"FX OFF";
+  gfx->fillRoundRect(137, LANG_PILL_Y, 90, LANG_PILL_H, 8,
+                     pokebyte_embedded::ambientOn?UI_BAR_OK:UI_WHITE);
+  gfx->drawRoundRect(137, LANG_PILL_Y, 90, LANG_PILL_H, 8, UI_INK);
+  gfx->setTextColor(pokebyte_embedded::ambientOn?UI_BG_DAY:UI_INK);
+  setSize(2);setCur(137+(90-textW(fx,2))/2,LANG_PILL_Y+8);printT(fx);
+  gfx->fillRoundRect(234,LANG_PILL_Y,96,LANG_PILL_H,8,UI_WHITE);
+  gfx->drawRoundRect(234,LANG_PILL_Y,96,LANG_PILL_H,8,UI_INK);
+  gfx->setTextColor(UI_INK);
+  setSize(2);setCur(234+(96-textW(wx,2))/2,LANG_PILL_Y+8);printT(wx);
+#endif
+
   // selector de idioma: una pildora que cicla los 6 idiomas al tocar
   gfx->fillRoundRect(LANG_PILL_X, LANG_PILL_Y, LANG_PILL_W, LANG_PILL_H, 8, UI_WHITE);
   gfx->drawRoundRect(LANG_PILL_X, LANG_PILL_Y, LANG_PILL_W, LANG_PILL_H, 8, UI_INK);
@@ -1612,7 +1679,7 @@ void renderClock() {
 
   // version del firmware (discreta, abajo del todo)
   char ver[20];
-  snprintf(ver, sizeof(ver), "TamaPoke v%s", FW_VERSION);
+  snprintf(ver, sizeof(ver), "PokeByte %s", FW_VERSION);
   setSize(1);
   setCur(centerX(ver, 1), 436);
   printT(ver);
@@ -1633,6 +1700,16 @@ void clockTap(int16_t x, int16_t y) {
       if (audioEnabled()) sfxPlay(SFX_TAP);    // confirma al encender
       return;
     }
+#if defined(ARDUINO) && !defined(POKEBYTE_PC)
+    if (x >= 137 && x < 227) { // FX ON/OFF, kept separate from Pet save
+      pokebyte_embedded::setAmbient(!pokebyte_embedded::ambientOn);
+      return;
+    }
+    if (x >= 234 && x < 330) { // clear -> rain -> snow -> clear
+      pokebyte_embedded::setWeather((pokebyte_embedded::weather+1)%3);
+      return;
+    }
+#endif
     if (x >= LANG_PILL_X && x < LANG_PILL_X + LANG_PILL_W) {  // cicla idioma
       setLang((Lang)((gLang + 1) % LANG_COUNT));
       applyLangFont();  // la fuente cambia con el idioma
@@ -1737,7 +1814,7 @@ void renderCardProfile() {
   setCur(sx + 24, sy + 2);
   printT(rl);
 
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
   // In temporary previews, SHOW the preview Bond in the profile too, instead
   // of misleadingly displaying the real pet's initial 0. No stat is changed.
@@ -1747,7 +1824,7 @@ void renderCardProfile() {
 #else
   drawCardStat(258, T(S_VIN), pet.bond, 100, C565(0xd4, 0x52, 0x7e));
 #endif
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (gLang == LANG_EN) {
     char social[58];
     snprintf(social, sizeof(social), "%s - %s",
@@ -2098,46 +2175,54 @@ void galleryTap(int16_t x, int16_t y) {
 }
 
 void drawBattery() {
-  int x = CX - 14, y = 12, w = 24, h = 11;
-  const int hardwarePct = batPercent();  // Real on Waveshare, ignored in PC mode.
+  const int hardwarePct = batPercent(); // Genuine AXP2101 battery reading.
 #ifdef POKEBYTE_PC
-  // The SDL emulator's stub returns a synthetic 100% charge.
-  // Never display that as a real battery measurement.
-  gfx->setTextColor(inkColor());
-  setSize(1);
-  setCur(CX - 6, y + 2);
+  // The PC stub reports a synthetic percentage, never display as a battery.
+  gfx->fillRoundRect(180, 6, 106, 32, 9, UI_WHITE);
+  gfx->setTextColor(UI_INK);
+  setSize(2);
+  setCur(CX - textW("PC", 2) / 2, 13);
   printT("PC");
   return;
 #else
-  if (hardwarePct < 0) return;  // No actual battery present on the hardware.
+  if (hardwarePct < 0) return; // No physical battery detected.
 #endif
-  int pc = hardwarePct;
-  // The Waveshare AXP2101 already provides a 0..100% battery measurement.
-  if (pc > 100) pc = 100;
+  int pct = hardwarePct;
+  if (pct > 100) pct = 100;
+  if (pct < 0) pct = 0;
   bool charging = batCharging();
-  uint16_t col = charging ? UI_BAR_OK
-                 : (pc >= 40) ? inkColor()
-                 : (pc >= 15) ? UI_BAR_WARN
-                              : UI_BAR_BAD;
-  gfx->drawRoundRect(x, y, w, h, 2, col);
-  gfx->fillRect(x + w, y + 3, 3, 5, col);  // borne
+
+  // OPAQUE cream plaque keeps both battery and numbers readable over every
+  // approved bright/day, night, or weather background.
+  // Compact header (112 px vs previous 145 px) centered above the pet.
+  // Keeps opaque contrast backing and large, readable 100% text.
+  const int px = 177, py = 13, pw = 112, ph = 34;
+  const uint16_t cream = C565(0xff, 0xfa, 0xec);
+  const uint16_t dark = C565(0x16, 0x34, 0x38);
+  const uint16_t fill = charging ? C565(0x22, 0xa8, 0x72) :
+                         pct <= 20 ? C565(0xc5, 0x4c, 0x32) :
+                                     C565(0x18, 0x7b, 0x6b);
+  gfx->fillRoundRect(px, py, pw, ph, 10, cream);
+  gfx->drawRoundRect(px, py, pw, ph, 10, dark);
+
+  const int bx = px + 9, by = py + 10, bw = 29, bh = 14;
+  gfx->drawRoundRect(bx, by, bw, bh, 3, dark);
+  gfx->fillRect(bx + bw, by + 4, 4, 7, dark);
   if (charging) {
-    // rayo de carga (zigzag) en vez de la barra de nivel
-    uint16_t bolt = C565(0xff, 0xd9, 0x4a);
-    int bx = x + w / 2;
-    gfx->fillTriangle(bx + 3, y + 1, bx - 4, y + 6, bx + 1, y + 6, bolt);
-    gfx->fillTriangle(bx - 1, y + 5, bx + 4, y + 5, bx - 3, y + 10, bolt);
+    gfx->fillTriangle(bx + 14, by + 1, bx + 9, by + 8,
+                      bx + 15, by + 8, fill);
+    gfx->fillTriangle(bx + 14, by + 6, bx + 20, by + 6,
+                      bx + 12, by + 13, fill);
   } else {
-    int fw = (w - 4) * pc / 100;
-    if (fw > 0) gfx->fillRect(x + 2, y + 2, fw, h - 4, col);
+    int inner = (bw - 6) * pct / 100;
+    if (inner > 0)gfx->fillRect(bx + 3, by + 3, inner, bh - 6, fill);
   }
-  // Battery text sits beside the existing icon; the bolt and bar are preserved.
-  char pct[6];
-  snprintf(pct, sizeof(pct), "%d%%", pc);
-  gfx->setTextColor(col);
-  setSize(1);
-  setCur(x + w + 9, y + 2);
-  printT(pct);
+  char text[8];
+  snprintf(text, sizeof(text), "%d%%", pct);
+  gfx->setTextColor(dark);
+  setSize(2);
+  setCur(px + 46, py + 10);
+  printT(text);
 }
 
 void drawHeader(const char *name, uint16_t nameColor, const char *msg) {
@@ -2489,7 +2574,7 @@ void drawPmdAct(uint8_t actId, int cx, int groundY, uint32_t t, bool loop, bool 
 
 // Surprise recovery must be a genuine normal idle, visibly distinct
 // from the preceding one-shot gesture/wander. It never edits game stats.
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
 void pokebyteFinishOneSurprise(uint32_t now) {
   pbSurpriseRunning=false;
   pbSurpriseEvent=PB_SURPRISE_NONE;
@@ -2534,7 +2619,7 @@ void behNext() {
   uint32_t now = millis();
   beh.t0 = now;
   int r = random(100);
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // Phase 3: optional PC-only context-sensitive use of existing PMD actions.
   // Normal TamaPoke behavior is the immediate fallback when the option is OFF.
   pokebyteSetSocialSnapshot(pet.geneAtk, pet.geneDef, pet.geneSpe, pet.bond);
@@ -2621,7 +2706,7 @@ void drawPetPMD() {
   uint32_t now = millis();
 
   if (pet.evolving()) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
     if(pbSurpriseRunning)pokebyteFinishOneSurprise(now);
 #endif
     drawEvolveFX(now);
@@ -2630,7 +2715,7 @@ void drawPetPMD() {
   if (evoPmd.loaded) evoPmd.unload();  // termino la evolucion: libera la forma anterior
 
   PetMood m = pet.mood();
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // A new real need takes priority over any running surprise.
   if (pbSurpriseRunning &&
       (m != MOOD_HAPPY ||
@@ -2683,7 +2768,7 @@ void drawPetPMD() {
     // Expired one-shot surprise must visibly settle into Idle first.
     // Previous demo replayed every 10 seconds, appearing permanently stuck.
     if (now > beh.until) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
       if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
       else
 #endif
@@ -2692,14 +2777,14 @@ void drawPetPMD() {
     if (beh.mode == 1) {
       float d = beh.targetX - beh.x;
       if (fabsf(d) < 4) {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
         if (pbSurpriseRunning) pokebyteAdvanceSurprise(now);
         else
 #endif
           behNext();
         act = PMD_IDLE;
       } else {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
         if(!pbSurpriseRunning || pbSurpriseEvent!=PB_SURPRISE_WANDER
            || uint32_t(now-pbSurpriseWalkTick)>=85u){
           beh.x += (d > 0 ? 3.0f : -3.0f);
@@ -2721,7 +2806,7 @@ void drawPetPMD() {
   drawPmdAct(act, (int)beh.x, PET_GROUND, now - beh.t0, loop || act == PMD_IDLE, false, 5);
 
   // The special greeting shows the already-existing heart while it plays.
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (pet.showHeart() || (pbSurpriseRunning && pbSurpriseEvent==PB_SURPRISE_FRIENDSHIP))
 #else
   if (pet.showHeart())
@@ -2848,7 +2933,7 @@ const char *eggMsg() {
 // from appearing clipped. Other languages retain their translations;
 // the original Waveshare firmware keeps its original text.
 static const char *pokebyteTiredStatus() {
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   if (gLang == LANG_EN) return "Sleepy";
 #endif
   return T(S_EXHAUSTED);
@@ -2859,7 +2944,7 @@ const char *statusMsg() {
   if (pet.sleeping) return "Zzz...";
   if (pet.eating()) return T(S_EATING);
   if (pet.showHeart()) return T(S_LIKES);
-#ifdef POKEBYTE_PC
+#if defined(POKEBYTE_PC) || defined(ARDUINO)
   // Phase 3: show exactly the same mood that selects the PMD animation.
   // Demo modes are visual-only; FOOD/ENERGY and all saved stats stay untouched.
   // Classic (P toggle) keeps the original TamaPoke wording and thresholds.
