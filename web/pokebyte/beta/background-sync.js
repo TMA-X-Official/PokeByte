@@ -1,95 +1,100 @@
-/* PokéByte Phase 4: owner-approved scene installer via browser Web Serial.
-   No SD reader or desktop utility; never formats or overwrites existing files.
-   Hosted bundle preferred; until approved art is published, choose the owner's
-   exact Phase 3 approved Windows ZIP once using the input in the same website.
-   Firmware PBCAPS/PBCRC/PBPUT/1 required. */
-const $=id=>document.getElementById(id);
-const state={files:null,source:"",busy:false};
-const encoder=new TextEncoder();
-const decoder=new TextDecoder();
-let serial=null;
-function log(message){
-  const node=$("assetLog");
-  node.textContent+=String(message)+"\n";
-  node.scrollTop=node.scrollHeight;
+/* PokéByte integrated beta installer, firmware -> original scenery setup.
+ * The webpage fetches the exact approved scene bundle automatically.
+ * ESP Web Tools flashes firmware; this controller then reconnects the device
+ * (with already-granted browser permission where possible) and writes missing
+ * original BMPs through the non-overwriting PBCAPS/PBCRC/PBPUT protocol.
+ * No separate background-installer action, ZIP download or SD card reader.
+ */
+const pb$=id=>document.getElementById(id);
+const PB={files:null,manifest:null,ready:false,busy:false,flashStarted:false,complete:false,
+  error:null,port:null,device:null};
+const pbEncoder=new TextEncoder();
+const pbDecoder=new TextDecoder();
+const crcTable=(()=>{const a=new Uint32Array(256);for(let n=0;n<256;++n){let c=n;for(let j=0;j<8;++j)c=(c>>>1)^((c&1)?0xedb88320:0);a[n]=c>>>0;}return a;})();
+function pbCrc32(buffer){
+  let crc=0xffffffff;
+  for(const b of buffer)crc=(crc>>>8)^crcTable[(crc^b)&255];
+  return ((~crc)>>>0).toString(16).padStart(8,"0");
 }
-function bytesHex(data){return Array.from(new Uint8Array(data),b=>b.toString(16).padStart(2,"0")).join("");}
-async function digest(data){return bytesHex(await crypto.subtle.digest("SHA-256",data));}
-const TABLE=(()=>{const a=new Uint32Array(256);for(let n=0;n<256;++n){let c=n;for(let j=0;j<8;++j)c=(c>>>1)^((c&1)?0xedb88320:0);a[n]=c>>>0;}return a})();
-function crc32(buffer){let crc=0xffffffff;for(const b of buffer)crc=(crc>>>8)^TABLE[(crc^b)&255];return ((~crc)>>>0).toString(16).padStart(8,"0");}
-async function unzipApproved(raw,source,manifest){
-  if(!window.fflate?.unzipSync)throw Error("ZIP decoder unavailable. Reload the page in Chrome or Edge.");
-  const files=window.fflate.unzipSync(new Uint8Array(raw));
-  const wanted=manifest.files;
-  const found=new Map();
-  for(const entry of wanted){
-    const matches=Object.entries(files).filter(([name])=>name==="assets/"+entry.name || name===entry.name);
-    if(matches.length!==1)throw Error("Approved ZIP missing or duplicates "+entry.name);
-    const bytes=matches[0][1];
-    if(bytes.length!==entry.bytes)throw Error("File size does not match approved original: "+entry.name);
-    if(crc32(bytes)!==entry.crc32)throw Error("Background differs from approved original (CRC): "+entry.name);
-    if(await digest(bytes)!==entry.sha256)throw Error("Background differs from approved original (SHA-256): "+entry.name);
-    found.set(entry.name,bytes);
+function pbHex(data){return Array.from(new Uint8Array(data),b=>b.toString(16).padStart(2,"0")).join("");}
+async function pbSha256(data){return pbHex(await crypto.subtle.digest("SHA-256",data));}
+function pbLog(message){
+  const el=pb$("setupLog");
+  if(el){el.textContent+=String(message)+"\n";el.scrollTop=el.scrollHeight;}
+}
+function pbProgress(message){
+  const el=pb$("setupStatus");if(el)el.textContent=message;
+}
+function pbResume(enabled,text){
+  const el=pb$("resumeSetup");
+  if(!el)return;
+  el.hidden=!enabled;
+  if(text)el.textContent=text;
+}
+function pbDispatchReady(){window.dispatchEvent(new CustomEvent("pokebyte-scenes-ready",{detail:{ready:PB.ready}}));}
+async function pbLoadArt(){
+  pbProgress("Preparing the official approved scenery pack (12 files)...");
+  const res=await fetch("./approved-backgrounds.json",{cache:"no-store"});
+  if(!res.ok)throw Error("Approved scenery manifest unavailable on this website");
+  const m=await res.json();
+  if(m.files?.length!==12||!m.approvedBundleZipSHA256)throw Error("Incomplete approved art manifest");
+  const zip=await fetch("./approved-backgrounds.zip",{cache:"no-store"});
+  if(!zip.ok)throw Error("The 12 original approved backgrounds have not been published to GitHub Pages yet");
+  const raw=await zip.arrayBuffer();
+  if(await pbSha256(raw)!==m.approvedBundleZipSHA256)
+    throw Error("Website artwork package does not match the owner-approved original bundle");
+  if(!window.fflate?.unzipSync)throw Error("ZIP decoder unavailable. Reload the installer in Chrome/Edge");
+  const entries=window.fflate.unzipSync(new Uint8Array(raw));
+  const files=new Map();
+  for(const art of m.files){
+    const keys=Object.keys(entries).filter(name=>name==="assets/"+art.name);
+    if(keys.length!==1)throw Error("Missing or duplicate approved artwork: "+art.name);
+    const bytes=entries[keys[0]];
+    if(bytes.length!==art.bytes||pbCrc32(bytes)!==art.crc32||
+       await pbSha256(bytes)!==art.sha256)
+      throw Error("Wrong background bytes; refused: "+art.name);
+    files.set(art.name,bytes);
   }
-  state.files=found;
-  state.source=source;
-  $("installScenes").disabled=false;
-  log("Verified all "+found.size+" exact user-approved backgrounds from "+source+".");
-  $("assetStatus").textContent="Approved backgrounds verified. Ready to install missing scenes.";
+  PB.files=files;PB.manifest=m;PB.ready=true;PB.error=null;
+  pbProgress("Approved background bundle verified (12/12). Ready for the full PokéByte installation.");
+  pbLog("Official hosted BMPs verified byte-for-byte. Original sprites on microSD will not be touched.");
+  pbDispatchReady();
 }
-async function manifest(){
-  const r=await fetch("approved-backgrounds.json",{cache:"no-store"});
-  if(!r.ok)throw Error("Unable to load the approved-art integrity manifest");
-  return r.json();
-}
-async function tryHosted(){
-  const m=await manifest();
-  const r=await fetch("approved-backgrounds.zip",{cache:"no-store"});
-  if(!r.ok)throw Error("Hosted approved-art pack not published yet");
-  const raw=await r.arrayBuffer();
-  await unzipApproved(raw,"verified hosted pack",m);
-}
-async function useOwnerArchive(file){
-  const m=await manifest();
-  const raw=await file.arrayBuffer();
-  const zipSha=await digest(raw);
-  if(zipSha!==m.approvedSourceZipSHA256 && zipSha!==m.approvedBundleZipSHA256)
-    throw Error("Wrong ZIP. Choose the exact approved Phase 3 Windows ZIP or the verified approved-backgrounds.zip, not a CI/test image.");
-  await unzipApproved(raw,"verified owner-approved ZIP",m);
-}
-
-class PBSerial {
-  constructor(port){this.port=port;this.decoder=new TextDecoder();this.lines=[];this.waiting=null;this.buffer="";this.closed=false;}
+class PBDeviceSerial{
+  constructor(port){this.port=port;this.decoder=new TextDecoder();this.lines=[];this.waiting=null;this.buf="";this.closed=false;}
   async open(){
     await this.port.open({baudRate:115200,bufferSize:8192});
     this.reader=this.port.readable.getReader();
     this.writer=this.port.writable.getWriter();
-    this.pump=this.readLoop();
+    this.pump=this.loop();
   }
-  async readLoop(){
+  async loop(){
     try{
       for(;;){
         const {value,done}=await this.reader.read();
         if(done)break;
-        this.buffer+=this.decoder.decode(value,{stream:true});
-        let end;
-        while((end=this.buffer.indexOf("\n"))!==-1){
-          const line=this.buffer.slice(0,end).trim();
-          this.buffer=this.buffer.slice(end+1);
+        this.buf+=this.decoder.decode(value,{stream:true});
+        let i;
+        while((i=this.buf.indexOf("\n"))!==-1){
+          const line=this.buf.slice(0,i).trim();
+          this.buf=this.buf.slice(i+1);
           if(!line)continue;
-          if(this.waiting){const x=this.waiting;this.waiting=null;clearTimeout(x.timer);x.resolve(line);}
+          if(this.waiting){const w=this.waiting;this.waiting=null;clearTimeout(w.timer);w.resolve(line);}
           else this.lines.push(line);
-          if(this.lines.length>120)this.lines.splice(0,this.lines.length-100);
+          if(this.lines.length>150)this.lines.splice(0,100);
         }
       }
-    }catch(error){if(!this.closed)log("Device connection closed: "+error.message);}
-    finally{this.closed=true;if(this.waiting){let w=this.waiting;this.waiting=null;clearTimeout(w.timer);w.reject(Error("USB connection closed"));}}
+    }catch(e){if(!this.closed)pbLog("USB disconnected: "+e.message);}
+    finally{
+      this.closed=true;
+      if(this.waiting){const w=this.waiting;this.waiting=null;clearTimeout(w.timer);w.reject(Error("USB connection closed"));}
+    }
   }
   async line(timeout=15000){
     if(this.lines.length)return this.lines.shift();
-    if(this.closed)throw Error("USB disconnected");
+    if(this.closed)throw Error("USB connection closed");
     return new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>{if(this.waiting){this.waiting=null;reject(Error("USB timed out"));}},timeout);
+      const timer=setTimeout(()=>{if(this.waiting){this.waiting=null;reject(Error("USB response timed out"));}},timeout);
       this.waiting={resolve,reject,timer};
     });
   }
@@ -97,122 +102,134 @@ class PBSerial {
     const deadline=Date.now()+timeout;
     while(Date.now()<deadline){
       const line=await this.line(Math.max(1,deadline-Date.now()));
+      if(line.startsWith("ERR")||line==="EXISTS")
+        throw Error("Device refused operation: "+line);
       if(match(line))return line;
-      if(line.startsWith("ERR") || line==="EXISTS")throw Error("Device refused operation: "+line);
     }
-    throw Error("USB response timeout");
+    throw Error("Device did not respond");
   }
-  async ascii(message){await this.writer.write(encoder.encode(message+"\n"));}
+  async command(cmd){await this.writer.write(pbEncoder.encode(cmd+"\n"));}
   async close(){
     this.closed=true;
-    try{await this.reader.cancel();}catch(e){}
-    try{this.reader.releaseLock();}catch(e){}
-    try{this.writer.releaseLock();}catch(e){}
-    try{await this.port.close();}catch(e){}
+    try{await this.reader?.cancel();}catch{}
+    try{this.reader?.releaseLock();}catch{}
+    try{this.writer?.releaseLock();}catch{}
+    try{await this.port.close();}catch{}
   }
 }
-async function getDeviceCrc(pb,path){
-  await pb.ascii("PBCRC "+path);
-  const line=await pb.until(l=>l==="MISSING"||l==="DONE"||l.startsWith("CRC ")||l.startsWith("ERR"),20000);
+async function pbReadCrc(dev,path){
+  await dev.command("PBCRC "+path);
+  const line=await dev.until(l=>l==="MISSING"||l.startsWith("CRC "),20000);
   if(line==="MISSING")return null;
-  if(!line.startsWith("CRC "))throw Error("Unexpected PBCRC answer: "+line);
-  const result=line.match(/^CRC (\d+) ([0-9a-fA-F]{8})$/);
-  if(!result)throw Error("Invalid PBCRC response: "+line);
-  await pb.until(l=>l==="DONE",15000);
-  return {bytes:Number(result[1]),crc32:result[2].toLowerCase()};
+  const match=line.match(/^CRC (\d+) ([a-fA-F0-9]{8})$/);
+  if(!match)throw Error("Unrecognized device checksum response");
+  await dev.until(l=>l==="DONE",15000);
+  return {size:Number(match[1]),crc32:match[2].toLowerCase()};
 }
-async function putMissing(pb,entry,data){
-  await pb.ascii("PBPUT "+entry.path+" "+entry.bytes+" "+entry.crc32.toUpperCase());
-  await pb.until(l=>l==="OK"||l==="EXISTS"||l.startsWith("ERR"),15000);
-  const chunk=2048;
-  for(let off=0;off<data.length;off+=chunk){
-    await pb.writer.write(data.subarray(off,Math.min(data.length,off+chunk)));
-    await pb.until(l=>l==="#"||l.startsWith("ERR"),20000);
-    if((off/chunk)%32===0)$("assetStatus").textContent=
-      "Uploading "+entry.name+": "+Math.round(100*off/data.length)+"%";
+async function pbInstallOne(dev,art,bytes){
+  await dev.command("PBPUT "+art.path+" "+art.bytes+" "+art.crc32.toUpperCase());
+  await dev.until(l=>l==="OK",15000);
+  for(let off=0;off<bytes.length;off+=2048){
+    await dev.writer.write(bytes.subarray(off,Math.min(off+2048,bytes.length)));
+    // Firmware now acks once per complete 2048-byte frame, not short USB packets.
+    await dev.until(l=>l==="#",20000);
+    if(off%(2048*16)===0)pbProgress("Installing "+art.name+" — "+Math.round(off*100/bytes.length)+"%");
   }
-  await pb.until(l=>l==="DONE"||l.startsWith("ERR"),20000);
-  const confirmed=await getDeviceCrc(pb,entry.path);
-  if(!confirmed||confirmed.bytes!==entry.bytes||confirmed.crc32!==entry.crc32)
-    throw Error("Device checksum didn't match after upload: "+entry.name);
+  await dev.until(l=>l==="DONE",15000);
+  const verified=await pbReadCrc(dev,art.path);
+  if(!verified||verified.size!==art.bytes||verified.crc32!==art.crc32)
+    throw Error("Device verification failed for "+art.name);
 }
-
-async function sync(){
-  if(state.busy||!state.files) return;
-  if(!navigator.serial)throw Error("Web Serial requires desktop Chrome/Edge over HTTPS.");
-  state.busy=true;$("installScenes").disabled=true;
+async function pbSyncWithPort(port){
+  if(PB.busy||PB.complete)return;
+  if(!PB.ready)throw Error("Approved artwork not yet hosted or verified. No SD changes made.");
+  PB.busy=true;pbResume(false);
+  let dev;
   try{
-    const m=await manifest();
-    log("Requesting Waveshare COM port. Choose the same ESP32-S3 you flashed.");
-    const port=await navigator.serial.requestPort();
-    serial=new PBSerial(port);
-    await serial.open();
-    // Opening USB CDC may reset the board; give the SD stack time to mount.
-    await new Promise(r=>setTimeout(r,1900));
-    await serial.ascii("PBCAPS");
-    const caps=await serial.until(l=>l.startsWith("POKEBYTE-ASSETS/1")||l.startsWith("ERR"),15000);
-    if(!caps.startsWith("POKEBYTE-ASSETS/1"))throw Error("Device doesn't have the safe PokeByte background-transfer protocol");
-    await serial.until(l=>l==="DONE",12000);
-    let installed=0,skipped=0;
-    for(const entry of m.files){
-      $("assetStatus").textContent="Checking "+entry.name+" ("+(installed+skipped+1)+"/12)";
-      const have=await getDeviceCrc(serial,entry.path);
-      if(have){
-        if(have.bytes!==entry.bytes||have.crc32!==entry.crc32){
-          throw Error("The SD card already contains a DIFFERENT file at "+entry.path+". Refusing to overwrite it. Existing card files remain untouched.");
-        }
-        skipped++;log("Already correct: "+entry.name);continue;
+    pbProgress("Connecting to PokéByte after firmware installation...");
+    dev=new PBDeviceSerial(port);
+    await dev.open();
+    // Native USB CDC may restart the board; let SD_MMC mount first.
+    await new Promise(resolve=>setTimeout(resolve,1900));
+    await dev.command("PBCAPS");
+    await dev.until(l=>l.startsWith("POKEBYTE-ASSETS/1"),15000);
+    await dev.until(l=>l==="DONE",15000);
+    let copied=0,skipped=0;
+    for(const art of PB.manifest.files){
+      pbProgress("Checking approved scenes "+(copied+skipped+1)+"/12: "+art.name);
+      const existing=await pbReadCrc(dev,art.path);
+      if(existing){
+        if(existing.size!==art.bytes||existing.crc32!==art.crc32)
+          throw Error("An existing SD file differs from approved "+art.name+". Refusing to overwrite it.");
+        skipped++;pbLog("Existing original verified: "+art.name);continue;
       }
-      log("Installing approved "+entry.name+"…");
-      await putMissing(serial,entry,state.files.get(entry.name));
-      installed++;log("Verified on microSD: "+entry.name);
+      pbLog("Copying missing original BMP "+art.name);
+      await pbInstallOne(dev,art,PB.files.get(art.name));
+      copied++;pbLog("Installed and verified: "+art.name);
     }
-    $("assetStatus").textContent="Success: "+installed+" installed, "+skipped+" already correct. Restart your Waveshare to load the new scenes.";
-    log("SUCCESS. All twelve approved backgrounds verified on microSD. No existing file was overwritten.");
+    PB.complete=true;
+    pbProgress("PokéByte setup complete: "+copied+" backgrounds installed, "+skipped+" verified. Restart the Waveshare to show the new scenery.");
+    pbLog("SUCCESS — original microSD sprites preserved. No existing file overwritten.");
+    pbResume(false);
   }finally{
-    if(serial)await serial.close();
-    serial=null;state.busy=false;
-    $("installScenes").disabled=!(state.files&&state.files.size===12);
+    try{await dev?.close();}catch{}
+    PB.busy=false;
   }
 }
-function initBackgroundInstaller(){
-  // Work whether script loaded before or after DOMContentLoaded.
-  const file=$("approvedZip");
-  if(!file || !$("assetStatus"))return;
-  $("assetStatus").textContent="Preparing approved PokéByte backgrounds…";
-  file.addEventListener("change",async()=>{
+async function pbAutomaticFinish(){
+  if(PB.busy||PB.complete)return;
+  if(!PB.ready){pbProgress("Cannot finish setup: approved scenery not hosted. No SD changes made.");return;}
+  if(!navigator.serial){pbProgress("Use desktop Chrome or Edge with Web Serial support.");return;}
+  // Run only after ESP Web Tools has released the port.
+  await new Promise(resolve=>setTimeout(resolve,1400));
+  const granted=await navigator.serial.getPorts();
+  if(granted.length===1){
     try{
-      if(!file.files?.length)return;
-      $("assetStatus").textContent="Checking original ZIP integrity…";
-      await useOwnerArchive(file.files[0]);
-    }catch(err){log("Rejected: "+err.message);$("assetStatus").textContent=err.message;}
+      await pbSyncWithPort(granted[0]);
+      return;
+    }catch(e){pbLog("Automatic reconnect could not finish: "+e.message);}
+  }
+  pbProgress("Firmware window closed. To finish this same installation, reconnect your Waveshare using the browser's USB permission dialog.");
+  pbResume(true,"Continue PokéByte installation");
+}
+async function pbUserFinish(){
+  if(PB.busy||PB.complete)return;
+  if(!PB.ready){pbProgress("Original artwork must be available before continuing.");return;}
+  try{
+    // Web Serial's first-time chooser requires a *direct user click*.
+    const port=await navigator.serial.requestPort();
+    await pbSyncWithPort(port);
+  }catch(e){
+    pbLog("Setup paused without overwriting SD content: "+e.message);
+    pbProgress("Setup not completed: "+e.message);
+    pbResume(true,"Retry PokéByte setup");
+  }
+}
+function pbInit(){
+  pb$("resumeSetup")?.addEventListener("click",pbUserFinish);
+  pb$("install")?.addEventListener("click",()=>{
+    PB.flashStarted=true;pbResume(false);
+    pbProgress("Firmware installer opened. Complete flashing; approved backgrounds follow automatically.");
   });
-  $("installScenes").addEventListener("click",async()=>{
-    try{await sync();}catch(e){log("Stopped safely: "+e.message);$("assetStatus").textContent="Stopped: "+e.message;}
-  });
-  $("detectHostedScenes").addEventListener("click",async()=>{
-    $("assetStatus").textContent="Checking the official hosted artwork…";
-    try{
-      await tryHosted();
-      const picker=$("approvedZipWrapper");
-      if(picker)picker.hidden=true;
-      const note=$("assetSourceNote");
-      if(note)note.textContent="Approved scenery package loaded automatically—no ZIP selection required.";
-    }catch(err){
-      $("assetStatus").textContent="Approved scenes have not been uploaded to the website yet. Once the repository owner adds them, this button will work automatically.";
-      log("No hosted pack: "+err.message);
+  // ESP Web Tools fires 'closed' on its install dialog, after both success
+  // and cancellation. Never infer success from this; PBCAPS verifies that
+  // PokéByte firmware actually booted before we access the microSD.
+  document.addEventListener("closed",event=>{
+    if(event.target?.tagName==="EWT-INSTALL-DIALOG" && PB.flashStarted){
+      PB.flashStarted=false;
+      pbAutomaticFinish().catch(e=>{
+        pbLog("Unable to reconnect after flashing: "+e.message);
+        pbProgress("Firmware setup could not be verified. No scenery changed.");
+        pbResume(true,"Continue PokéByte installation");
+      });
     }
-  });
-  tryHosted().then(()=>{
-    const picker=$("approvedZipWrapper");
-    if(picker)picker.hidden=true;
-    const note=$("assetSourceNote");
-    if(note)note.textContent="All 12 original backgrounds downloaded and verified automatically. Connect the Waveshare and click Install backgrounds via USB.";
-  }).catch(err=>{
-    log("Official scenery package not published yet: "+err.message);
-    $("assetStatus").textContent=
-      "Approved backgrounds are not hosted yet. The repository owner must upload approved-backgrounds.zip once. In the meantime, the approved ZIP on your PC can be used.";
+  },true);
+  pbLoadArt().catch(e=>{
+    PB.ready=false;PB.error=e.message;
+    pbProgress("Installation preparation stopped: "+e.message);
+    pbLog("ERROR: "+e.message);
+    pbDispatchReady(); // disables new installation until assets hosted
   });
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initBackgroundInstaller,{once:true});
-else initBackgroundInstaller();
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",pbInit,{once:true});
+else pbInit();
