@@ -19,9 +19,9 @@ assert "dimStage = 0;" in bright and "screenOff ? 0" in bright
 assert "idle > " not in bright and "pet.sleeping ? 25" not in bright
 assert "lastPendingSaveFlush" in sketch and "pet.flushSave();" in sketch
 assert "const int16_t amp = 2500;" in audio
-assert "const int px = 164, py = 13" in sketch
+assert "const int px = 177, py = 13, pw = 112, ph = 34;" in sketch
 assert "gfx->fillRoundRect(px, py, pw, ph" in sketch
-assert 'setSize(2);\n  setCur(px + 63' in sketch
+assert 'setSize(2);\n  setCur(px + 46' in sketch
 
 assert len(manifest["files"])==12
 assert manifest["approvedSourceZipSHA256"]=="2b2e185737e182c84dbbd39594f823fa36ac74d589b4d4b5a826e674f37e61c0"
@@ -36,15 +36,19 @@ assert 'SD_MMC.remove(path)' not in safe
 assert 'SD_MMC.rename(temp,path)' in safe
 assert 'SD_MMC.begin("/sdcard", true /* 1-bit SDMMC */, false' in sd
 
-assert "background-sync.js" in installer and "approvedZip" in installer
-assert "installScenes" in installer and "assetLog" in installer
-for marker in ("approvedSourceZipSHA256", "digest(bytes)", "crc32(bytes)",
-               "getDeviceCrc", "PBCRC ", "PBPUT ", "PBCAPS", "Already correct",
-               "requestPort", "never"):
-    if marker == "never":continue
+assert 'src="./background-sync.js"' in installer
+assert 'id="install"' in installer and 'id="resumeSetup"' in installer
+assert 'id="setupStatus"' in installer and 'id="setupLog"' in installer
+assert 'id="installScenes"' not in installer, "Standalone background installer must be removed"
+assert 'id="approvedZip"' not in installer, "Public install should not ask for a ZIP"
+assert 'approvedArtworkReady&&consent.checked' in installer, "Block firmware if exact art absent"
+for marker in ("approvedBundleZipSHA256","pbSha256(bytes)","pbCrc32(bytes)",
+               "pbReadCrc","PBCRC ","PBPUT ","PBCAPS","getPorts",
+               "requestPort","pbAutomaticFinish","pokebyte-scenes-ready"):
     assert marker in sync,marker
+assert "f.write(chunk,got)" in sd and "got!=want" in sd, "USB frame ack must be exact"
 assert "shutil.copyfile(\"web/pokebyte/beta/background-sync.js\"" in builder
 assert "approved-backgrounds.zip" in builder and "zipfile.ZipFile" in builder
 assert "sha(raw)" in builder and "zlib.crc32(raw)" in builder
 print("PASS: awake screen never auto-dims, 50%-amplitude SFX, high-contrast 2x battery, periodic saves")
-print("PASS: exact 12 original BMP scene hashes, no-overwrite USB upload, browser asset installer integration")
+print("PASS: unified firmware-to-original-scene installation, strict art preflight, no separate background installer")
