@@ -53,9 +53,9 @@ async function useOwnerArchive(file){
   const m=await manifest();
   const raw=await file.arrayBuffer();
   const zipSha=await digest(raw);
-  if(zipSha!==m.approvedSourceZipSHA256)
-    throw Error("Wrong ZIP. Select the exact approved Phase 3 Windows test ZIP, not an old CI/test image.");
-  await unzipApproved(raw,"original approved Phase 3 ZIP",m);
+  if(zipSha!==m.approvedSourceZipSHA256 && zipSha!==m.approvedBundleZipSHA256)
+    throw Error("Wrong ZIP. Choose the exact approved Phase 3 Windows ZIP or the verified approved-backgrounds.zip, not a CI/test image.");
+  await unzipApproved(raw,"verified owner-approved ZIP",m);
 }
 
 class PBSerial {
