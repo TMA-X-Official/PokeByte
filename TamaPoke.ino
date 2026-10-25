@@ -665,9 +665,9 @@ static bool starterRegionDone = false;
 volatile bool gTouchIrq = false;
 void IRAM_ATTR touchIsr() { gTouchIrq = true; }
 uint32_t lastRender = 0;
-// AMOLED protection: dimmed on inactivity
+// AMOLED protection: dim after 5 minutes idle, near-dark after 15 minutes
 uint32_t lastInteract = 0;
-uint8_t dimStage = 0;        // 0 despierto, 1 atenuado (90s), 2 casi apagado (5min)
+uint8_t dimStage = 0;        // 0 awake, 1 dimmed (5 min), 2 near-dark (15 min)
 bool swallowGesture = false; // el toque que despierta no acciona nada
 bool sliderDrag = false;     // this touch began on the volume slider
 uint32_t holdStart = 0;     // pulsacion larga sobre el bicho
@@ -886,8 +886,8 @@ void loop() {
 
   // flush the periodic autosave ONLY with the screen dimmed/off or
   // asleep: the NVS write freezes both cores for ~1s (flash cache off),
-  // and there is no animation to cut or finger waiting for a response here. With 90s
-  // of inactivity the screen already dims, so it flushes right away; active
+  // and there is no animation to cut or finger waiting for a response here. After 5 min
+  // of inactivity the screen dims, so it flushes then; active
   // use persists anyway through the saves of each action (eat/play/...).
   if (pet.savePending() && (screenOff || dimStage >= 1 || pet.sleeping)) {
     pet.flushSave();
@@ -918,19 +918,24 @@ void loop() {
   }
 }
 
-// brightness according to user setting, intentional sleep, and power button
+// brightness according to user setting, inactivity, intentional sleep, and PWR
 void updateBrightness(uint32_t now) {
   // visible events wake the screen by themselves
   if (pet.evolving() || pet.ceremony || pet.eating() || pet.showHeart()) {
     lastInteract = now;
   }
   uint32_t idle = now - lastInteract;
-  dimStage = (idle > 300000) ? 2 : (idle > 90000) ? 1 : 0;
-  // User brightness is stable while awake; intentional pet sleep may still dim.
+  dimStage = (idle >= 900000UL) ? 2 : (idle >= 300000UL) ? 1 : 0;
   uint8_t base = (uint8_t)(gBright * 255 / 10);
   uint8_t target = pet.sleeping ? 25 : base;
-  // PokeByte: do not automatically dim an active screen after inactivity.
-  // Keep dimStage for deferred save flushing; preserve sleep and PWR behavior.
+  // AMOLED protection: after 5 min cap at 40% of the chosen brightness;
+  // after 15 min cap at 8/255. Never brighten a dim user setting.
+  if (dimStage == 1) {
+    uint8_t dimmed = (uint8_t)(((uint16_t)base * 40U) / 100U);
+    target = target < dimmed ? target : dimmed;
+  } else if (dimStage == 2) {
+    target = target < 8 ? target : 8;
+  }
   if (screenOff) target = 0;
   static uint8_t current = 255;
   if (target != current) {
@@ -1288,7 +1293,7 @@ void handleTouch() {
     tY0 = tYl = y;
     tStart = millis();
     holdFired = false;
-    swallowGesture = screenOff;  // only the deliberately powered-off screen consumes a wake tap
+    swallowGesture = (dimStage > 0) || screenOff;  // first touch wakes a dim/off screen without triggering an action
     sliderDrag = !swallowGesture && clockSliderHit(x, y);
     if (sliderDrag) { swallowGesture = true; clockSliderSet(x); }
     if (screenOff) pet.setScreenOff(false);        // waking the screen wakes it
