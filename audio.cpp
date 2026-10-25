@@ -113,7 +113,7 @@ static int16_t buf[256 * 2];  // estéreo intercalado (L=R)
 static void playTone(uint16_t f, uint16_t ms) {
   int total = SAMPLE_RATE * ms / 1000;
   int half = f ? (SAMPLE_RATE / (2 * f)) : 0;  // medio periodo en muestras
-  const int16_t amp = 5000;
+  const int16_t amp = 2500;  // PokéByte: half original PCM amplitude (-6 dB) for all SFX
   int phase = 0, done = 0;
   bool high = true;
   while (done < total) {
